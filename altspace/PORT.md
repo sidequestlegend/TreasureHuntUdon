@@ -374,7 +374,7 @@ Not `single`: several hunts can share a world.
 | `prize-cost` | `30` | `PPP:67` |
 | `prize` | `true` | Show the kit's own prize |
 | `prize-position`, `prize-rotation` | `0.913 0.708 0.759`, `0 0 0` | `PPP:32` |
-| `prize-object` | empty | Name of an object in the creator's own scene to show instead of, or with, the kit prize. Found with `scene.Find` (`SDK/Docs/javascript-api/scene-api.md:54`), which needs a BS Object Id on the object (`SDK/Docs/javascript-api/photos.md:28`). This replaces "drop prize into Container" (`README.md:21`) |
+| `prize-object` | (not declared) | **Left out** (10.1 row 4). Planned: the name of an object in the creator's own scene to show with the kit prize, found with `scene.Find`. The runtime has no lookup of a creator's object by name, so the script only warns once when a hand-edited element sets it, and the markup does not declare it |
 | `personal-list`, `personal-list-rotation` | `0.75 0.898 1.359`, `0 0 0` | `THP:3033-3043` |
 | `find-distance` | `0.7` | `THP:4308` |
 | `zone1`, `zone1-size`, `zone1-rotation` | `-0.154 0.553 1.579`, `1.377 0.792 0.642`, `0 0 0` | Section 5.1 |
@@ -384,7 +384,7 @@ Not `single`: several hunts can share a world.
 | `show-zones` | `false` | Draw the real boxes in the world, as upstream's outline cubes do (`THP:791`) |
 | `credits` | `true` | Credits and "saved on this device only" line |
 
-All positions are world values, as the SDK requires for gizmo previews to be true (`SDK/Docs/building-in-unity/snippets.md:100-105`). The defaults are the demo layout as if the upstream prefab root sat at the world origin. Moving the scoreboard does not move the zones: they are the creator's own places. The script also accepts `zone9` and up on a hand-edited element.
+All positions are world values, as the SDK requires for gizmo previews to be true (`SDK/Docs/building-in-unity/snippets.md:100-105`). The defaults are the demo layout as if the upstream prefab root sat at the world origin. Moving the scoreboard does not move the zones: they are the creator's own places. As built, the exported markup declares every row of this table but `prize-object` (`scale` included, default `1`), and the script reads `zone1` to `zone8` only (`MAX_ZONES`, one zone per preview cube in the kit); `ts/test/markup.test.ts` checks that the builder's list and the script agree, defaults included.
 
 ### 8.2 Gizmos, and a limit that affects the plan
 
@@ -404,6 +404,10 @@ Per placeable: one `position` handle and one shape.
 2. Two corner handles per zone (`zoneN-a`, `zoneN-b`): both ends draggable in the Scene view with what the SDK already has; loses rotated zones.
 3. A small SDK change so a box can take its size from a setting. Best for creators; needs the SDK owner.
 
+As built (option 1, `TreasureHuntKitBuilder.SnippetGizmos`): a handle and a plane for the personal list, a handle and a
+sphere for the prize, a handle and a box at the default size for zones 1 to 3, and a handle only for the spare zones 4 to
+8 (their default size is 0, so a box would draw nothing). They follow the kit's own position handle and box.
+
 ### 8.3 Per-instance
 
 Holder name, relay payload prefix, every space-state key, the one-shot envelope, the two user-state leaves, the two `localStorage` keys, and the one network id (`pk1/treasure-hunt/<inst>/prizeCheese`). Treasures are not networked objects: each client places them from state, so the room's 1,024 object limit is untouched.
@@ -412,7 +416,7 @@ Holder name, relay payload prefix, every space-state key, the one-shot envelope,
 
 | Action | VR | Desktop | Notes |
 |---|---|---|---|
-| Find a treasure | Point at it and pull the trigger (click on its layer-5 sphere) | Look at it and click | Accepted only if the nearest of the local head and hands is within `find-distance`. Upstream is the same gesture with a 0.7 m limit and a "Found!" label; the label is lost |
+| Find a treasure | Point at it and pull the trigger (click on its layer-5 sphere) | Look at it and click | Accepted only if the nearest of the local head and hands is within `find-distance`, never while the page knows no position for the player, and then by the referee only if the finder's head, as the referee's app shows it, is within `find-distance` + 2.5 m. Upstream is the same gesture with a 0.7 m limit and a "Found!" label; the label is lost |
 | See own totals | Look at the personal list | Same | No input |
 | See everyone's totals | Look at the scoreboard | Same | No input |
 | Take the prize | Grab the cheese (`BS.Grababble`) | Mouse grab, if the app offers it on a flat screen; not verified | Only while an eligible player is present |
@@ -483,8 +487,8 @@ Not suited to vectors: anything about who owns, ordering between clients, late j
 | 1 | Totals saved per account (item 49) | Saved per device, stated on the credits line | Platform has no per-player save (section 3.4) |
 | 2 | One prize copy per eligible player (item 45) | One prize per hunt, shown while any present player is eligible | No PlayerObjects |
 | 3 | Creator drops own meshes into the pool; names become keys (`README.md:19-20`) | Fixed kinds Coin, Gem, Star with count settings | A kit bundle cannot reference a creator's assets; settings are flat strings |
-| 4 | Creator drops anything into the prize container (`README.md:21-22`) | Kit prize, or the creator's own object named in `prize-object` | Same |
-| 5 | Any number of zones as scene objects | Eight slots as settings | Snippet settings are fixed by the definition |
+| 4 | Creator drops anything into the prize container (`README.md:21-22`) | **Left out:** the kit's own prize (the cheese) only. `prize-object` (a creator's own object by name) was planned, but the runtime cannot look up a creator's object by name; the script warns once if a hand-edited element sets it, and does nothing else | Same, and no scene lookup by name (GAPS.md) |
+| 5 | Any number of zones as scene objects | Eight slots as settings, `zone1` to `zone8`, all declared in the markup with a position handle each; the script reads no more | Snippet settings are fixed by the definition; the kit has eight preview cubes |
 | 6 | Treasures appear for a late joiner on the next event (item 51); the owner sends `ReplicateStates` every cycle, even at the cap (item 18) | Shown as soon as state arrives; `ReplicateStates` runs on state arrival, the separate event is dropped, and nothing is written in a cycle that spawns nothing | Removes the ordering hazard and the empty-room wait; saves one message and one write per cycle |
 | 7 | Timers 0/0 fault (item 20) | **Fixed.** A spawn cycle is never shorter than 0.25 s (`MIN_CYCLE_SECONDS`), for any timer setting; 0/0 means one spawn every 0.25 s until the cap | A fault is not a feature; shared 20 per second write budget |
 | 8 | Both players credited on a simultaneous find (item 27) | **Fixed.** A find is a request to the referee (`SendCommand("ReturnItem", index, spawnSerial)`); the referee accepts the first request for that spawn of that treasure and records the finder's session in the synced `foundBy`; the finder is credited when it sees its own session there. A later request for the same spawn is refused | Space state is last-writer-wins, which makes the race more likely than on VRChat |
@@ -495,7 +499,9 @@ Not suited to vectors: anything about who owns, ordering between clients, late j
 | 10 | Wrappers, return buttons, rows and effects created at run time | Built into the kit; rows and effects pooled | Relay refs are fixed at build |
 | 11 | More than 16 rows exist but are clipped (item 37) | 16 rows per list | Same visible result |
 | 11a | Scoreboard order is wrong from four players (item 35) | **Fixed.** Highest first, equal scores in join order (`SortListOfDictionaries`); upstream's loop is kept as `UpstreamSortListOfDictionaries` only for the test vectors | Coordinator decision: a plain bug |
-| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands; with no pose reported yet every click counts (the runtime's own rule) | No hover text for clicks; `Input.InReach` with the setting |
+| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands (`Input.InReach`). With no position known yet (no pose, no teleport, no start reading) no click counts: the port fails closed where the runtime's `InReach` lets every click count | No hover text for clicks |
+| 12a | The finder's client alone decides that a find is in reach (Interact is client-side), so a modified client finds every treasure from anywhere | The referee checks again: it asks its own app where the finder's head is (game relay op `userHead`: the SDK's Get User State, the avatar's Head transform as the app places it, which no page can write) and accepts the find only within `find-distance` + 2.5 m (`REFEREE_REACH_SLACK`: an arm's length, since the finder counts from the nearer hand, and a remote head's lag). An unknown head (Get User State gives 0 0 0) or no answer within 2 s refuses the find. See 10.3 for what this leaves open | Review finding (should-fix): 3 of 3 treasures from 50 m with no check on the referee |
+| 12b | (none) | Each client credits a treasure's find once per spawn and never for an older spawn again (the highest serial credited per treasure) | Public state written back to an earlier copy credited the same find again (review finding, minor) |
 | 13 | Poiyomi materials | A small URP matcap shader (hand-written HLSL) and URP particle materials | Built-in pipeline shaders |
 | 14 | Pick and win sounds, Revamped font, UI sprites, matcaps, cheese model, treasure models | Self-made (sounds, sprites, matcaps, models) or OFL (font Lilita One); section 11.6 | Licences (section 1) |
 | 15 | Treasure state dies with the instance | Kept up to 24 h in room state; a returning player may find treasures already out | Platform behaviour; harmless |
@@ -523,6 +529,18 @@ client that sees a treasure go, and not for treasures already found when a clien
 13. **`DataDictionary.GetKeys()` order** is assumed to be insertion order; list order (Coin, Gem, Star) rests on it.
 14. **Return-button size** depends on renderer bounds read while the wrapper is hidden (`THC:100`, `THC:254-257`); the kit builder should compute it from the visible mesh and a person should check the click volumes.
 
+### 10.3 Trust: what a modified client can still do
+
+The port's authority is the referee (a client), as upstream's is whoever owns the controller. Compared with upstream:
+
+| What | Upstream (VRChat) | Port | Why not closed |
+|---|---|---|---|
+| Find from a distance | Anywhere: Interact's 0.7 m is the finder's own client | Within `find-distance` + 2.5 m of the head the **referee's app** shows for the finder (10.1 row 12a). Closer than that, a modified client can still take a treasure it has not walked right up to, and can do it as soon as one spawns in range (a bot) | The head reading comes from the avatar's networked pose, which lags; less slack would refuse honest finds made while walking. The app does not say where a remote player's hands are |
+| Saved counts | Each player's own `PlayerData`, written by their own client | The same: each player's counts are their own user state and `localStorage` (PlayerData.ts). A modified client can write any count for itself; the scoreboard shows it, and the prize flag it sets shows the prize to everyone while it is present | User state is written only by its owner; nothing else on the platform can vouch for a count (no server). Equal to upstream |
+| Hunt state | The synced arrays, writable by whoever takes ownership (any client, at will) | The synced arrays are public space state: a modified page can hide or move treasures, or write another player's session into `foundBy` with a new serial, which credits that player once (an older serial written back no longer does: 10.1 row 12b) | Public space state has no writer check (portkit README, Trust). Equal to upstream |
+| The referee seat | Instance master, chosen by VRChat | Claimed by the client ranked first; a modified client can take the seat and then accept its own finds from anywhere | No server decides who is referee (portkit README, stated limit) |
+| Whose head | (none) | Get User State matches the id the referee asks for against each user's session id, account id **or display name**: a player whose display name equals the finder's session id could stand in for them. Needs a second account with that name in the room | The SDK node takes one string and matches all three (`GetUserState.cs`); no node takes a session id alone |
+
 ## 11. Port status
 
 Where: `altspace/ts/` (sources `src/`, tests `test/`, `bindings.json` written by the kit builder, `portkit/` = copy
@@ -542,7 +560,7 @@ of `C:\workspace\AltspaceGames\portkit\ts` without `node_modules` and `dist`); t
 | `PersistancePrize.cs` | `src/PersistancePrize.ts` | One prize per hunt; the flag is the `prize` key of each player's own PlayerData |
 | `HiScoreElement.cs` | not ported | Used by nothing |
 | (port-only) | `src/PlayerData.ts` | Thin: the runtime's `PlayerData` (portkit `peruser.ts`) already is the stand-in section 7 planned; this file holds the keys (`Coin`, `Gem`, `Star`, `prize`) and upstream-shaped helpers |
-| (port-only) | `src/Settings.ts` | The snippet attributes of section 8.1, parsed and clamped; spawn zones `zoneN`, `zoneN-size`, `zoneN-rotation` (section 8.2 option 1), zone1 to zone32 |
+| (port-only) | `src/Settings.ts` | The snippet attributes of section 8.1, parsed and clamped; spawn zones `zoneN`, `zoneN-size`, `zoneN-rotation` (section 8.2 option 1), zone1 to zone8 |
 
 State as built: one synced slot (`controller`: `isTreasureActive`, `treasurePositions` in millimetres,
 `spawnSerial`, `foundBy`), so 5 space-state leaves per hunt; one user-state leaf `d` per player for PlayerData
@@ -613,14 +631,16 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 
 | Gap | Now |
 |---|---|
-| Click reach was head-only and fixed | `this.Input.InReach(position, find-distance)` (nearest of head and hands); the local `InReach` is deleted. In Play mode the page has no pose until the player moves or is teleported: the test teleports; a click from 1.6 m was refused, one from 0.35 m counted |
+| Click reach was head-only and fixed | `this.Input.InReach(position, find-distance)` (nearest of head and hands); the local `InReach` is deleted. Since the re-sync to 812f285 the runtime reads the start position (`localPosition()`), so the Play-mode test no longer teleports first; the port still refuses a click while no position is known (10.1 row 12) |
 | No relay `audio` op | The pick sound is clip 0 of each pooled effect's own BS Audio Source, the win sound clip 0 of `Prize/WinSound`; all five holders are in `refs` and carry the `PkClips` list, so the relay plays them |
 | No relay op for `Animator.enabled` | `AnimatorRef.enabled = false` (op `animEnabled`); the rotator controller is upstream's own, with no `Speed` parameter |
 | First saved data arrived as `OnPlayerRestored` | Scoreboard and personal list refresh on `OnPlayerDataUpdated` only; the prize's `OnPlayerRestored` handler is gone |
 | Deny-by-default network calls | `TreasureHuntController.networkCallable = ["ReturnItem"]`, `PersistancePrize.networkCallable = ["WinSequence"]` |
 | No hover text for clicks ("Found!") | Still open (GAPS.md): a stated loss |
 | No lookup of a creator's scene object by name | Still open (GAPS.md): `prize-object` is parsed, warned about once, and otherwise ignored |
-| An object outside `refs` is switched on and off by two roads (found in Play mode) | Every object the script switches is in `refs` (`TESTS.md`, kit gaps) |
+| An object outside `refs` is switched on and off by two roads (found in Play mode) | Every object the script switches is in `refs` (`TESTS.md`, kit gaps); the kit now sends them all through the relay too |
+| No `KitStage.Clips`, no `SnippetGizmos` (this game's kit gaps) | Both in the kit since d8f370d: the builder uses `stage.Clips` (its own helper is deleted) and declares the gizmos of section 8.2 |
+| No way to read a remote player's position from a page | The game's own relay op `userHead` (`TreasureHuntKitBuilder.RelayOps`): the SDK's Get User State node, answered as the graph-to-page event `userHead` (TESTS.md, kit gaps) |
 
 ### 11.6 Art and sound: replaced (licences: section 1; sources and sha1 in `THIRD-PARTY-NOTICES.md`)
 

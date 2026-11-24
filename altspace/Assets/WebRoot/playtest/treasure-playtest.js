@@ -2,9 +2,12 @@
 // input (InputSim: a mouse of the test's own; the SDK casts its own rays and raises the click itself), and checked in
 // Unity with the kit's probe command. Not part of the snippet: the test page loads it before the snippet.
 //
-// window.__thPlan: "single" (one player: treasures spawn in the zones, a click within reach finds one, the lists
-// update, a reload keeps the finds) or "multi" (two Local Multiplayer players: the same treasures on both, a find by
-// one disappears for the other and credits only the finder, the scoreboard shows both, late join by reload).
+// window.__thPlan: "single" (one player: treasures spawn in the zones, a click from where the player arrived is out of
+// reach, a click within reach finds one and the referee checked it against the head its app reports, the lists update,
+// a find sent from 6 m away without the page's own check is refused, a reload keeps the finds) or "multi" (two Local
+// Multiplayer players: the same treasures on both, a find by the non-referee disappears for the other and credits only
+// the finder, the referee read the finder's head from its own app, a far find sent past the finder's own check is
+// refused, the scoreboard shows both, late join by reload).
 (function () {
   "use strict";
   const KEY = "treasure-hunt:0";
@@ -61,6 +64,8 @@
   const activeIdx = () => hunt().active.map((on, i) => (on ? i : -1)).filter((i) => i >= 0);
   const kinds = ["Coin", "Gem", "Star"];
   const kindOfSlot = (slot) => (slot >= 18 ? "Star" : slot >= 12 ? "Gem" : "Coin");
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const camera = async () => (await cmd("probe - head")).split(" ").map(Number);
 
   /** Is a world point inside one of the zones (rotation as Unity's Euler ZXY, here the zones are not rotated)? */
   function inZone(p) {
@@ -197,25 +202,20 @@
     say("INFO", "first treasure's wrapper active in Unity: " + spin);
     await cmd("shot spawned 0 1.6 0 0 1.4 1.4 70");
 
-    // out of reach: from where the player stands now (a metre and more away) a click does nothing, when the runtime knows
-    // where the player is
+    // out of reach: from where the player arrived (no teleport and no move first: the runtime reads the start position)
     const target = activeIdx()[0];
     const far = hunt().positions[target];
-    teleportNear(far, 1.6);
-    await sleep(1500);
     const reach = debug().reach();
     const from = reach.head || reach.position;
+    const cam0 = await camera();
+    check(!!from && dist(from, cam0) < 0.5, "the page knows where the player is from the start, without a teleport or a move", `${JSON.stringify(reach)}; camera ${fmt(cam0)}`);
     const pos = await probe("pos", hunt().buttonPaths[target]);
     await cmd("look " + pos);
     const req = hunt().findsRequested;
     const r = await cmd("click " + pos);
     await sleep(1500);
-    if (from) {
-      const d = Math.hypot(from[0] - far[0], from[1] - far[1], from[2] - far[2]);
-      check(hunt().findsRequested === req && hunt().active[target], "a click from out of reach finds nothing", `${d.toFixed(2)} m from ${fmt(from)}; click ${r}`);
-    } else {
-      say("INFO", "out-of-reach click not judged: the page has no head pose or position yet (every click counts then)", "click " + r + ", requested " + (hunt().findsRequested - req));
-    }
+    const d = from ? dist(from, far) : -1;
+    check(!!from && d > hunt().findDistance && r.startsWith("ok") && hunt().findsRequested === req && hunt().active[target], "a click from out of reach finds nothing", `${d.toFixed(2)} m from ${from ? fmt(from) : "nowhere"}; click ${r}`);
 
     // a find within reach
     const before2 = hunt();
@@ -225,6 +225,11 @@
     const credited = await until(() => hunt().findsCredited === 1, 8000, 100);
     const counts = debug().counts().find((c) => c.sid === me.sid) || {};
     check(!!credited && counts[kind] === 1, "a click within reach finds the treasure and credits it once", `${kind} #${i}; counts ${JSON.stringify(counts)}; foundBy ${hunt().foundBy[i] === me.sid}`);
+    const hc = debug().headCheck();
+    const cam = await camera();
+    const off = hc && hc.head ? dist(hc.head, cam) : -1;
+    check(!!hc && hc.ok && hc.sid === me.sid && hc.index === i && !!hc.head && off >= 0 && off < 0.5,
+      "the referee checked the find against the head its app reports (relay op userHead, Get User State)", `${JSON.stringify(hc)}; camera ${fmt(cam)}; ${off.toFixed(2)} m apart`);
     const tGone = Date.now();
     let gone = await probe("active", before2.wrapperPaths[i]);
     for (let n = 0; n < 10 && gone !== "False"; n++) {
@@ -244,6 +249,19 @@
     const shown = await probe("active", pathOf("prizeContainer"));
     check(!!prize && shown === "True", "the find reaches the prize's cost: the prize shows (and the win sound plays)", `container active ${shown}`);
     await cmd("shot found 0 1.6 0 0 1.4 1.4 70");
+
+    // a modified page: it asks the referee for a treasure from 6 m away, past its own reach check
+    await until(() => activeIdx().length > 0, 6000, 200);
+    const k = activeIdx()[0];
+    const kSerial = hunt().serials[k];
+    teleportNear(hunt().positions[k], 6);
+    await sleep(1500);
+    const refusedBefore = hunt().reachRefused;
+    debug().forceReturn(k);
+    const refused = await until(() => hunt().reachRefused > refusedBefore, 6000, 100);
+    const hc2 = debug().headCheck();
+    check(!!refused && hunt().active[k] && hunt().serials[k] === kSerial && hunt().findsCredited === 1 && !!hc2 && !hc2.ok && !!hc2.head && hc2.distance > hc2.allowed,
+      "a find sent from 6 m away past the page's own check is refused by the referee", JSON.stringify(hc2));
 
     // reload: the finds must come back from this device's saved data
     await until(() => activeIdx().length === 3, 6000, 200);
@@ -306,8 +324,6 @@
     const me = debug().me();
     const back = reloaded();
     const others = debug().players().filter((p) => p.sid !== me.sid);
-    const finder = back ? false : me.sid < others[0].sid;
-    say("INFO", me.name + (finder ? " finds" : " watches") + (back ? " (back after a reload)" : ""));
     const other = others[0].name;
 
     if (back) {
@@ -339,6 +355,9 @@
     check(!!theirs && theirs.digest === mine.digest && theirs.active.join() === mine.active.join() && theirs.positions.join() === mine.positions.join(),
       "both players see the same treasures at the same places (digests match)", theirs ? `${mine.digest} / ${theirs.digest}; ${mine.positions.join(", ")}` : "no word from the other page");
     await checkSpawned("this page shows every treasure inside a zone, in Unity");
+    // the finder is the page that is not the referee, so the referee reads a remote player's head
+    const finder = !hunt().referee;
+    say("INFO", me.name + (finder ? " finds" : " watches, as the referee"));
 
     // 2. the finder finds one; it disappears for the other, and only the finder is credited
     let kindName = "";
@@ -352,9 +371,29 @@
       await findTreasure(i, "find " + kind);
       const credited = await until(() => hunt().findsCredited === 1, 8000, 100);
       check(!!credited, "the finder's click finds the treasure and the finder is credited", `${kind} #${i}`);
+      const cam = await camera();
       send({ kind: "found", index: i, kindName: kind });
       const seen = await until(() => heard.find((m) => m.kind === "seen"), 30000, 200);
       check(!!seen && seen.hidden && seen.credited === 0, "the treasure disappeared for the other player, who was not credited", seen ? JSON.stringify(seen) : "no word");
+      const hc = seen && seen.check;
+      const off = hc && hc.head ? dist(hc.head, cam) : -1;
+      check(!!hc && hc.ok && hc.sid === me.sid && hc.index === i && off >= 0 && off < 1,
+        "the referee (the other page) checked the find against this player's head as its own app shows it", `${JSON.stringify(hc)}; this camera ${fmt(cam)}; ${off.toFixed(2)} m apart`);
+
+      // 2b. a modified page: this player asks the referee for a treasure from 6 m away, past its own reach check
+      await until(() => activeIdx().length > 0, 10000, 200);
+      const k = activeIdx()[0];
+      teleportNear(hunt().positions[k], 6);
+      await sleep(2000);
+      const camFar = await camera();
+      send({ kind: "forcing", index: k, serial: hunt().serials[k] });
+      debug().forceReturn(k);
+      const verdict = await until(() => heard.find((m) => m.kind === "refused"), 20000, 200);
+      const hc2 = verdict && verdict.check;
+      const off2 = hc2 && hc2.head ? dist(hc2.head, camFar) : -1;
+      check(!!verdict && verdict.refused && verdict.stillOut && !!hc2 && !hc2.ok && hc2.sid === me.sid && off2 >= 0 && off2 < 1 && hc2.distance > hc2.allowed,
+        "the referee refuses a find this page sends from 6 m away, from this player's head as its own app shows it", `${verdict ? JSON.stringify(verdict) : "no word"}; this camera ${fmt(camFar)}; ${off2.toFixed(2)} m apart`);
+      check(hunt().findsCredited === 1, "the refused find credits nothing", `credited ${hunt().findsCredited}`);
     } else {
       const finding = await until(() => heard.find((m) => m.kind === "finding"), 60000, 200);
       if (!finding) return void check(false, "the other player finds a treasure", "no word");
@@ -372,7 +411,15 @@
       check(!!hidden && (unity === "False" || hunt().serials[i] !== finding.serial), "a find by the other player hides the treasure here too (Unity)", `#${i} active ${unity} ${Date.now() - t} ms after the page hid it`);
       await until(() => heard.find((m) => m.kind === "found"), 15000, 200);
       check(hunt().findsCredited === 0 && hunt().pickEffectsPlayed >= 1, "this player is not credited, and sees the pick effect", `credited ${hunt().findsCredited}, effects ${hunt().pickEffectsPlayed}`);
-      send({ kind: "seen", hidden: !!hidden, credited: hunt().findsCredited, effects: hunt().pickEffectsPlayed });
+      const refusedBefore = hunt().reachRefused;
+      send({ kind: "seen", hidden: !!hidden, credited: hunt().findsCredited, effects: hunt().pickEffectsPlayed, check: debug().headCheck() });
+      // 2b. the finder sends a find from far away, past its own check: this page, the referee, must refuse it
+      const forcing = await until(() => heard.find((m) => m.kind === "forcing"), 60000, 200);
+      const refused = forcing && (await until(() => hunt().reachRefused > refusedBefore, 10000, 100));
+      await sleep(500);
+      const stillOut = !!forcing && hunt().active[forcing.index] && hunt().serials[forcing.index] === forcing.serial;
+      check(!!refused && stillOut, "as the referee, this page refuses the far find (its app's head reading of the other player)", JSON.stringify(debug().headCheck()));
+      send({ kind: "refused", refused: !!refused, stillOut, check: debug().headCheck() });
     }
 
     // 3. both scoreboards show both players; the counts are the finder's 1 and the watcher's 0
