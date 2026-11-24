@@ -1,9 +1,11 @@
 # Treasure hunt: port analysis (PORT.md)
 
-Status: analysis only. Nothing was built, compiled or run; Unity was not opened. Every statement about
-how upstream behaves at run time comes from reading the code and the prefab/scene YAML, and is marked
-"by reading" where it depends on VRChat behaviour I could not observe. `portkit/ts` did not exist when
-this was written, so the runtime is taken from `portkit/README.md` alone.
+Status (2026-11-24): **rules ported and passing rung 0 and 1** (TypeScript on the portkit runtime, Node,
+fake room). No Unity yet: no kit builder, kit, bundles, Play-mode or two-player editor run. `bindings.json` is
+**provisional** (written by `ts/tools/provisional-bindings.ts` from section 5 of this file), to be replaced by
+the kit builder's. Section 11 has the checklist status, the decisions, the runtime gaps and the art list.
+Sections 1 to 10 are the analysis as written before the port (by reading; nothing was run then), with
+section 10.1 updated to what the port does.
 
 Short names used in references (`name:line`):
 
@@ -482,13 +484,17 @@ Not suited to vectors: anything about who owns, ordering between clients, late j
 | 3 | Creator drops own meshes into the pool; names become keys (`README.md:19-20`) | Fixed kinds Coin, Gem, Star with count settings | A kit bundle cannot reference a creator's assets; settings are flat strings |
 | 4 | Creator drops anything into the prize container (`README.md:21-22`) | Kit prize, or the creator's own object named in `prize-object` | Same |
 | 5 | Any number of zones as scene objects | Eight slots as settings | Snippet settings are fixed by the definition |
-| 6 | Treasures appear for a late joiner on the next event (item 51) | Shown as soon as state arrives; `ReplicateStates` runs on state arrival, and the separate event is dropped | Removes the ordering hazard and the empty-room wait; saves one message per cycle |
-| 7 | Timers 0/0 fault (item 20) | One spawn per tick until the cap; cycle never shorter than 0.25 s | A fault is not a feature; shared 20 per second write budget |
-| 8 | Both players credited on a simultaneous find (item 27) | One credit, if the runtime can report an accepted write; otherwise as upstream | Space state is last-writer-wins, which makes the race more likely than on VRChat |
+| 6 | Treasures appear for a late joiner on the next event (item 51); the owner sends `ReplicateStates` every cycle, even at the cap (item 18) | Shown as soon as state arrives; `ReplicateStates` runs on state arrival, the separate event is dropped, and nothing is written in a cycle that spawns nothing | Removes the ordering hazard and the empty-room wait; saves one message and one write per cycle |
+| 7 | Timers 0/0 fault (item 20) | **Fixed.** A spawn cycle is never shorter than 0.25 s (`MIN_CYCLE_SECONDS`), for any timer setting; 0/0 means one spawn every 0.25 s until the cap | A fault is not a feature; shared 20 per second write budget |
+| 8 | Both players credited on a simultaneous find (item 27) | **Fixed.** A find is a request to the referee (`SendCommand("ReturnItem", index, spawnSerial)`); the referee accepts the first request for that spawn of that treasure and records the finder's session in the synced `foundBy`; the finder is credited when it sees its own session there. A later request for the same spawn is refused | Space state is last-writer-wins, which makes the race more likely than on VRChat |
+| 8a | The finder takes ownership of the controller and runs the spawn loop from then on (items 22, 26) | The referee owns the controller and runs the spawn loop; when it leaves, the next referee does (item 52 holds) | Part of the fix in row 8: one writer, so a finder's stale copy of the flags can never overwrite a spawn or another find |
+| 8b | `spawnTimer` is synced (with each spawn) | Not synced: each client rolls one at start (THC:120) and counts down only while it owns the controller | Upstream's remote copies held the last rolled value and never counted it down, so a new owner waits the same; an unsynced countdown keeps every client's state digest equal |
+| 8c | The active count reads the wrappers' `activeSelf` (THC:177-182) | Reads the synced flags | They agree on the owner; flags are the state |
 | 9 | Prize quirks (item 48) | Not reproduced: one win sound, at the winner's head | They are faults of the missing owner test |
 | 10 | Wrappers, return buttons, rows and effects created at run time | Built into the kit; rows and effects pooled | Relay refs are fixed at build |
 | 11 | More than 16 rows exist but are clipped (item 37) | 16 rows per list | Same visible result |
-| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; distance checked by the script | No hover text for clicks |
+| 11a | Scoreboard order is wrong from four players (item 35) | **Fixed.** Highest first, equal scores in join order (`SortListOfDictionaries`); upstream's loop is kept as `UpstreamSortListOfDictionaries` only for the test vectors | Coordinator decision: a plain bug |
+| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands; with no pose reported yet every click counts (the runtime's own rule) | No hover text for clicks; the runtime's reach check is head-only and takes no setting |
 | 13 | Poiyomi materials | URP matcap graph and URP particle materials | Built-in pipeline shaders |
 | 14 | Pick and win sounds, Revamped font, UI sprites, matcaps, cheese model | Replaced with CC0 or self-made equivalents | Licences (section 1) |
 | 15 | Treasure state dies with the instance | Kept up to 24 h in room state; a returning player may find treasures already out | Platform behaviour; harmless |
@@ -496,7 +502,8 @@ Not suited to vectors: anything about who owns, ordering between clients, late j
 | 17 | `VRCUiShape`, VRCObjectSync branch (`THC:146-152`), `HiScoreElement.cs`, `PSL:102-127`, `PSL:146-155`, `PSL:185-223`, `SB:129-137`, `SB:157-165`, `isPersistanceDataLoaded` (`PP:29`) | Not ported | Dead or not needed |
 | 18 | Demo scene world settings, seven UdonSharp utility scripts, TMP essentials, default scene, serialized programs | Not ported | Not part of the game; a snippet must not change world-wide state |
 
-Reproduced on purpose until decided otherwise: the row order of item 35.
+Reproduced on purpose: nothing of item 35 any more (fixed, row 11a). The pick effect still plays on every
+client that sees a treasure go, and not for treasures already found when a client arrives.
 
 ### 10.2 Open risks and questions, ranked
 
@@ -506,7 +513,7 @@ Reproduced on purpose until decided otherwise: the row order of item 35.
 4. **Runtime calls this game needs that README does not list**: present-player list with join and leave, read and write of user-state leaves, a data-changed callback, elapsed time in `Update`, accepted-write feedback, a way to stop an Animator. If the runtime is frozen after chess without them, this port needs game-local workarounds.
 5. **Clicks on kit-loaded colliders in the app** (the plan's known risk). This game's only input is that click.
 6. **Reach on a flat screen.** 0.7 m from the head may not reach a treasure near the floor if the app has no crouch. May need a larger default on desktop.
-7. **Row order fault** (item 35): reproduce or fix. I would fix it and list the change.
+7. **Row order fault** (item 35): fixed (coordinator decision), section 10.1 row 11a.
 8. **Instance key stability.** Saved totals hang on `<inst>`; README falls back to the element's index, which changes if a creator reorders or removes snippets. Recommend setting `room`.
 9. **The prize grabbable** is a networked object under a container that starts hidden; whether ids and sync initialise while hidden is unverified.
 10. **About 200 relay refs and up to about 100 text updates per scoreboard refresh.** Cost through the Visual Scripting bridge on Quest is unknown; send only changes.
@@ -514,3 +521,118 @@ Reproduced on purpose until decided otherwise: the row order of item 35.
 12. **Float32 against double** in `spawnTrace` vectors: the tick at which a timer crosses zero can differ; use `Math.fround` or compare with tolerance.
 13. **`DataDictionary.GetKeys()` order** is assumed to be insertion order; list order (Coin, Gem, Star) rests on it.
 14. **Return-button size** depends on renderer bounds read while the wrapper is hidden (`THC:100`, `THC:254-257`); the kit builder should compute it from the visible mesh and a person should check the click volumes.
+
+## 11. Port status
+
+Where: `altspace/ts/` (sources `src/`, tests `test/`, `tools/provisional-bindings.ts`, `bindings.json`,
+`portkit/` = copy of `C:\workspace\AltspaceGames\portkit\ts` without `node_modules` and `dist`).
+`npm test` = typecheck, lint (page and clock rules), 22 tests; `npm run build` makes `pk-treasure-hunt.js`
+(334,247 bytes, built to a scratch folder; not checked in). `npm run bindings` rewrites the provisional
+`bindings.json`.
+
+### 11.1 Files
+
+| Upstream | Port | Notes |
+|---|---|---|
+| `TreasureHuntController.cs` | `src/TreasureHuntController.ts` | Pure rules exported for vectors: `GetRandomTreasureThatIsNotActive`, `GetRandomPositionInBoxCollider`, `TransformPoint`, `roundPosition` |
+| `TreasureReturner.cs` | `src/TreasureReturner.ts` | `Interact` -> `RequestReturn`; the credit (TR:28-30) is `CreditFind`, called once the referee has recorded the find; `OnDisable` -> pooled pick effect |
+| `PersonalScoreList.cs` | `src/PersonalScoreList.ts` | Dead code not ported (10.1 row 17) |
+| `Scoreboard.cs` | `src/Scoreboard.ts` | Fixed sort, plus the upstream loop for the vectors |
+| `PersistancePrize.cs` | `src/PersistancePrize.ts` | One prize per hunt; the flag is the `prize` key of each player's own PlayerData |
+| `HiScoreElement.cs` | not ported | Used by nothing |
+| (port-only) | `src/PlayerData.ts` | Thin: the runtime's `PlayerData` (portkit `peruser.ts`) already is the stand-in section 7 planned; this file holds the keys (`Coin`, `Gem`, `Star`, `prize`) and upstream-shaped helpers |
+| (port-only) | `src/Settings.ts` | The snippet attributes of section 8.1, parsed and clamped; spawn zones `zoneN`, `zoneN-size`, `zoneN-rotation` (section 8.2 option 1), zone1 to zone32 |
+
+State as built: one synced slot (`controller`: `isTreasureActive`, `treasurePositions` in millimetres,
+`spawnSerial`, `foundBy`), so 5 space-state leaves per hunt; one user-state leaf `d` per player for PlayerData
+(counts and the prize flag; section 3.4 planned two, `pd` and `pz`); localStorage
+`pk1.treasure-hunt.<inst>.<uid>.playerdata`. Finds travel as runtime commands (the finder's announcement leaf
+and the referee's `ack` leaf). One one-shot per unlock (`WinSequence` with the winner's head position).
+
+### 11.2 Checklist (section 2) status
+
+| Status | Count | Items |
+|---|---|---|
+| Done, checked at rung 1 | 34 | 2, 3, 6, 7, 8, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 24, 28, 29, 30, 31, 32, 33, 34, 36, 37, 39, 40, 41, 42, 43, 44, 46, 52, 53 |
+| Changed on purpose (10.1), checked at rung 1 | 9 | 9 (0.25 s floor), 15 and 18 (no event, no idle write), 22 and 26 (the referee owns the controller), 45 (one prize per hunt), 49 (per device), 50 (room state lasts 24 h), 51 (a late joiner sees the state at once) |
+| Upstream bug fixed (coordinator decision), checked at rung 1 | 3 | 20 (timers 0/0), 27 (double credit), 35 (sort from four players) |
+| Rules side done; needs the kit (rung 2-3) | 6 | 1 and 5 (wrappers and return buttons prebuilt by the kit builder), 4 (rotator `Speed` parameter), 25 (pick effect visuals and sound; the rules side is tested by counters and the relay `particles` op), 47 (cheese grabbable), 54 (replacement sounds) |
+| Not applicable or not reproduced | 2 | 38 (editor-only templates), 48 (prize quirks of the missing owner test) |
+
+Total 54. Rungs 2 to 5 are not started: no Unity in this job.
+
+### 11.3 Tests (`npm test`: 22 passing)
+
+Vectors (`test/vectors.test.ts`, 7 tests, hand-derived from the C# with the line references in each case; no
+dotnet golden run): spawn choice THC:204-236 (including -1 with no draw); box point THC:239-249 (plain,
+rotated 90 degrees, centre draw, millimetre rounding) and 2,000 points inside three boxes, rotated ones
+included, reaching all eight octants; pool order and kit slots; settings defaults and clamps; prize total
+PP:66-82 (29, 30, 31, missing keys, cost 0); scoreboard order SB:408-431 (the 0,0,2,1 -> 2,0,1,0 trace worked
+by hand; exhaustive over scores 0 to 3 for one to five players: upstream right up to three and wrong at four,
+the port always descending with ties in join order).
+
+Fake-room scenarios (`test/scenarios.test.ts`, 14 tests): treasures inside the zones and under the cap,
+wrappers placed and shown on every client; a find (credited once, hidden everywhere, one pick effect per
+client, panels and board updated); **two players find the same treasure at once** (six seeds, the referee
+among the finders or not, either order: exactly one credit, and the referee refuses the second request); out
+of reach (0.9 m no, 0.5 m yes) and `treasure-hunt="false"`; **the spawner leaves and the next referee
+spawns**, and finds still work; **a late joiner sees the treasures that are out at once**, at their positions,
+with no pick effects; **finds persist across a reload on the same device** (not on another device);
+**the scoreboard follows joins, leaves and finds**, highest first; 17 players (16 rows); **the prize unlocks**
+(one win sound everywhere at the winner's head, shown to a later arrival, hidden when the winner leaves, shown
+again without a second sound when they return); prize cost and points from the settings; **two hunts in one
+room stay separate** (state keys, saved data, spawn boxes, finds); bad settings (0/0 timers spawn one at a
+time at least 0.25 s apart and stop at the full pool without a fault; no valid zone spawns nothing, with one
+warning; counts clamped); budget (one slot, the leaf under 4 KB at 22 treasures, under 10 state writes per
+second at the shortest cycle with finds, no rate limiting). `test/bindings.test.ts`: the provisional bindings
+are valid and match their generator.
+
+### 11.4 Decisions taken (coordinator)
+
+- Saved finds are per device (the runtime's PlayerData: localStorage plus each present player's user
+  state). The credits line must say so.
+- The scoreboard lists the players present.
+- The prize: one per hunt, shown while any present player's saved flag is set.
+- Spawn areas: section 8.2 option 1 (settings; the gizmo binds only the position; `show-zones` draws the true
+  boxes).
+- Plain upstream bugs fixed and listed: double credit (10.1 row 8), the 0/0 fault (row 7), the sort (row 11a).
+- Interact with the 0.7 m reach check (`find-distance`).
+
+### 11.5 Runtime gaps met (portkit was not edited)
+
+| Gap | Local workaround |
+|---|---|
+| Click reach is head-only and fixed per class or event (`interactReach`, `reach`); it cannot take a snippet setting and ignores hands | `TreasureHuntController.InReach`: nearest of head and hands within `find-distance`; the classes set no `interactReach` |
+| No hover text for clicks ("Found!") | None: a stated loss |
+| The relay `audio` op is not built (README) | The clips sit on objects outside `refs` (`Effects/Pick<n>/Audio`, `Prize/WinSound`), which the page plays itself; `bs.ts` marks that path UNVERIFIED and the fake room warns "no audio source known" (a warning, not an error) |
+| No relay op for `Animator.enabled` | `animFloat Speed 0` when `animated="false"`: the re-made rotator controller needs a `Speed` parameter on its state's speed |
+| No lookup of a creator's scene object by name | `prize-object` is parsed, warned about once, and otherwise ignored |
+| A remote player's first saved data arrives as `OnPlayerRestored`, not `OnPlayerDataUpdated` | Scoreboard, personal list and prize also refresh on `OnPlayerRestored` |
+| No "accepted write" report (section 10.2 risk 4) | Not needed: finds are runtime commands, which the referee runs one at a time |
+
+Section 10.2 risk 4 is otherwise closed: the runtime has the present-player list with joins and leaves,
+other players' PlayerData, `OnPlayerDataUpdated`, `Time.deltaTime` in `Update`, and
+`SendCustomEventDelayedFrames`.
+
+### 11.6 Art and sound to replace before any bundle (licences: section 1; URP: section 6)
+
+| Upstream | Replace with |
+|---|---|
+| `Audio/Pick Audio.wav` (Epic Stock Media, commercial) | A CC0 coin-pick sound, or one made here |
+| `Audio/Win Audio.wav` (Epic Stock Media, commercial) | A CC0 short win jingle, or one made here |
+| `Textures/Revamped.otf`, `Revamped SDF.asset` (Chequered Ink, all rights reserved) | An OFL display font and a new TMP atlas |
+| `Textures/45 Fill Beveled.png`, `45 Frame Beveled.png`, `45 Shine Beveled.png` (origin unknown) | Self-made rounded-rectangle panel, frame and shine sprites |
+| `Textures/68.png`, `IMG_0373.jpg` (matcaps, origin unknown) | Self-made gold and diamond matcap gradients |
+| `Materials/Gold.mat`, `Diamond.mat` and their locked Poiyomi shaders | A small URP matcap Shader Graph (opaque gold, transparent diamond) with the new matcaps |
+| `Materials/cheese.mat` (Poiyomi; six of its textures are missing from the repo) | URP Lit, flat colour 0.92, 0.73, 0.22 |
+| `Models/Cheese.fbx` (origin unknown) | A re-modelled wedge, unless the author confirms it is theirs |
+| `Models/Treasures.fbx` (probably the author's own, not confirmed) | Keep under MIT if the author confirms; otherwise re-model the coin, three gems and star |
+| `Materials/Pick Particle.mat`, `Pick Particle Trail.mat` (built-in Particles/Standard Unlit, default texture) | URP Particles/Unlit with a soft dot texture |
+| `Materials/ZoneOutline.mat` (built-in Standard) | URP Unlit transparent, for the `show-zones` preview cubes |
+| `Animations/Star.controller` (no parameters) | The same clip (`Treasure_Rotator.anim`, the author's, MIT) in a controller with a float `Speed` parameter driving the state's speed |
+
+### 11.7 Still to do
+
+The kit builder (`Assets/Kit/Editor/TreasureHuntKitBuilder.cs`) producing the paths in `bindings.json`; the
+replacements above; the credits line ("saved on this device only"); rungs 2 to 4; an independent review
+against this checklist.
