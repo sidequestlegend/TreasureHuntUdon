@@ -2,16 +2,58 @@
 // on the portkit runtime. The classes bindings.json names by `type`; the build bundles this with bindings.json
 // into pk-treasure-hunt.js. HiScoreElement.cs is not ported (used by nothing).
 
-import type { GameDefinition } from "../portkit/src/index.ts";
+import type { GameDefinition, GameInstance } from "../portkit/src/index.ts";
 import { PersistancePrize } from "./PersistancePrize.ts";
 import { PersonalScoreList } from "./PersonalScoreList.ts";
+import { GetCounts } from "./PlayerData.ts";
 import { Scoreboard } from "./Scoreboard.ts";
+import { KINDS } from "./Settings.ts";
 import { TreasureHuntController } from "./TreasureHuntController.ts";
 import { TreasureReturner } from "./TreasureReturner.ts";
 
 const game: GameDefinition = {
   slug: "treasure-hunt",
   behaviours: { TreasureHuntController, TreasureReturner, Scoreboard, PersonalScoreList, PersistancePrize },
+  debug: (instance: GameInstance) => debugHooks(instance),
 };
+
+/** Readers for Play-mode tests (window.__pk1.debug["treasure-hunt:<inst>"]): the hunt as this page holds it. */
+function debugHooks(instance: GameInstance): Record<string, unknown> {
+  const byType = <T>(type: string) => instance.behaviour(instance.bindings.behaviours.find((b) => b.type === type)!.id) as unknown as T;
+  const controller = () => byType<TreasureHuntController>("TreasureHuntController");
+  const me = () => instance.networking.LocalPlayer;
+  return {
+    pathOf: (key: string) => instance.bindings.objects[key]?.path ?? "",
+    me: () => ({ sid: me().sid, uid: me().uid, name: me().displayName }),
+    players: () => instance.networking.GetPlayers().map((p) => ({ sid: p.sid, uid: p.uid, name: p.displayName })),
+    /** The pool as synced, and what this page shows of it. */
+    hunt: () => {
+      const c = controller();
+      const slots = c.PoolSlots;
+      return {
+        active: c.isTreasureActive.slice(),
+        shown: c.isTreasureActive.map((_, i) => c.IsShown(i)),
+        positions: c.treasurePositions.map((p) => [p.x, p.y, p.z]),
+        serials: c.spawnSerial.slice(),
+        foundBy: c.foundBy.slice(),
+        slots,
+        wrapperPaths: slots.map((s) => instance.bindings.objects[`wrapper${s}`]?.path ?? ""),
+        buttonPaths: slots.map((s) => instance.bindings.objects[`button${s}`]?.path ?? ""),
+        zones: c.settings.zones.map((z) => ({ n: z.number, center: [z.center.x, z.center.y, z.center.z], size: [z.size.x, z.size.y, z.size.z], rotation: [z.rotation.x, z.rotation.y, z.rotation.z] })),
+        findDistance: c.settings.findDistance,
+        spawns: c.spawns,
+        findsRequested: c.findsRequested,
+        findsCredited: c.findsCredited,
+        returnsRefused: c.returnsRefused,
+        pickEffectsPlayed: c.pickEffectsPlayed,
+        referee: instance.networking.IsReferee,
+      };
+    },
+    /** Saved counts of every player present, as this page reads them. */
+    counts: () => instance.networking.GetPlayers().map((p) => ({ name: p.displayName, sid: p.sid, ...GetCounts(instance.perUser, p) })),
+    kinds: () => KINDS.slice(),
+    prizeShown: () => byType<PersistancePrize>("PersistancePrize").IsShown,
+  };
+}
 
 export default game;

@@ -15,6 +15,8 @@ import { GetCount, HasPrize, PRIZE_KEY } from "./PlayerData.ts";
 import { KINDS, readSettings, type HuntSettings, type Kind } from "./Settings.ts";
 
 export class PersistancePrize extends Behaviour {
+  /** The winner's SendCustomNetworkEvent("All", "WinSequence", ...) reaches everyone else's copy. */
+  static override networkCallable = ["WinSequence"];
   // From bindings.json.
   /** "Container (Drop prize here)" (PPP:120-151): starts hidden. */
   prizeContainer!: GameObject;
@@ -81,13 +83,11 @@ export class PersistancePrize extends Behaviour {
     return this.shown;
   }
 
-  /** PP:84-90. The local player's first load counts as their first data update (item 41). */
-  override OnPlayerRestored(player: Player): void {
-    if (player.isLocal && !this.isElegibleForPrize) this.calculateTotalScore();
-    this.RefreshContainer();
-  }
-
-  /** PP:92-100. */
+  /**
+   * PP:92-100. The runtime raises OnPlayerRestored and then, at once, OnPlayerDataUpdated with every saved key, so a
+   * player's first load arrives here too (item 41). PP:84-90 (OnPlayerRestored) only kept the owner for WinSequence,
+   * which here carries the winner's head position instead.
+   */
   override OnPlayerDataUpdated(player: Player): void {
     if (player.isLocal && !this.isElegibleForPrize) this.calculateTotalScore();
     this.RefreshContainer();

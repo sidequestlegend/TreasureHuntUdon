@@ -137,11 +137,8 @@ export class Scoreboard extends Behaviour {
     this.PrintElements();
   }
 
-  // SB:391-406. OnPlayerRestored is added: the runtime reports a player's first saved data that way.
+  // SB:391-406. A player's first saved data arrives as OnPlayerDataUpdated too (right after OnPlayerRestored).
   override OnPlayerDataUpdated(): void {
-    this.Refresh();
-  }
-  override OnPlayerRestored(): void {
     this.Refresh();
   }
   override OnPlayerJoined(): void {

@@ -68,11 +68,8 @@ export class PersonalScoreList extends Behaviour {
     this.PrintElements();
   }
 
-  // PSL:157-183, plus OnPlayerRestored (the runtime's first load of saved data).
+  // PSL:157-183, plus OnPlayerRestored (the runtime's first load of saved data). A player's first saved data arrives as OnPlayerDataUpdated too (right after OnPlayerRestored).
   override OnPlayerDataUpdated(): void {
-    this.Refresh();
-  }
-  override OnPlayerRestored(): void {
     this.Refresh();
   }
   override OnPlayerJoined(): void {

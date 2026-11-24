@@ -1,0 +1,33 @@
+{
+  "behaviours": {
+    "button0#TreasureReturner#0": "r0",
+    "button1#TreasureReturner#0": "r1",
+    "button10#TreasureReturner#0": "r10",
+    "button11#TreasureReturner#0": "r11",
+    "button12#TreasureReturner#0": "r12",
+    "button13#TreasureReturner#0": "r13",
+    "button14#TreasureReturner#0": "r14",
+    "button15#TreasureReturner#0": "r15",
+    "button16#TreasureReturner#0": "r16",
+    "button17#TreasureReturner#0": "r17",
+    "button18#TreasureReturner#0": "r18",
+    "button19#TreasureReturner#0": "r19",
+    "button2#TreasureReturner#0": "r2",
+    "button20#TreasureReturner#0": "r20",
+    "button21#TreasureReturner#0": "r21",
+    "button3#TreasureReturner#0": "r3",
+    "button4#TreasureReturner#0": "r4",
+    "button5#TreasureReturner#0": "r5",
+    "button6#TreasureReturner#0": "r6",
+    "button7#TreasureReturner#0": "r7",
+    "button8#TreasureReturner#0": "r8",
+    "button9#TreasureReturner#0": "r9",
+    "personalList#PersonalScoreList#0": "personal",
+    "prize#PersistancePrize#0": "prize",
+    "scoreboard#Scoreboard#0": "scoreboard",
+    "treasures#TreasureHuntController#0": "controller"
+  },
+  "nextBehaviour": 1,
+  "objects": {},
+  "schema": 1
+}

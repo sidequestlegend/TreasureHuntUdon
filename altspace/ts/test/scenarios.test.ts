@@ -465,6 +465,10 @@ test("budget: one synced slot, a small leaf, and writes well under the room's 20
   const leaf = w.room.stateSnapshot()[statePrefix(SLUG, "0") + ".v.controller"];
   assert.ok(typeof leaf === "string" && leaf.length < 4096, `leaf is ${String(leaf).length} bytes`);
   assert.ok(controller(w, ann).isTreasureActive.length === 22);
+  // Spawning goes on every 0.25 s until the pool is full, so a write can be in flight at any moment: compare once
+  // the pool is out (nobody finds any more) and the last write has arrived.
+  assert.ok(await w.room.runUntil(() => activeIndexes(w, ann).length === 22 && activeIndexes(w, bob).length === 22, 20000));
+  await w.run(1000);
   assert.ok(w.agree());
   assert.deepEqual(w.problems(), []);
 });

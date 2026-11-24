@@ -76,6 +76,8 @@ const PREDICTION_SECONDS = 3;
 
 export class TreasureHuntController extends Behaviour {
   static override synced = ["isTreasureActive", "treasurePositions", "spawnSerial", "foundBy"];
+  /** What a finder's SendCommand may run on the referee (nothing else is callable from the network). */
+  static override networkCallable = ["ReturnItem"];
 
   // [UdonSynced] (THC:33-34).
   isTreasureActive: boolean[] = [];
@@ -158,8 +160,8 @@ export class TreasureHuntController extends Behaviour {
 
     // Every wrapper starts hidden (THC:97-101); slots not in the pool stay hidden.
     for (let slot = 0; slot < this.wrappers.length; slot++) this.wrappers[slot]!.SetActive(false);
-    // isAnimated (THC:91): the re-made rotator controller has a Speed parameter (Animator.enabled has no relay op).
-    if (!this.settings.animated) for (const rotator of this.rotators) rotator.SetFloat("Speed", 0);
+    // isAnimated (THC:91): the wrapper's Animator is switched off (relay op animEnabled).
+    if (!this.settings.animated) for (const rotator of this.rotators) rotator.enabled = false;
 
     // Construct data arrays to match pool (THC:104-105).
     this.isTreasureActive = new Array<boolean>(itemCount).fill(false);
@@ -246,7 +248,7 @@ export class TreasureHuntController extends Behaviour {
     const index = this.slots.indexOf(slot);
     if (index < 0 || !this.settings.treasureHunt) return false;
     if (!this.isTreasureActive[index] || this.predicted.has(index)) return false;
-    if (!this.InReach(this.treasurePositions[index]!)) return false;
+    if (!this.Input.InReach(this.treasurePositions[index]!, this.settings.findDistance)) return false;
     this.predicted.set(index, [this.spawnSerial[index]!, this.Time.time + PREDICTION_SECONDS]);
     this.findsRequested++;
     this.ReplicateStates();
@@ -268,16 +270,6 @@ export class TreasureHuntController extends Behaviour {
   PoolKinds(): Kind[] {
     if (!this.settings) this.Initiate();
     return this.kinds.slice();
-  }
-
-  /** The local player's distance check for a find. With no pose reported yet every click counts, as in the runtime. */
-  InReach(target: Vector3): boolean {
-    const poses = this.Input.Poses;
-    const points = poses ? [poses.head.position, poses.leftHand.position, poses.rightHand.position] : this.Input.Position ? [this.Input.Position] : [];
-    if (!points.length) return true;
-    let nearest = Infinity;
-    for (const p of points) nearest = Math.min(nearest, Vector3.Distance(p, target));
-    return nearest <= this.settings.findDistance;
   }
 
   // ---- private (THC:167-199, THC:269-285) ---------------------------------------------------------------------
