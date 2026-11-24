@@ -6,7 +6,7 @@
 // value, and numbers are clamped to what the kit can show.
 //
 // Spawn zones (PORT.md 8.2, option 1): `zoneN` (centre, world metres), `zoneN-size` (metres), `zoneN-rotation`
-// (degrees). A snippet gizmo binds only `zoneN`; size and rotation are settings. A zone counts only when all
+// (degrees), N from 1 to 8. A snippet gizmo binds only `zoneN`; size and rotation are settings. A zone counts only when all
 // three size numbers are above 0. `show-zones="true"` draws the true boxes in the world.
 
 import { Quaternion, Vector3 } from "../portkit/src/index.ts";
@@ -22,8 +22,8 @@ export const KIT_FIRST_SLOT: Readonly<Record<Kind, number>> = { Coin: 0, Gem: 12
 export const KIT_SLOTS = 22;
 /** Zone preview cubes in the kit (`show-zones`). Zones above this still spawn, without a preview. */
 export const KIT_ZONE_PREVIEWS = 8;
-/** Zones read from the element: zone1 .. zone32. */
-export const MAX_ZONES = 32;
+/** Zones read from the element: zone1 .. zone8, the slots the markup declares (each with a preview cube in the kit). */
+export const MAX_ZONES = 8;
 /** A spawn cycle is never shorter than this (PORT.md 10.1 row 7): the room's write budget is 20 per second. */
 export const MIN_CYCLE_SECONDS = 0.25;
 
@@ -55,7 +55,7 @@ export interface HuntSettings {
   prize: boolean;
   prizePosition: Vector3;
   prizeRotation: Vector3;
-  /** Name of an object in the creator's scene to show with the prize (not supported by the runtime yet). */
+  /** Name of an object in the creator's scene to show with the prize: left out (PORT.md 10.1 row 4), only warned about. */
   prizeObject: string;
   personalListPosition: Vector3;
   personalListRotation: Vector3;

@@ -57,17 +57,66 @@ namespace TreasureHunt
             "on this device only. A port of TreasureHuntUdon by Hoshou Neko (https://github.com/HoshouNeko/TreasureHuntUdon, MIT).";
         /// <summary>The kit root is the scoreboard (PORT.md 8.1): where it sat in upstream's demo.</summary>
         public override string SnippetPosition => "1.217 0.901 1.359";
+        /// <summary>
+        /// Every setting Settings.ts reads (but prize-object, left out: PORT.md 10.1 row 4), with the script's own defaults
+        /// (ts/test/markup.test.ts checks both). Zones: the three of upstream's demo and five spare slots, off until given a size.
+        /// </summary>
         public override IReadOnlyList<(string name, string value)> SnippetSettings => new[]
         {
-            ("room", ""), ("treasure-hunt", "true"), ("animated", "true"), ("max-active", "5"), ("timer-min", "0"), ("timer-max", "5"),
+            ("scale", "1"), ("room", ""), ("treasure-hunt", "true"), ("animated", "true"), ("max-active", "5"), ("timer-min", "0"), ("timer-max", "5"),
             ("coins", "5"), ("gems", "3"), ("stars", "1"), ("coin-points", "1"), ("gem-points", "5"), ("star-points", "10"),
             ("prize-cost", "30"), ("prize", "true"), ("prize-position", "0.913 0.708 0.759"), ("prize-rotation", "0 0 0"),
             ("personal-list", "0.75 0.898 1.359"), ("personal-list-rotation", "0 0 0"), ("find-distance", "0.7"),
             ("zone1", "-0.154 0.553 1.579"), ("zone1-size", "1.377 0.792 0.642"), ("zone1-rotation", "0 0 0"),
             ("zone2", "-0.557 0.910 2.554"), ("zone2-size", "0.728 0.418 0.339"), ("zone2-rotation", "0 0 0"),
             ("zone3", "0.763 1.352 2.458"), ("zone3-size", "1.343 0.772 0.626"), ("zone3-rotation", "0 0 0"),
+            ("zone4", "0 0 0"), ("zone4-size", "0 0 0"), ("zone4-rotation", "0 0 0"),
+            ("zone5", "0 0 0"), ("zone5-size", "0 0 0"), ("zone5-rotation", "0 0 0"),
+            ("zone6", "0 0 0"), ("zone6-size", "0 0 0"), ("zone6-rotation", "0 0 0"),
+            ("zone7", "0 0 0"), ("zone7-size", "0 0 0"), ("zone7-rotation", "0 0 0"),
+            ("zone8", "0 0 0"), ("zone8-size", "0 0 0"), ("zone8-rotation", "0 0 0"),
             ("show-zones", "false"), ("credits", "true"),
         };
+
+        /// <summary>
+        /// PORT.md 8.2: a handle for each place a creator puts by hand. A gizmo's size is a literal, so the three default zones'
+        /// boxes are drawn at their default size and the spare zones get a handle only; `show-zones` draws the true boxes.
+        /// </summary>
+        public override IReadOnlyList<string> SnippetGizmos => new[]
+        {
+            "<bs-gizmo type=\"position\" attribute=\"personal-list\"/>",
+            "<bs-gizmo type=\"plane\" attribute=\"personal-list\" size=\"0.28 0.22\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"prize-position\"/>",
+            "<bs-gizmo type=\"sphere\" attribute=\"prize-position\" radius=\"0.15\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone1\"/>",
+            "<bs-gizmo type=\"box\" attribute=\"zone1\" size=\"1.377 0.792 0.642\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone2\"/>",
+            "<bs-gizmo type=\"box\" attribute=\"zone2\" size=\"0.728 0.418 0.339\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone3\"/>",
+            "<bs-gizmo type=\"box\" attribute=\"zone3\" size=\"1.343 0.772 0.626\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone4\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone5\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone6\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone7\"/>",
+            "<bs-gizmo type=\"position\" attribute=\"zone8\"/>",
+        };
+
+        /// <summary>
+        /// The game's own relay op `userHead` (README "Relay ops"): args request id, session id. Answers with the graph-to-page
+        /// event `userHead` (request id, x, y, z): that session's head as this app places the avatar (the SDK's Get User State,
+        /// which reads the user's Head transform; 0 0 0 for a user it does not know or whose body is not there yet). The referee
+        /// checks a find's reach with it (TreasureHuntController.OnUserHead), since a page's own word on where it is cannot be
+        /// trusted. The target (the treasure's wrapper) is not used.
+        /// </summary>
+        public override void RelayOps(RelayGraph.Ops ops)
+        {
+            ops.Add("userHead", () =>
+            {
+                var g = ops.g;
+                var head = g.Keep(g.PlatformValue("GetUserState", "Position", typeof(Vector3), ("id, uid, or name", ops.Text(1))));
+                g.PageEvent("userHead", ops.Arg(0), g.InvariantText(g.X(head)), g.InvariantText(g.Y(head)), g.InvariantText(g.Z(head)));
+            });
+        }
 
         TMP_FontAsset font;
 
@@ -81,7 +130,7 @@ namespace TreasureHunt
             var mats = Materials();
             var sprites = Sprites();
             font = Font();
-            var audio = Clips();
+            var audio = Sounds();
 
             // Every object the script switches on and off is in refs, so that all its SetActive calls take one road, the relay.
             // An object outside refs is switched by the page itself once the page has found it, and through the relay (by
@@ -146,7 +195,7 @@ namespace TreasureHunt
                 var source = pick.GetComponent<AudioSource>();
                 source.playOnAwake = false;
                 source.clip = null;
-                Clips(stage, pick, audio["Pick"]);
+                stage.Clips(pick, audio["Pick"]);                                                 // clip 0 of its own list
                 stage.Object(pick, key: $"pick{e}");
                 stage.Ref(pick);                                                                  // particles and the audio op
                 pickEffects.Add(stage.ObjectValue(pick));
@@ -228,7 +277,7 @@ namespace TreasureHunt
             win.spatialBlend = 1f;
             win.minDistance = 1f;
             win.maxDistance = 10f;
-            Clips(stage, winSound, audio["Win"]);
+            stage.Clips(winSound, audio["Win"]);
             stage.Object(winSound, key: "winSound");
             stage.Ref(winSound);
             var container = stage.Create("Container", prize.transform);
@@ -360,28 +409,6 @@ namespace TreasureHunt
             return (row, name, score);
         }
 
-        /// <summary>
-        /// A clip list on `holder` the page and the relay can play (README "audio" op): BS Audio Source with the clips, and
-        /// the same list as the holder's PkClips variable, which the relay graph reads. The holder joins refs.
-        /// </summary>
-        static void Clips(KitStage stage, GameObject holder, params AudioClip[] clips)
-        {
-            if (holder.GetComponent<AudioSource>() == null) holder.AddComponent<AudioSource>().playOnAwake = false;
-            var bsAudio = holder.GetComponent(GraphTypes.Find("BS.BSAudioSource")) ?? holder.AddComponent(GraphTypes.Find("BS.BSAudioSource"));
-            var so = new SerializedObject(bsAudio);
-            var list = so.FindProperty("clips");
-            list.arraySize = clips.Length;
-            for (int i = 0; i < clips.Length; i++) list.GetArrayElementAtIndex(i).objectReferenceValue = clips[i];
-            var playOnAwake = so.FindProperty("playOnAwake");
-            if (playOnAwake != null) playOnAwake.boolValue = false;
-            so.ApplyModifiedPropertiesWithoutUndo();
-            var variables = holder.GetComponent<Variables>() ?? holder.AddComponent<Variables>();
-            var mirror = new AotList();
-            foreach (var clip in clips) mirror.Add(clip);
-            variables.declarations.Set(RelayGraph.ClipsVariable, mirror);
-            stage.Ref(holder);
-        }
-
         GameObject Credits(KitStage stage, Transform root)
         {
             var panel = stage.Create("Credits", root);
@@ -455,7 +482,7 @@ namespace TreasureHunt
             }
         }
 
-        Dictionary<string, AudioClip> Clips()
+        Dictionary<string, AudioClip> Sounds()
         {
             var clips = new Dictionary<string, AudioClip>();
             foreach (var name in new[] { "Pick", "Win" })

@@ -46,9 +46,20 @@ function debugHooks(instance: GameInstance): Record<string, unknown> {
         findsRequested: c.findsRequested,
         findsCredited: c.findsCredited,
         returnsRefused: c.returnsRefused,
+        reachRefused: c.reachRefused,
         pickEffectsPlayed: c.pickEffectsPlayed,
         referee: instance.networking.IsReferee,
       };
+    },
+    /** The referee's last reach check: whose head, where its app put it, how far from the treasure, and the verdict. */
+    headCheck: () => {
+      const h = controller().lastHeadCheck;
+      return h ? { sid: h.sid, index: h.index, head: h.head ? [h.head.x, h.head.y, h.head.z] : null, distance: Number.isFinite(h.distance) ? h.distance : -1, allowed: h.allowed, ok: h.ok } : null;
+    },
+    /** What a modified page would do: ask the referee for treasure `i` without this page's own reach check. */
+    forceReturn: (i: number) => {
+      const c = controller();
+      (c as unknown as { SendCommand(method: string, ...args: unknown[]): void }).SendCommand("ReturnItem", i, c.spawnSerial[i]);
     },
     /** Saved counts of every player present, as this page reads them. */
     counts: () => instance.networking.GetPlayers().map((p) => ({ name: p.displayName, sid: p.sid, ...GetCounts(instance.perUser, p) })),

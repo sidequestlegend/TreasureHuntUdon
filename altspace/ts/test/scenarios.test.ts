@@ -13,6 +13,7 @@ import {
   buttonOf,
   controller,
   countOf,
+  findAt,
   game,
   isActive,
   makeWorld,
@@ -76,7 +77,7 @@ test("a find: the finder is credited once, the treasure hides for everyone with 
   await w.run(300);
   const kind = controller(w, bob).PoolKinds()[i]!;
   const effectsBefore = [ann, bob, cat].map((c) => controller(w, c).pickEffectsPlayed);
-  assert.ok(bob.click(SLUG, "0", buttonOf(w, bob, i)));
+  assert.ok(findAt(w, bob, i));
   // The finder's own page hides it at once.
   assert.equal(controller(w, bob).IsShown(i), false);
   await w.run(2000);
@@ -111,7 +112,7 @@ test("two players find the same treasure at once: it is credited once, whoever i
     const others = clients.filter((c) => c !== ref);
     const finders = seed % 2 === 0 ? [ref, others[0]!] : others;
     if (seed % 4 === 1) finders.reverse();
-    for (const f of finders) assert.ok(f.click(SLUG, "0", buttonOf(w, f, i)));
+    for (const f of finders) assert.ok(findAt(w, f, i));
     await w.run(3000);
     const credits = finders.map((f) => totalFinds(w, clients[0]!, f));
     assert.equal(credits[0]! + credits[1]!, 1, `seed ${seed}: credits ${credits}`);
@@ -154,7 +155,7 @@ test("a click out of reach, or with treasure-hunt off, finds nothing", async () 
   const bob = off.join({ name: "Bob", elements: [{ ...FAST, "treasure-hunt": "false" }] });
   await off.settle();
   const j = await waitForTreasure(off, bob);
-  bob.click(SLUG, "0", buttonOf(off, bob, j));
+  findAt(off, bob, j);
   await off.run(2000);
   assert.equal(controller(off, bob).isTreasureActive[j], true, "a plain random spawner: nothing can be found (item 6)");
   assert.equal(totalFinds(off, bob, bob), 0);
@@ -181,7 +182,7 @@ test("the spawner leaves and another player takes over the spawning", async () =
   // A find still works after the hand-over.
   const finder = rest.find((c) => c !== next)!;
   const i = activeIndexes(w, finder)[0]!;
-  finder.click(SLUG, "0", buttonOf(w, finder, i));
+  assert.ok(findAt(w, finder, i));
   await w.run(2000);
   assert.equal(totalFinds(w, next, finder), 1);
   assert.ok(w.agree());
@@ -196,7 +197,7 @@ test("a late joiner sees the treasures that are out at once, with no pick effect
   await w.room.runUntil(() => activeIndexes(w, ann).length === 5, 20000);
   // One found and gone before Cat arrives.
   const gone = activeIndexes(w, ann)[0]!;
-  ann.click(SLUG, "0", buttonOf(w, ann, gone));
+  findAt(w, ann, gone);
   await w.run(100);
   const out = activeIndexes(w, ann);
   const cat = w.join({ name: "Cat", elements: [attrs] });
@@ -226,7 +227,7 @@ test("finds persist across a page reload on the same device, and not on another 
   for (let n = 0; n < 3; n++) {
     const i = await waitForTreasure(w, ann);
     kinds.push(controller(w, ann).PoolKinds()[i]!);
-    ann.click(SLUG, "0", buttonOf(w, ann, i));
+    assert.ok(findAt(w, ann, i));
     await w.run(1500);
   }
   const expected = (kind: string) => kinds.filter((k) => k === kind).length;
@@ -291,7 +292,7 @@ test("the scoreboard lists the players present, highest first, and follows joins
   // Ann finds one: her row moves for everyone.
   const i = await waitForTreasure(w, ann);
   const kind = controller(w, ann).PoolKinds()[i]!;
-  ann.click(SLUG, "0", buttonOf(w, ann, i));
+  assert.ok(findAt(w, ann, i));
   await w.run(2500);
   const list = ["Coin", "Gem", "Star"].indexOf(kind);
   const expectAnn = { Coin: 3, Gem: 1, Star: 2 }[kind as "Coin" | "Gem" | "Star"];
@@ -323,18 +324,18 @@ test("the prize: unlocked by a player's saved total, shown while an eligible pla
     assert.equal(isActive(c, "prizeContainer"), false);
   }
   const i = await waitForTreasure(w, ann);
-  ann.click(SLUG, "0", buttonOf(w, ann, i));
-  ann.pose(new Vector3(0.2, 1.6, 0.4)); // where Ann's head is when the find is recorded
+  const head = controller(w, ann).treasurePositions[i]!.add(new Vector3(0, 0, 0.3)); // where Ann's head is when the find is recorded
+  assert.ok(findAt(w, ann, i));
   await w.run(2500);
   for (const c of [ann, bob]) {
     assert.equal(prize(w, c).winSequences, 1, `${c.name} heard one win`);
-    assert.ok(prize(w, c).lastWinPosition!.equals(new Vector3(0.2, 1.6, 0.4)), "at the winner's head (PP:104)");
+    assert.ok(prize(w, c).lastWinPosition!.equals(head), "at the winner's head (PP:104)");
     assert.equal(prize(w, c).IsShown, true);
     assert.equal(isActive(c, "prizeContainer"), true);
   }
   // A second find does not sound again (the flag is set, PP:95).
   const j = await waitForTreasure(w, ann);
-  ann.click(SLUG, "0", buttonOf(w, ann, j));
+  assert.ok(findAt(w, ann, j));
   await w.run(2500);
   assert.equal(prize(w, bob).winSequences, 1);
 
@@ -389,7 +390,7 @@ test("two hunts in one room stay separate: state, finds, saved counts and boards
   const i = await waitForTreasure(w, ann, "north");
   await waitForTreasure(w, ann, "south");
   const southBefore = controller(w, bob, "south").isTreasureActive.slice();
-  ann.click(SLUG, "north", buttonOf(w, ann, i, "north"));
+  assert.ok(findAt(w, ann, i, "north"));
   await w.run(2000);
   assert.equal(totalFinds(w, bob, ann, "north"), 1);
   assert.equal(totalFinds(w, bob, ann, "south"), 0);
@@ -456,7 +457,7 @@ test("budget: one synced slot, a small leaf, and writes well under the room's 20
   for (let t = 0; t < 40; t++) {
     await w.run(250);
     const out = activeIndexes(w, bob);
-    if (out.length && t % 2 === 0) bob.click(SLUG, "0", buttonOf(w, bob, out[0]!));
+    if (out.length && t % 2 === 0) findAt(w, bob, out[0]!);
   }
   const seconds = (w.room.now - start) / 1000;
   const perSecond = (w.room.stats.stateBatches - before) / seconds;
@@ -482,7 +483,7 @@ test("sounds and the rotator go through the relay: the pick and win sounds are a
   for (const c of [ann, bob]) for (let k = 0; k < 22; k++) assert.deepEqual(c.graph(SLUG, "0").values.get(`wrapper${k}/animEnabled`), ["0"], `${c.name} wrapper${k}`);
   const i = await waitForTreasure(w, bob);
   await w.run(300);
-  assert.ok(bob.click(SLUG, "0", buttonOf(w, bob, i)));
+  assert.ok(findAt(w, bob, i));
   await w.run(2000);
   for (const c of [ann, bob]) {
     const sounds = c.graph(SLUG, "0").events.filter((e) => e.op === "audio");

@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import type { Player } from "../portkit/src/index.ts";
+import { Vector3, type Player } from "../portkit/src/index.ts";
 import type { FakeClient, FakeRoomOptions } from "../portkit/src/platform/fake.ts";
 import { TestWorld } from "../portkit/src/testing.ts";
 import game from "../src/index.ts";
@@ -18,8 +18,30 @@ export function bindings(): unknown {
   return JSON.parse(readFileSync(fileURLToPath(new URL("../bindings.json", import.meta.url)), "utf8"));
 }
 
-export function makeWorld(options: FakeRoomOptions = {}): TestWorld {
-  return new TestWorld(game, bindings(), options);
+/** Instance keys the tests use (the fake graph's op handler is not told which instance a record is for). */
+const INSTANCES = ["0", "north", "south"];
+
+/**
+ * The game on a fake room. The kit's relay graph answers the game's own op `userHead` as the app's would (SDK Get User
+ * State): with the named session's head as the room knows it (`client.head`, set by `pose()`), 0 0 0 for a session it
+ * does not know or that has no head yet, a frame later. `heads: "none"` declares the op with no answer (an old kit).
+ */
+export function makeWorld(options: FakeRoomOptions & { heads?: "app" | "none" } = {}): TestWorld {
+  const { heads = "app", ...roomOptions } = options;
+  const w = new TestWorld(game, bindings(), roomOptions);
+  if (heads === "none") {
+    w.room.defineRelayOp("userHead", null);
+    return w;
+  }
+  w.room.defineRelayOp("userHead", (record, client) => {
+    const [id, sid] = record.args;
+    const inst = INSTANCES.find((k) => client.hasInstance(SLUG, k) && client.graph(SLUG, k).events.some((e) => e.args === record.args));
+    if (inst === undefined) return;
+    const head = w.clients.find((c) => c.sid === sid)?.head ?? null;
+    const at = head ?? Vector3.zero;
+    w.room.schedule(16, () => client.graphEvent(SLUG, inst, "userHead", `${id}|${at.x}|${at.y}|${at.z}`), client);
+  });
+  return w;
 }
 
 export const controller = (w: TestWorld, c: FakeClient, inst = "0") => w.behaviour<TreasureHuntController>(c, "controller", inst);
@@ -36,6 +58,15 @@ export function activeIndexes(w: TestWorld, c: FakeClient, inst = "0"): number[]
 /** The bindings key of the return button of pool index `i`. */
 export function buttonOf(w: TestWorld, c: FakeClient, i: number, inst = "0"): string {
   return `button${controller(w, c, inst).PoolSlots[i]}`;
+}
+
+/**
+ * The player steps up to treasure `i` (head `offset` from it, 0.3 m by default) and clicks it. Returns what `click`
+ * returns (false when the button is not clickable).
+ */
+export function findAt(w: TestWorld, c: FakeClient, i: number, inst = "0", offset = new Vector3(0, 0, 0.3)): boolean {
+  c.pose(controller(w, c, inst).treasurePositions[i]!.add(offset));
+  return c.click(SLUG, inst, buttonOf(w, c, i, inst));
 }
 
 /** Runs until some treasure is out (as `c` sees it) and returns its pool index. */

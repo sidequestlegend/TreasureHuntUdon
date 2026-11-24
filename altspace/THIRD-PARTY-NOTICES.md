@@ -1,12 +1,15 @@
 # Third-party notices: treasure-hunt (Altspace port)
 
 The port (`altspace/`: the kit builder, the TypeScript rules, the generated art) is MIT, as the upstream repository is.
-`Assets/Kit/THIRD-PARTY-NOTICES.md` is the copy that goes into every kit bundle.
+`Assets/Kit/THIRD-PARTY-NOTICES.md` is the short form that goes into every kit bundle, with the full licence texts it
+names: `Assets/Kit/Licenses/TreasureHuntUdon-LICENSE.txt` (upstream MIT), `Assets/Kit/Licenses/LilitaOne-OFL.txt`, and
+TextMesh Pro's `LiberationSans - OFL.txt`, which the kit build adds whenever the prefab uses Liberation Sans. The built
+script `pk-treasure-hunt.js` starts with the upstream MIT notice (`ts/script-header.txt`), then portkit's own.
 
 ## Upstream
 
 **TreasureHuntUdon** by Hoshou Neko, https://github.com/HoshouNeko/TreasureHuntUdon, MIT License,
-Copyright (c) 2024 Hoshou Neko (`LICENSE` at the repository root). The rules in `ts/src/` are a translation of its
+Copyright (c) 2024 Hoshou Neko (`LICENSE` at the repository root; copied to `Assets/Kit/Licenses/TreasureHuntUdon-LICENSE.txt`). The rules in `ts/src/` are a translation of its
 scripts; the kit's boards, rows, pick effect and rotator animation are copied from its prefabs
 (`Assets/Tresure Hunt/Prefabs/Treasure hunt.prefab`, `Animations/Star.controller`, `Animations/Treasure_Rotator.anim`).
 
@@ -14,8 +17,8 @@ scripts; the kit's boards, rows, pick effect and rotator animation are copied fr
 
 | What | Source | Licence | Replaces (upstream file, and why) |
 |---|---|---|---|
-| `Assets/Kit/Fonts/LilitaOne-Regular.ttf` and the atlas drawn from it (`HuntDisplay SDF.asset`, named apart from the font because the OFL reserves the name for unmodified versions) | Lilita One by Juan Montoreano, https://github.com/google/fonts/tree/main/ofl/lilitaone (upstream https://github.com/googlefonts/lilitaone), downloaded 2026-11-24, sha1 `70b4f26a4787952f7f45290cd963049ebd5a6501` | SIL Open Font License 1.1, Reserved Font Name "Lilita"; the licence text is `Assets/Kit/Fonts/LilitaOne-OFL.txt` | `Textures/Revamped.otf`, `Revamped SDF.asset`: "Typeface by Chequered Ink. (c) 2020. All Rights Reserved" |
-| Liberation Sans SDF (fallback for characters Lilita One lacks) | TextMesh Pro essentials | SIL Open Font License 1.1 | (none) |
+| `Assets/Kit/Fonts/LilitaOne-Regular.ttf` and the atlas drawn from it (`HuntDisplay SDF.asset`, named apart from the font because the OFL reserves the name for unmodified versions) | Lilita One by Juan Montoreano, https://github.com/google/fonts/tree/main/ofl/lilitaone (upstream https://github.com/googlefonts/lilitaone), downloaded 2026-11-24, sha1 `70b4f26a4787952f7f45290cd963049ebd5a6501` | SIL Open Font License 1.1, Copyright (c) 2011 Juan Montoreano (juan@remolacha.biz), Reserved Font Name "Lilita"; the licence text is `Assets/Kit/Licenses/LilitaOne-OFL.txt` | `Textures/Revamped.otf`, `Revamped SDF.asset`: "Typeface by Chequered Ink. (c) 2020. All Rights Reserved" |
+| Liberation Sans SDF (fallback for characters Lilita One lacks) | TextMesh Pro essentials | SIL Open Font License 1.1: Digitized data copyright (c) 2010 Google Corporation, with Reserved Font Arimo, Tinos and Cousine; Copyright (c) 2012 Red Hat, Inc., with Reserved Font Name Liberation. The licence text is TextMesh Pro's `Assets/TextMesh Pro/Fonts/LiberationSans - OFL.txt`, packed by the kit build | (none) |
 | `Assets/Kit/Audio/Pick.wav`, `Win.wav` | made for this port by `tools/make_sounds.py` (synthesised; no samples) | MIT (this port) | `Audio/Pick Audio.wav`, `Win Audio.wav`: Epic Stock Media "Advanced Game Sounds" (2016), a commercial library |
 | `Assets/Kit/Models/Treasures.fbx` (coin, three gems, star), `Cheese.fbx` | made for this port by `tools/make_models.py` (Blender 5.2, headless) | MIT (this port) | `Models/Treasures.fbx`, `Models/Cheese.fbx`: no author in the files (Treasures.fbx was exported from a "VMC Props.blend"); their origin could not be established |
 | `Assets/Kit/Textures/PanelFill.png`, `PanelFrame.png`, `PanelShine.png` | drawn by the kit builder | MIT (this port) | `Textures/45 Fill Beveled.png`, `45 Frame Beveled.png`, `45 Shine Beveled.png`: origin unknown |

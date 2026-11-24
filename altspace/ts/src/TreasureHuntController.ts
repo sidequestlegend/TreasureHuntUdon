@@ -18,6 +18,11 @@
 //   - The active count reads the synced flags instead of the wrappers' activeSelf (they agree on the owner).
 //   - Nothing is written when a cycle spawns nothing (upstream serialised once per period at the cap), and the
 //     spawn timer is not synced (see spawnTimer).
+//   - Reach is checked twice (PORT.md 10.1 row 12): on the finder's page (find-distance from the nearest of head and
+//     hands; no click counts while the page knows no position) and by the referee, which asks its own app where the
+//     finder's head is (relay op `userHead`, the SDK's Get User State: the avatar's head as the app places it, which no
+//     page can write) and accepts the find only within find-distance plus REFEREE_REACH_SLACK of the treasure. No
+//     answer, or no head known, refuses the find.
 
 import { Behaviour, type AnimatorRef, type AudioSourceRef, type DeserializationResult, type GameObject, type ParticleSystemRef, Vector3 } from "../portkit/src/index.ts";
 import { MIN_CYCLE_SECONDS, KIT_ZONE_PREVIEWS, poolKinds, poolSlots, readSettings, zoneRotation, type HuntSettings, type Kind, type Zone } from "./Settings.ts";
@@ -74,6 +79,31 @@ export function roundPosition(v: Vector3): Vector3 {
 /** How long a find made here keeps its treasure hidden before the referee's answer arrives. */
 const PREDICTION_SECONDS = 3;
 
+/**
+ * The referee's reach check allows find-distance plus this much between the finder's head, as the referee's app shows
+ * it, and the treasure: an arm's length (the finder's own check counts from the nearer hand) and the lag of a remote
+ * avatar's head (about half a second of walking).
+ */
+export const REFEREE_REACH_SLACK = 2.5;
+/** The game's own relay op (TreasureHuntKitBuilder.RelayOps) and graph-to-page event: where a session's head is. */
+export const HEAD_OP = "userHead";
+/** A head reading that has not come back by then refuses the find. */
+export const HEAD_ANSWER_SECONDS = 2;
+/** At most this many reach checks wait at once on the referee; a request beyond them is refused. */
+const MAX_HEAD_CHECKS = 64;
+
+/** What the referee's last reach check saw (tests and the Play-mode check). */
+export interface HeadCheck {
+  sid: string;
+  index: number;
+  /** The finder's head as the referee's app reported it, or null when it knew none. */
+  head: Vector3 | null;
+  /** Metres from that head to the treasure (Infinity with no head). */
+  distance: number;
+  allowed: number;
+  ok: boolean;
+}
+
 export class TreasureHuntController extends Behaviour {
   static override synced = ["isTreasureActive", "treasurePositions", "spawnSerial", "foundBy"];
   /** What a finder's SendCommand may run on the referee (nothing else is callable from the network). */
@@ -114,8 +144,11 @@ export class TreasureHuntController extends Behaviour {
   private shownSerial: number[] = [];
   /** Finds this client made that the referee has not answered yet: pool index -> [spawn serial, until]. */
   private readonly predicted = new Map<number, [number, number]>();
-  /** Spawn serial of each pool index whose find this client has been credited for. */
+  /** Highest spawn serial of each pool index whose find this client has been credited for. */
   private readonly credited = new Map<number, number>();
+  /** On the referee: finds waiting for the finder's head position, by request id. */
+  private readonly headChecks = new Map<string, { sid: string; index: number; serial: number; until: number }>();
+  private nextHeadCheck = 1;
   private nextEffect = 0;
   private warnedNoZones = false;
 
@@ -124,16 +157,21 @@ export class TreasureHuntController extends Behaviour {
   spawns = 0;
   findsCredited = 0;
   findsRequested = 0;
-  /** On the referee: requests for a treasure that was already found (or gone) by the time they arrived. */
+  /** On the referee: requests refused (already found or gone, out of reach, or no head position known). */
   returnsRefused = 0;
+  /** On the referee: of those, refused by the reach check (too far, no head position, no answer in time). */
+  reachRefused = 0;
+  lastHeadCheck: HeadCheck | null = null;
 
   override Start(): void {
+    this.RegisterGraphEvent(HEAD_OP, "OnUserHead");
     this.Initiate();
   }
 
   /** THC:65-78. Only the owner (the referee, unless someone took over) counts down and spawns. */
   override Update(): void {
     this.ExpirePredictions();
+    this.ExpireHeadChecks();
     if (this.Networking.IsOwner(this)) {
       if (this.spawnTimer > 0) {
         this.spawnTimer -= this.Time.deltaTime;
@@ -219,35 +257,91 @@ export class TreasureHuntController extends Behaviour {
 
   /**
    * THC:157-163, as the referee runs it. `serial` is the spawn the finder saw: a request for a spawn that is
-   * already found (someone else's request came first) or gone changes nothing, so nobody is credited twice.
+   * already found (someone else's request came first) or gone changes nothing, so nobody is credited twice. Upstream
+   * trusted the finder's own proximity check; here the referee first asks its app where the finder's head is, and
+   * OnUserHead completes the find.
    */
   ReturnItem(indexToReturn: number, serial: number): void {
     const caller = this.Networking.CallingSession;
     if (!caller || !this.settings.treasureHunt) return;
     if (!Number.isInteger(indexToReturn) || indexToReturn < 0 || indexToReturn >= this.isTreasureActive.length) return;
+    if (!this.isTreasureActive[indexToReturn] || this.spawnSerial[indexToReturn] !== serial || this.headChecks.size >= MAX_HEAD_CHECKS) {
+      this.returnsRefused++;
+      return;
+    }
+    const id = String(this.nextHeadCheck++);
+    this.headChecks.set(id, { sid: caller.sid, index: indexToReturn, serial, until: this.Time.time + HEAD_ANSWER_SECONDS });
+    this.Host.op(HEAD_OP, `wrapper${this.slots[indexToReturn]}`, [id, caller.sid]);
+  }
+
+  /**
+   * The referee's app answers a `userHead` op: where that session's head is (SDK Get User State: 0 0 0 when the app
+   * knows no such user, or no body for them yet). The find counts only if the head is within reach of the treasure.
+   */
+  OnUserHead(id: string, x: string, y: string, z: string): void {
+    const check = this.headChecks.get(String(id));
+    if (!check) return;
+    this.headChecks.delete(String(id));
+    const n = [x, y, z].map((v) => (typeof v === "string" && v.trim() !== "" ? Number(v) : NaN));
+    const known = n.every((v) => Number.isFinite(v)) && !(n[0] === 0 && n[1] === 0 && n[2] === 0);
+    const head = known ? new Vector3(n[0]!, n[1]!, n[2]!) : null;
+    const target = this.treasurePositions[check.index] ?? Vector3.zero;
+    const distance = head ? Vector3.Distance(head, target) : Infinity;
+    const allowed = this.settings.findDistance + REFEREE_REACH_SLACK;
+    const ok = distance <= allowed;
+    this.lastHeadCheck = { sid: check.sid, index: check.index, head, distance, allowed, ok };
+    if (!ok) {
+      this.RefuseReach(head ? `${check.sid} is ${distance.toFixed(2)} m from treasure ${check.index} (at most ${allowed.toFixed(2)})` : `no head position for ${check.sid}`);
+      return;
+    }
+    this.CompleteReturn(check.index, check.serial, check.sid);
+  }
+
+  /** The find, once the reach check has passed: still the same spawn and still out (another find may have come first). */
+  private CompleteReturn(indexToReturn: number, serial: number, sid: string): void {
     if (!this.isTreasureActive[indexToReturn] || this.spawnSerial[indexToReturn] !== serial) {
       this.returnsRefused++;
       return;
     }
     this.TakeOwnership();
     this.isTreasureActive[indexToReturn] = false;
-    this.foundBy[indexToReturn] = caller.sid;
+    this.foundBy[indexToReturn] = sid;
     this.RequestSerialization();
     this.ReplicateStates();
     this.CheckCredits(false);
+  }
+
+  private RefuseReach(why: string): void {
+    this.returnsRefused++;
+    this.reachRefused++;
+    this.Debug.LogWarning(`treasure-hunt: a find was refused: ${why}`);
+  }
+
+  /** Reach checks whose answer did not come back in time are refused (fail closed). */
+  private ExpireHeadChecks(): void {
+    if (!this.headChecks.size) return;
+    for (const [id, check] of [...this.headChecks]) {
+      if (this.Time.time < check.until) continue;
+      this.headChecks.delete(id);
+      const allowed = this.settings.findDistance + REFEREE_REACH_SLACK;
+      this.lastHeadCheck = { sid: check.sid, index: check.index, head: null, distance: Infinity, allowed, ok: false };
+      this.RefuseReach(`no head position for ${check.sid} within ${HEAD_ANSWER_SECONDS} s`);
+    }
   }
 
   // ---- what TreasureReturner calls --------------------------------------------------------------------------------
 
   /**
    * TR:22-25 on the finder's client: the click counts only within `find-distance` of the nearest of the local
-   * head and hands (upstream: VRChat's proximity 0.7 m, THP:4308). The treasure is hidden here at once and the
-   * referee is asked to record the find. Returns false when the click does not count.
+   * head and hands (upstream: VRChat's proximity 0.7 m, THP:4308), and not at all while this page knows no position
+   * for the player (the runtime's InReach would let it count). The treasure is hidden here at once and the referee is
+   * asked to record the find (it checks the reach again). Returns false when the click does not count.
    */
   RequestReturn(slot: number): boolean {
     const index = this.slots.indexOf(slot);
     if (index < 0 || !this.settings.treasureHunt) return false;
     if (!this.isTreasureActive[index] || this.predicted.has(index)) return false;
+    if (!this.Input.Position) return false;
     if (!this.Input.InReach(this.treasurePositions[index]!, this.settings.findDistance)) return false;
     this.predicted.set(index, [this.spawnSerial[index]!, this.Time.time + PREDICTION_SECONDS]);
     this.findsRequested++;
@@ -329,7 +423,9 @@ export class TreasureHuntController extends Behaviour {
     for (let i = 0; i < this.isTreasureActive.length; i++) {
       if (this.isTreasureActive[i] || this.foundBy[i] !== me) continue;
       const serial = this.spawnSerial[i]!;
-      if (this.credited.get(i) === serial) continue;
+      // Each spawn is credited once, and an older one never again: state can come back to an earlier copy (public
+      // state is writable by any page), and that must not count a find twice.
+      if (serial <= (this.credited.get(i) ?? 0)) continue;
       this.credited.set(i, serial);
       if (isSnapshot) continue; // a find recorded before this client arrived is not this visit's
       this.findsCredited++;
