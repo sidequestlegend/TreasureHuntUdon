@@ -225,13 +225,14 @@
     const credited = await until(() => hunt().findsCredited === 1, 8000, 100);
     const counts = debug().counts().find((c) => c.sid === me.sid) || {};
     check(!!credited && counts[kind] === 1, "a click within reach finds the treasure and credits it once", `${kind} #${i}; counts ${JSON.stringify(counts)}; foundBy ${hunt().foundBy[i] === me.sid}`);
+    const tGone = Date.now();
     let gone = await probe("active", before2.wrapperPaths[i]);
     for (let n = 0; n < 10 && gone !== "False"; n++) {
       await sleep(200);
       gone = await probe("active", before2.wrapperPaths[i]);
     }
     const respawned = hunt().active[i] && hunt().serials[i] !== before2.serials[i];
-    check(gone === "False" || respawned, "the found treasure disappears in Unity", `active ${gone}; page shows it ${hunt().shown[i]}; respawned ${respawned}`);
+    check(gone === "False" || respawned, "the found treasure disappears in Unity", `active ${gone} ${Date.now() - tGone} ms after the credit; page shows it ${hunt().shown[i]}; respawned ${respawned}`);
     check(hunt().pickEffectsPlayed >= 1, "the pick effect plays (particles and the pick sound through the relay)", `effects ${hunt().pickEffectsPlayed}`);
     await sleep(1500);
     const rows = await personalRows();
@@ -284,8 +285,15 @@
   async function settled(send, step) {
     await until(() => activeIdx().length === 3, 30000, 200);
     await sleep(2000);
+    // said again every few seconds until the other page answers: it may not be listening yet
+    const end = Date.now() + 90000;
+    let theirs = null;
+    while (!theirs && Date.now() < end) {
+      send(Object.assign({ kind: "view", step }, view()));
+      theirs = await until(() => heard.find((m) => m.kind === "view" && m.step === step), 3000, 200);
+    }
+    // one more, so the other page (which may have heard us only now) has our latest view too
     send(Object.assign({ kind: "view", step }, view()));
-    const theirs = await until(() => heard.find((m) => m.kind === "view" && m.step === step), 60000, 200);
     return theirs;
   }
 
@@ -354,9 +362,14 @@
       kindName = finding.kindName;
       const path = hunt().wrapperPaths[i];
       const hidden = await until(() => !hunt().shown[i] || hunt().serials[i] !== finding.serial, 15000, 100);
+      // the page hides it at once; Unity follows with the relay's next batch (a tick of the page, then a frame)
+      const t = Date.now();
       let unity = await probe("active", path);
-      if (unity !== "False" && hunt().serials[i] === finding.serial) unity = await probe("active", path);
-      check(!!hidden && (unity === "False" || hunt().serials[i] !== finding.serial), "a find by the other player hides the treasure here too (Unity)", `#${i} active ${unity}`);
+      for (let n = 0; n < 10 && unity !== "False" && hunt().serials[i] === finding.serial; n++) {
+        await sleep(200);
+        unity = await probe("active", path);
+      }
+      check(!!hidden && (unity === "False" || hunt().serials[i] !== finding.serial), "a find by the other player hides the treasure here too (Unity)", `#${i} active ${unity} ${Date.now() - t} ms after the page hid it`);
       await until(() => heard.find((m) => m.kind === "found"), 15000, 200);
       check(hunt().findsCredited === 0 && hunt().pickEffectsPlayed >= 1, "this player is not credited, and sees the pick effect", `credited ${hunt().findsCredited}, effects ${hunt().pickEffectsPlayed}`);
       send({ kind: "seen", hidden: !!hidden, credited: hunt().findsCredited, effects: hunt().pickEffectsPlayed });

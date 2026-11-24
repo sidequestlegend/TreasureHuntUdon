@@ -83,6 +83,11 @@ namespace TreasureHunt
             font = Font();
             var audio = Clips();
 
+            // Every object the script switches on and off is in refs, so that all its SetActive calls take one road, the relay.
+            // An object outside refs is switched by the page itself once the page has found it, and through the relay (by
+            // path) before that: the runtime's first "switch off what upstream had off" can then arrive after the script's
+            // later "on" (seen in Play mode: the prize container stayed off after a reload in one run of three).
+
             // ---- treasures: Container_Parent (Animator, Rotator) per kit slot, the treasure inside, a click target on it ----
             var treasures = stage.Create("Treasures", root);
             var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(StarController) ?? throw new Exception("no rotator controller");
@@ -161,6 +166,7 @@ namespace TreasureHunt
                 r.shadowCastingMode = ShadowCastingMode.Off;
                 r.receiveShadows = false;
                 stage.Object(cube, key: $"zone{z}");
+                stage.Ref(cube);                                                                  // see Toggled below
                 cube.SetActive(false);
                 zonePreviews.Add(stage.ObjectValue(cube));
             }
@@ -182,7 +188,9 @@ namespace TreasureHunt
                 var list = stage.Copy(U("Prefabs/HiScoreList").gameObject, lists, $"List{l}");
                 Place(list.transform, Vector3.zero);
                 var title = list.transform.Find("BG/MenuName").gameObject;
+                title.GetComponent<TMP_Text>().text = Kinds[l].kind;                              // the script writes the same at start (SB:315-325)
                 stage.Object(list, key: $"list{l}");
+                stage.Ref(list);
                 stage.Object(title, key: $"listTitle{l}");
                 stage.Ref(title);
                 listRoots.Add(stage.ObjectValue(list));
@@ -232,6 +240,7 @@ namespace TreasureHunt
             body.useGravity = false;
             stage.Object(cheese, key: "prizeCheese", sync: "transform", grab: true);
             stage.Object(container, key: "prizeContainer");
+            stage.Ref(container);
             container.SetActive(false);
 
             // ---- credits ----
@@ -342,6 +351,7 @@ namespace TreasureHunt
             name.GetComponent<TMP_Text>().text = "";
             score.GetComponent<TMP_Text>().text = "";
             stage.Object(row, key: rowKey);
+            stage.Ref(row);
             stage.Object(name, key: nameKey);
             stage.Object(score, key: scoreKey);
             stage.Ref(name);
@@ -398,6 +408,7 @@ namespace TreasureHunt
             text.textWrappingMode = TextWrappingModes.Normal;
             text.text = CreditsText;
             stage.Object(panel, key: "credits");
+            stage.Ref(panel);
             return panel;
         }
 
