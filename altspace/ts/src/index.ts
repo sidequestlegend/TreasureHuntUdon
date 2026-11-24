@@ -24,6 +24,7 @@ function debugHooks(instance: GameInstance): Record<string, unknown> {
   const me = () => instance.networking.LocalPlayer;
   return {
     pathOf: (key: string) => instance.bindings.objects[key]?.path ?? "",
+    refIndex: (key: string) => instance.bindings.refs.indexOf(key),
     me: () => ({ sid: me().sid, uid: me().uid, name: me().displayName }),
     players: () => instance.networking.GetPlayers().map((p) => ({ sid: p.sid, uid: p.uid, name: p.displayName })),
     /** The pool as synced, and what this page shows of it. */

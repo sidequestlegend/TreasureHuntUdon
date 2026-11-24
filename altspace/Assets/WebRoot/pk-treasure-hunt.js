@@ -6198,6 +6198,7 @@ ${label}`)));
     const me = () => instance.networking.LocalPlayer;
     return {
       pathOf: (key) => instance.bindings.objects[key]?.path ?? "",
+      refIndex: (key) => instance.bindings.refs.indexOf(key),
       me: () => ({ sid: me().sid, uid: me().uid, name: me().displayName }),
       players: () => instance.networking.GetPlayers().map((p) => ({ sid: p.sid, uid: p.uid, name: p.displayName })),
       /** The pool as synced, and what this page shows of it. */

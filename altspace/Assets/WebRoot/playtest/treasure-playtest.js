@@ -163,7 +163,13 @@
       const k = kinds.find((x) => saved[x] > 0);
       const board = await boardRows(kinds.indexOf(k));
       check(board[0] === `${me.name} ${saved[k]}`, "the scoreboard shows them again after the reload (Unity)", JSON.stringify(board));
-      check(debug().prizeShown() && (await probe("active", pathOf("prizeContainer"))) === "True", "the unlocked prize is still shown after the reload", "");
+      await until(() => debug().prizeShown(), 5000, 200);
+      let unity = await probe("active", pathOf("prizeContainer"));
+      for (let n = 0; n < 10 && unity !== "True"; n++) {
+        await sleep(300);
+        unity = await probe("active", pathOf("prizeContainer"));
+      }
+      check(debug().prizeShown() && unity === "True", "the unlocked prize is still shown after the reload", `page ${debug().prizeShown()}, Unity ${unity}, players ${debug().players().length}, counts ${JSON.stringify(debug().counts())}`);
       try {
         sessionStorage.removeItem("thTestReloaded");
       } catch (e) {
@@ -219,8 +225,13 @@
     const credited = await until(() => hunt().findsCredited === 1, 8000, 100);
     const counts = debug().counts().find((c) => c.sid === me.sid) || {};
     check(!!credited && counts[kind] === 1, "a click within reach finds the treasure and credits it once", `${kind} #${i}; counts ${JSON.stringify(counts)}; foundBy ${hunt().foundBy[i] === me.sid}`);
-    const gone = await probe("active", before2.wrapperPaths[i]);
-    check(gone === "False" || (hunt().active[i] && hunt().serials[i] !== before2.serials[i]), "the found treasure disappears in Unity", `active ${gone}`);
+    let gone = await probe("active", before2.wrapperPaths[i]);
+    for (let n = 0; n < 10 && gone !== "False"; n++) {
+      await sleep(200);
+      gone = await probe("active", before2.wrapperPaths[i]);
+    }
+    const respawned = hunt().active[i] && hunt().serials[i] !== before2.serials[i];
+    check(gone === "False" || respawned, "the found treasure disappears in Unity", `active ${gone}; page shows it ${hunt().shown[i]}; respawned ${respawned}`);
     check(hunt().pickEffectsPlayed >= 1, "the pick effect plays (particles and the pick sound through the relay)", `effects ${hunt().pickEffectsPlayed}`);
     await sleep(1500);
     const rows = await personalRows();
@@ -382,6 +393,19 @@
     check(!!theirsLate, "the watcher came back after its reload", theirsLate ? theirsLate.digest : "no word");
     await until(() => heard.find((m) => m.kind === "done"), 30000, 200);
   }
+
+  // A fresh run starts from no saved finds on this device (an earlier run's would otherwise count); a reload keeps them.
+  function forgetSavedFinds() {
+    try {
+      if (sessionStorage.getItem("thTestReloaded") === "1") return 0;
+      const gone = Object.keys(localStorage).filter((k) => k.indexOf("pk1.treasure-hunt.") === 0);
+      for (const k of gone) localStorage.removeItem(k);
+      return gone.length;
+    } catch (e) {
+      return -1;
+    }
+  }
+  say("INFO", "saved data cleared before the run: " + forgetSavedFinds() + " keys");
 
   window.__thRun = async function (plan) {
     try {
