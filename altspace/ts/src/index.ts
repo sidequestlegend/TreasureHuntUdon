@@ -52,6 +52,12 @@ function debugHooks(instance: GameInstance): Record<string, unknown> {
     /** Saved counts of every player present, as this page reads them. */
     counts: () => instance.networking.GetPlayers().map((p) => ({ name: p.displayName, sid: p.sid, ...GetCounts(instance.perUser, p) })),
     kinds: () => KINDS.slice(),
+    /** Where the runtime measures click reach from: the local head and hands as last reported, or the last teleport. */
+    reach: () => {
+      const inner = instance as unknown as { poses: { head: { position: { x: number; y: number; z: number } } } | null; position: { x: number; y: number; z: number } | null };
+      const v = (p: { x: number; y: number; z: number } | null | undefined) => (p ? [p.x, p.y, p.z] : null);
+      return { head: v(inner.poses?.head.position), position: v(inner.position) };
+    },
     prizeShown: () => byType<PersistancePrize>("PersistancePrize").IsShown,
   };
 }

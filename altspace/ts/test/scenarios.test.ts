@@ -472,3 +472,30 @@ test("budget: one synced slot, a small leaf, and writes well under the room's 20
   assert.ok(w.agree());
   assert.deepEqual(w.problems(), []);
 });
+
+test("sounds and the rotator go through the relay: the pick and win sounds are audio ops on kit objects; animated=false switches the animators off", async () => {
+  const w = makeWorld({ seed: 33 });
+  const attrs = { ...SLOW, "prize-cost": "1", animated: "false" };
+  const [ann, bob] = [w.join({ name: "Ann", elements: [attrs] }), w.join({ name: "Bob", elements: [attrs] })];
+  await w.settle();
+  // animated="false" (THC:91): every wrapper's Animator is switched off through the relay (animEnabled 0)
+  for (const c of [ann, bob]) for (let k = 0; k < 22; k++) assert.deepEqual(c.graph(SLUG, "0").values.get(`wrapper${k}/animEnabled`), ["0"], `${c.name} wrapper${k}`);
+  const i = await waitForTreasure(w, bob);
+  await w.run(300);
+  assert.ok(bob.click(SLUG, "0", buttonOf(w, bob, i)));
+  await w.run(2000);
+  for (const c of [ann, bob]) {
+    const sounds = c.graph(SLUG, "0").events.filter((e) => e.op === "audio");
+    // one pick sound on one of the pooled effects (its own clip 0), and the win sound (prize-cost 1) on WinSound
+    assert.equal(sounds.filter((e) => /^pick\d$/.test(e.target) && e.args[0] === "0" && e.args[1] === e.target).length, 1, `${c.name}: ${JSON.stringify(sounds)}`);
+    assert.equal(sounds.filter((e) => e.target === "winSound" && e.args[0] === "0" && e.args[1] === "winSound").length, 1, `${c.name}: ${JSON.stringify(sounds)}`);
+    assert.equal(c.graph(SLUG, "0").events.filter((e) => e.op === "particles" && /^pick\d$/.test(e.target)).length, 1);
+  }
+  // with animated on (the default) nothing switches an animator
+  const w2 = makeWorld({ seed: 34 });
+  const cat = w2.join({ name: "Cat", elements: [SLOW] });
+  await w2.settle();
+  assert.equal(cat.graph(SLUG, "0").values.get("wrapper0/animEnabled"), undefined);
+  assert.deepEqual(w.problems(), []);
+  for (const c of [ann, bob]) assert.deepEqual(c.logged("warn").filter((l) => /audio|clip/i.test(l)), [], "no 'no audio source known' warning");
+});

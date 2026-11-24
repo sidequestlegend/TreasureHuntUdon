@@ -1,2039 +1,58 @@
 {
-  "schema": 1,
-  "slug": "treasure-hunt",
-  "hash": "",
-  "provisional": "Hand-made from PORT.md's object model by tools/provisional-bindings.ts, not by the kit builder. Paths, refs and keys are what the kit builder is asked to produce; it overwrites this file.",
-  "root": "treasure-hunt",
-  "bundles": {
-    "windows": "",
-    "android": ""
-  },
-  "objects": {
-    "wrapper0": {
-      "path": "Treasures/T0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator0": {
-      "path": "Treasures/T0/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button0": {
-      "path": "Treasures/T0/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper1": {
-      "path": "Treasures/T1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator1": {
-      "path": "Treasures/T1/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button1": {
-      "path": "Treasures/T1/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper2": {
-      "path": "Treasures/T2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator2": {
-      "path": "Treasures/T2/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button2": {
-      "path": "Treasures/T2/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper3": {
-      "path": "Treasures/T3",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator3": {
-      "path": "Treasures/T3/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button3": {
-      "path": "Treasures/T3/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper4": {
-      "path": "Treasures/T4",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator4": {
-      "path": "Treasures/T4/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button4": {
-      "path": "Treasures/T4/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper5": {
-      "path": "Treasures/T5",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator5": {
-      "path": "Treasures/T5/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button5": {
-      "path": "Treasures/T5/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper6": {
-      "path": "Treasures/T6",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator6": {
-      "path": "Treasures/T6/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button6": {
-      "path": "Treasures/T6/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper7": {
-      "path": "Treasures/T7",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator7": {
-      "path": "Treasures/T7/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button7": {
-      "path": "Treasures/T7/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper8": {
-      "path": "Treasures/T8",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator8": {
-      "path": "Treasures/T8/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button8": {
-      "path": "Treasures/T8/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper9": {
-      "path": "Treasures/T9",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator9": {
-      "path": "Treasures/T9/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button9": {
-      "path": "Treasures/T9/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper10": {
-      "path": "Treasures/T10",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator10": {
-      "path": "Treasures/T10/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button10": {
-      "path": "Treasures/T10/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper11": {
-      "path": "Treasures/T11",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator11": {
-      "path": "Treasures/T11/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button11": {
-      "path": "Treasures/T11/Rotator/Coin/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper12": {
-      "path": "Treasures/T12",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator12": {
-      "path": "Treasures/T12/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button12": {
-      "path": "Treasures/T12/Rotator/Gem/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper13": {
-      "path": "Treasures/T13",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator13": {
-      "path": "Treasures/T13/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button13": {
-      "path": "Treasures/T13/Rotator/Gem/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper14": {
-      "path": "Treasures/T14",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator14": {
-      "path": "Treasures/T14/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button14": {
-      "path": "Treasures/T14/Rotator/Gem/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper15": {
-      "path": "Treasures/T15",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator15": {
-      "path": "Treasures/T15/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button15": {
-      "path": "Treasures/T15/Rotator/Gem/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper16": {
-      "path": "Treasures/T16",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator16": {
-      "path": "Treasures/T16/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button16": {
-      "path": "Treasures/T16/Rotator/Gem/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper17": {
-      "path": "Treasures/T17",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator17": {
-      "path": "Treasures/T17/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button17": {
-      "path": "Treasures/T17/Rotator/Gem/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper18": {
-      "path": "Treasures/T18",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator18": {
-      "path": "Treasures/T18/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button18": {
-      "path": "Treasures/T18/Rotator/Star/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper19": {
-      "path": "Treasures/T19",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator19": {
-      "path": "Treasures/T19/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button19": {
-      "path": "Treasures/T19/Rotator/Star/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper20": {
-      "path": "Treasures/T20",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator20": {
-      "path": "Treasures/T20/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button20": {
-      "path": "Treasures/T20/Rotator/Star/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "wrapper21": {
-      "path": "Treasures/T21",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rotator21": {
-      "path": "Treasures/T21/Rotator",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "button21": {
-      "path": "Treasures/T21/Rotator/Star/Button",
-      "sync": "none",
-      "grab": false,
-      "click": true,
-      "seat": false
-    },
-    "pick0": {
-      "path": "Effects/Pick0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pickAudio0": {
-      "path": "Effects/Pick0/Audio",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pick1": {
-      "path": "Effects/Pick1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pickAudio1": {
-      "path": "Effects/Pick1/Audio",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pick2": {
-      "path": "Effects/Pick2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pickAudio2": {
-      "path": "Effects/Pick2/Audio",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pick3": {
-      "path": "Effects/Pick3",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pickAudio3": {
-      "path": "Effects/Pick3/Audio",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone0": {
-      "path": "Zones/Zone0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone1": {
-      "path": "Zones/Zone1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone2": {
-      "path": "Zones/Zone2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone3": {
-      "path": "Zones/Zone3",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone4": {
-      "path": "Zones/Zone4",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone5": {
-      "path": "Zones/Zone5",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone6": {
-      "path": "Zones/Zone6",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "zone7": {
-      "path": "Zones/Zone7",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "list0": {
-      "path": "Scoreboard/HiScoreLists/List0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "listTitle0": {
-      "path": "Scoreboard/HiScoreLists/List0/BG/MenuName",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_0": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_0": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row0/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_0": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_1": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_1": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row1/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_1": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_2": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_2": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row2/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_2": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_3": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row3",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_3": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row3/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_3": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row3/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_4": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row4",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_4": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row4/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_4": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row4/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_5": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row5",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_5": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row5/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_5": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row5/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_6": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row6",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_6": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row6/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_6": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row6/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_7": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row7",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_7": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row7/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_7": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row7/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_8": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row8",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_8": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row8/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_8": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row8/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_9": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row9",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_9": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row9/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_9": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row9/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_10": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row10",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_10": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row10/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_10": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row10/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_11": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row11",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_11": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row11/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_11": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row11/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_12": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row12",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_12": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row12/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_12": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row12/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_13": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row13",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_13": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row13/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_13": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row13/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_14": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row14",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_14": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row14/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_14": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row14/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row0_15": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row15",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName0_15": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row15/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore0_15": {
-      "path": "Scoreboard/HiScoreLists/List0/List/Row15/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "list1": {
-      "path": "Scoreboard/HiScoreLists/List1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "listTitle1": {
-      "path": "Scoreboard/HiScoreLists/List1/BG/MenuName",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_0": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_0": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row0/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_0": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_1": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_1": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row1/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_1": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_2": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_2": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row2/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_2": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_3": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row3",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_3": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row3/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_3": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row3/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_4": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row4",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_4": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row4/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_4": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row4/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_5": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row5",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_5": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row5/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_5": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row5/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_6": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row6",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_6": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row6/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_6": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row6/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_7": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row7",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_7": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row7/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_7": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row7/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_8": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row8",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_8": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row8/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_8": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row8/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_9": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row9",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_9": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row9/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_9": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row9/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_10": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row10",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_10": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row10/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_10": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row10/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_11": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row11",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_11": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row11/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_11": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row11/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_12": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row12",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_12": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row12/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_12": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row12/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_13": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row13",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_13": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row13/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_13": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row13/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_14": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row14",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_14": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row14/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_14": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row14/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row1_15": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row15",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName1_15": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row15/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore1_15": {
-      "path": "Scoreboard/HiScoreLists/List1/List/Row15/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "list2": {
-      "path": "Scoreboard/HiScoreLists/List2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "listTitle2": {
-      "path": "Scoreboard/HiScoreLists/List2/BG/MenuName",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_0": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_0": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row0/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_0": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_1": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_1": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row1/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_1": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_2": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_2": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row2/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_2": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_3": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row3",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_3": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row3/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_3": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row3/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_4": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row4",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_4": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row4/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_4": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row4/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_5": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row5",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_5": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row5/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_5": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row5/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_6": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row6",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_6": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row6/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_6": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row6/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_7": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row7",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_7": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row7/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_7": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row7/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_8": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row8",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_8": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row8/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_8": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row8/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_9": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row9",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_9": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row9/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_9": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row9/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_10": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row10",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_10": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row10/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_10": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row10/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_11": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row11",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_11": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row11/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_11": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row11/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_12": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row12",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_12": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row12/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_12": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row12/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_13": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row13",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_13": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row13/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_13": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row13/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_14": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row14",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_14": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row14/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_14": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row14/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "row2_15": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row15",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowName2_15": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row15/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "rowScore2_15": {
-      "path": "Scoreboard/HiScoreLists/List2/List/Row15/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "personalList": {
-      "path": "PersonalScoreList",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRow0": {
-      "path": "PersonalScoreList/List/Row0",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRowName0": {
-      "path": "PersonalScoreList/List/Row0/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRowScore0": {
-      "path": "PersonalScoreList/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRow1": {
-      "path": "PersonalScoreList/List/Row1",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRowName1": {
-      "path": "PersonalScoreList/List/Row1/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRowScore1": {
-      "path": "PersonalScoreList/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRow2": {
-      "path": "PersonalScoreList/List/Row2",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRowName2": {
-      "path": "PersonalScoreList/List/Row2/PlayerNameImg/PlayerNameTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "pRowScore2": {
-      "path": "PersonalScoreList/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "prize": {
-      "path": "Prize",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "winSound": {
-      "path": "Prize/WinSound",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "prizeContainer": {
-      "path": "Prize/Container",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    },
-    "prizeCheese": {
-      "path": "Prize/Container/Cheese",
-      "sync": "transform",
-      "grab": true,
-      "click": false,
-      "seat": false
-    },
-    "credits": {
-      "path": "Credits",
-      "sync": "none",
-      "grab": false,
-      "click": false,
-      "seat": false
-    }
-  },
-  "refs": [
-    "rotator0",
-    "rotator1",
-    "rotator2",
-    "rotator3",
-    "rotator4",
-    "rotator5",
-    "rotator6",
-    "rotator7",
-    "rotator8",
-    "rotator9",
-    "rotator10",
-    "rotator11",
-    "rotator12",
-    "rotator13",
-    "rotator14",
-    "rotator15",
-    "rotator16",
-    "rotator17",
-    "rotator18",
-    "rotator19",
-    "rotator20",
-    "rotator21",
-    "pick0",
-    "pick1",
-    "pick2",
-    "pick3",
-    "listTitle0",
-    "rowName0_0",
-    "rowScore0_0",
-    "rowName0_1",
-    "rowScore0_1",
-    "rowName0_2",
-    "rowScore0_2",
-    "rowName0_3",
-    "rowScore0_3",
-    "rowName0_4",
-    "rowScore0_4",
-    "rowName0_5",
-    "rowScore0_5",
-    "rowName0_6",
-    "rowScore0_6",
-    "rowName0_7",
-    "rowScore0_7",
-    "rowName0_8",
-    "rowScore0_8",
-    "rowName0_9",
-    "rowScore0_9",
-    "rowName0_10",
-    "rowScore0_10",
-    "rowName0_11",
-    "rowScore0_11",
-    "rowName0_12",
-    "rowScore0_12",
-    "rowName0_13",
-    "rowScore0_13",
-    "rowName0_14",
-    "rowScore0_14",
-    "rowName0_15",
-    "rowScore0_15",
-    "listTitle1",
-    "rowName1_0",
-    "rowScore1_0",
-    "rowName1_1",
-    "rowScore1_1",
-    "rowName1_2",
-    "rowScore1_2",
-    "rowName1_3",
-    "rowScore1_3",
-    "rowName1_4",
-    "rowScore1_4",
-    "rowName1_5",
-    "rowScore1_5",
-    "rowName1_6",
-    "rowScore1_6",
-    "rowName1_7",
-    "rowScore1_7",
-    "rowName1_8",
-    "rowScore1_8",
-    "rowName1_9",
-    "rowScore1_9",
-    "rowName1_10",
-    "rowScore1_10",
-    "rowName1_11",
-    "rowScore1_11",
-    "rowName1_12",
-    "rowScore1_12",
-    "rowName1_13",
-    "rowScore1_13",
-    "rowName1_14",
-    "rowScore1_14",
-    "rowName1_15",
-    "rowScore1_15",
-    "listTitle2",
-    "rowName2_0",
-    "rowScore2_0",
-    "rowName2_1",
-    "rowScore2_1",
-    "rowName2_2",
-    "rowScore2_2",
-    "rowName2_3",
-    "rowScore2_3",
-    "rowName2_4",
-    "rowScore2_4",
-    "rowName2_5",
-    "rowScore2_5",
-    "rowName2_6",
-    "rowScore2_6",
-    "rowName2_7",
-    "rowScore2_7",
-    "rowName2_8",
-    "rowScore2_8",
-    "rowName2_9",
-    "rowScore2_9",
-    "rowName2_10",
-    "rowScore2_10",
-    "rowName2_11",
-    "rowScore2_11",
-    "rowName2_12",
-    "rowScore2_12",
-    "rowName2_13",
-    "rowScore2_13",
-    "rowName2_14",
-    "rowScore2_14",
-    "rowName2_15",
-    "rowScore2_15",
-    "pRowName0",
-    "pRowScore0",
-    "pRowName1",
-    "pRowScore1",
-    "pRowName2",
-    "pRowScore2"
-  ],
   "behaviours": [
     {
-      "id": "controller",
-      "type": "TreasureHuntController",
-      "object": null,
       "fields": {
-        "wrappers": [
+        "credits": {
+          "$obj": "credits"
+        },
+        "pickAudio": [
           {
-            "$obj": "wrapper0"
+            "$comp": "pick0",
+            "kind": "AudioSource"
           },
           {
-            "$obj": "wrapper1"
+            "$comp": "pick1",
+            "kind": "AudioSource"
           },
           {
-            "$obj": "wrapper2"
+            "$comp": "pick2",
+            "kind": "AudioSource"
           },
           {
-            "$obj": "wrapper3"
-          },
-          {
-            "$obj": "wrapper4"
-          },
-          {
-            "$obj": "wrapper5"
-          },
-          {
-            "$obj": "wrapper6"
-          },
-          {
-            "$obj": "wrapper7"
-          },
-          {
-            "$obj": "wrapper8"
-          },
-          {
-            "$obj": "wrapper9"
-          },
-          {
-            "$obj": "wrapper10"
-          },
-          {
-            "$obj": "wrapper11"
-          },
-          {
-            "$obj": "wrapper12"
-          },
-          {
-            "$obj": "wrapper13"
-          },
-          {
-            "$obj": "wrapper14"
-          },
-          {
-            "$obj": "wrapper15"
-          },
-          {
-            "$obj": "wrapper16"
-          },
-          {
-            "$obj": "wrapper17"
-          },
-          {
-            "$obj": "wrapper18"
-          },
-          {
-            "$obj": "wrapper19"
-          },
-          {
-            "$obj": "wrapper20"
-          },
-          {
-            "$obj": "wrapper21"
+            "$comp": "pick3",
+            "kind": "AudioSource"
           }
         ],
-        "rotators": [
+        "pickEffects": [
           {
-            "$comp": "rotator0",
-            "kind": "Animator"
+            "$obj": "pick0"
           },
           {
-            "$comp": "rotator1",
-            "kind": "Animator"
+            "$obj": "pick1"
           },
           {
-            "$comp": "rotator2",
-            "kind": "Animator"
+            "$obj": "pick2"
           },
           {
-            "$comp": "rotator3",
-            "kind": "Animator"
+            "$obj": "pick3"
+          }
+        ],
+        "pickParticles": [
+          {
+            "$comp": "pick0",
+            "kind": "ParticleSystem"
           },
           {
-            "$comp": "rotator4",
-            "kind": "Animator"
+            "$comp": "pick1",
+            "kind": "ParticleSystem"
           },
           {
-            "$comp": "rotator5",
-            "kind": "Animator"
+            "$comp": "pick2",
+            "kind": "ParticleSystem"
           },
           {
-            "$comp": "rotator6",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator7",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator8",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator9",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator10",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator11",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator12",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator13",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator14",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator15",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator16",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator17",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator18",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator19",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator20",
-            "kind": "Animator"
-          },
-          {
-            "$comp": "rotator21",
-            "kind": "Animator"
+            "$comp": "pick3",
+            "kind": "ParticleSystem"
           }
         ],
         "returners": [
@@ -2104,6 +123,164 @@
             "$beh": "r21"
           }
         ],
+        "rotators": [
+          {
+            "$comp": "wrapper0",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper1",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper2",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper3",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper4",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper5",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper6",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper7",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper8",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper9",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper10",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper11",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper12",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper13",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper14",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper15",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper16",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper17",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper18",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper19",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper20",
+            "kind": "Animator"
+          },
+          {
+            "$comp": "wrapper21",
+            "kind": "Animator"
+          }
+        ],
+        "wrappers": [
+          {
+            "$obj": "wrapper0"
+          },
+          {
+            "$obj": "wrapper1"
+          },
+          {
+            "$obj": "wrapper2"
+          },
+          {
+            "$obj": "wrapper3"
+          },
+          {
+            "$obj": "wrapper4"
+          },
+          {
+            "$obj": "wrapper5"
+          },
+          {
+            "$obj": "wrapper6"
+          },
+          {
+            "$obj": "wrapper7"
+          },
+          {
+            "$obj": "wrapper8"
+          },
+          {
+            "$obj": "wrapper9"
+          },
+          {
+            "$obj": "wrapper10"
+          },
+          {
+            "$obj": "wrapper11"
+          },
+          {
+            "$obj": "wrapper12"
+          },
+          {
+            "$obj": "wrapper13"
+          },
+          {
+            "$obj": "wrapper14"
+          },
+          {
+            "$obj": "wrapper15"
+          },
+          {
+            "$obj": "wrapper16"
+          },
+          {
+            "$obj": "wrapper17"
+          },
+          {
+            "$obj": "wrapper18"
+          },
+          {
+            "$obj": "wrapper19"
+          },
+          {
+            "$obj": "wrapper20"
+          },
+          {
+            "$obj": "wrapper21"
+          }
+        ],
         "zonePreviews": [
           {
             "$obj": "zone0"
@@ -2129,334 +306,278 @@
           {
             "$obj": "zone7"
           }
-        ],
-        "pickEffects": [
-          {
-            "$obj": "pick0"
-          },
-          {
-            "$obj": "pick1"
-          },
-          {
-            "$obj": "pick2"
-          },
-          {
-            "$obj": "pick3"
-          }
-        ],
-        "pickParticles": [
-          {
-            "$comp": "pick0",
-            "kind": "ParticleSystem"
-          },
-          {
-            "$comp": "pick1",
-            "kind": "ParticleSystem"
-          },
-          {
-            "$comp": "pick2",
-            "kind": "ParticleSystem"
-          },
-          {
-            "$comp": "pick3",
-            "kind": "ParticleSystem"
-          }
-        ],
-        "pickAudio": [
-          {
-            "$comp": "pickAudio0",
-            "kind": "AudioSource"
-          },
-          {
-            "$comp": "pickAudio1",
-            "kind": "AudioSource"
-          },
-          {
-            "$comp": "pickAudio2",
-            "kind": "AudioSource"
-          },
-          {
-            "$comp": "pickAudio3",
-            "kind": "AudioSource"
-          }
-        ],
-        "credits": {
-          "$obj": "credits"
-        }
-      }
+        ]
+      },
+      "id": "controller",
+      "object": "treasures",
+      "type": "TreasureHuntController"
     },
     {
-      "id": "r0",
-      "type": "TreasureReturner",
-      "object": "button0",
       "fields": {
-        "treasureHuntController": {
-          "$beh": "controller"
-        },
         "slot": 0,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r1",
-      "type": "TreasureReturner",
-      "object": "button1",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r0",
+      "object": "button0",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 1,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r2",
-      "type": "TreasureReturner",
-      "object": "button2",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r1",
+      "object": "button1",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 2,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r3",
-      "type": "TreasureReturner",
-      "object": "button3",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r2",
+      "object": "button2",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 3,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r4",
-      "type": "TreasureReturner",
-      "object": "button4",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r3",
+      "object": "button3",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 4,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r5",
-      "type": "TreasureReturner",
-      "object": "button5",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r4",
+      "object": "button4",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 5,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r6",
-      "type": "TreasureReturner",
-      "object": "button6",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r5",
+      "object": "button5",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 6,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r7",
-      "type": "TreasureReturner",
-      "object": "button7",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r6",
+      "object": "button6",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 7,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r8",
-      "type": "TreasureReturner",
-      "object": "button8",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r7",
+      "object": "button7",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 8,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r9",
-      "type": "TreasureReturner",
-      "object": "button9",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r8",
+      "object": "button8",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 9,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r10",
-      "type": "TreasureReturner",
-      "object": "button10",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r9",
+      "object": "button9",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 10,
-        "treasureName": "Coin"
-      }
-    },
-    {
-      "id": "r11",
-      "type": "TreasureReturner",
-      "object": "button11",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Coin"
+      },
+      "id": "r10",
+      "object": "button10",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 11,
+        "treasureHuntController": {
+          "$beh": "controller"
+        },
         "treasureName": "Coin"
-      }
+      },
+      "id": "r11",
+      "object": "button11",
+      "type": "TreasureReturner"
     },
     {
-      "id": "r12",
-      "type": "TreasureReturner",
-      "object": "button12",
       "fields": {
-        "treasureHuntController": {
-          "$beh": "controller"
-        },
         "slot": 12,
-        "treasureName": "Gem"
-      }
-    },
-    {
-      "id": "r13",
-      "type": "TreasureReturner",
-      "object": "button13",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Gem"
+      },
+      "id": "r12",
+      "object": "button12",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 13,
-        "treasureName": "Gem"
-      }
-    },
-    {
-      "id": "r14",
-      "type": "TreasureReturner",
-      "object": "button14",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Gem"
+      },
+      "id": "r13",
+      "object": "button13",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 14,
-        "treasureName": "Gem"
-      }
-    },
-    {
-      "id": "r15",
-      "type": "TreasureReturner",
-      "object": "button15",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Gem"
+      },
+      "id": "r14",
+      "object": "button14",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 15,
-        "treasureName": "Gem"
-      }
-    },
-    {
-      "id": "r16",
-      "type": "TreasureReturner",
-      "object": "button16",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Gem"
+      },
+      "id": "r15",
+      "object": "button15",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 16,
-        "treasureName": "Gem"
-      }
-    },
-    {
-      "id": "r17",
-      "type": "TreasureReturner",
-      "object": "button17",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Gem"
+      },
+      "id": "r16",
+      "object": "button16",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 17,
+        "treasureHuntController": {
+          "$beh": "controller"
+        },
         "treasureName": "Gem"
-      }
+      },
+      "id": "r17",
+      "object": "button17",
+      "type": "TreasureReturner"
     },
     {
-      "id": "r18",
-      "type": "TreasureReturner",
-      "object": "button18",
       "fields": {
-        "treasureHuntController": {
-          "$beh": "controller"
-        },
         "slot": 18,
-        "treasureName": "Star"
-      }
-    },
-    {
-      "id": "r19",
-      "type": "TreasureReturner",
-      "object": "button19",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Star"
+      },
+      "id": "r18",
+      "object": "button18",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 19,
-        "treasureName": "Star"
-      }
-    },
-    {
-      "id": "r20",
-      "type": "TreasureReturner",
-      "object": "button20",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Star"
+      },
+      "id": "r19",
+      "object": "button19",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "slot": 20,
-        "treasureName": "Star"
-      }
-    },
-    {
-      "id": "r21",
-      "type": "TreasureReturner",
-      "object": "button21",
-      "fields": {
         "treasureHuntController": {
           "$beh": "controller"
         },
-        "slot": 21,
         "treasureName": "Star"
-      }
+      },
+      "id": "r20",
+      "object": "button20",
+      "type": "TreasureReturner"
     },
     {
-      "id": "scoreboard",
-      "type": "Scoreboard",
-      "object": null,
       "fields": {
-        "treasuresPool": {
+        "slot": 21,
+        "treasureHuntController": {
           "$beh": "controller"
         },
+        "treasureName": "Star"
+      },
+      "id": "r21",
+      "object": "button21",
+      "type": "TreasureReturner"
+    },
+    {
+      "fields": {
         "listRoots": [
           {
             "$obj": "list0"
@@ -2480,152 +601,6 @@
           {
             "$comp": "listTitle2",
             "kind": "TMP"
-          }
-        ],
-        "rowObjects": [
-          {
-            "$obj": "row0_0"
-          },
-          {
-            "$obj": "row0_1"
-          },
-          {
-            "$obj": "row0_2"
-          },
-          {
-            "$obj": "row0_3"
-          },
-          {
-            "$obj": "row0_4"
-          },
-          {
-            "$obj": "row0_5"
-          },
-          {
-            "$obj": "row0_6"
-          },
-          {
-            "$obj": "row0_7"
-          },
-          {
-            "$obj": "row0_8"
-          },
-          {
-            "$obj": "row0_9"
-          },
-          {
-            "$obj": "row0_10"
-          },
-          {
-            "$obj": "row0_11"
-          },
-          {
-            "$obj": "row0_12"
-          },
-          {
-            "$obj": "row0_13"
-          },
-          {
-            "$obj": "row0_14"
-          },
-          {
-            "$obj": "row0_15"
-          },
-          {
-            "$obj": "row1_0"
-          },
-          {
-            "$obj": "row1_1"
-          },
-          {
-            "$obj": "row1_2"
-          },
-          {
-            "$obj": "row1_3"
-          },
-          {
-            "$obj": "row1_4"
-          },
-          {
-            "$obj": "row1_5"
-          },
-          {
-            "$obj": "row1_6"
-          },
-          {
-            "$obj": "row1_7"
-          },
-          {
-            "$obj": "row1_8"
-          },
-          {
-            "$obj": "row1_9"
-          },
-          {
-            "$obj": "row1_10"
-          },
-          {
-            "$obj": "row1_11"
-          },
-          {
-            "$obj": "row1_12"
-          },
-          {
-            "$obj": "row1_13"
-          },
-          {
-            "$obj": "row1_14"
-          },
-          {
-            "$obj": "row1_15"
-          },
-          {
-            "$obj": "row2_0"
-          },
-          {
-            "$obj": "row2_1"
-          },
-          {
-            "$obj": "row2_2"
-          },
-          {
-            "$obj": "row2_3"
-          },
-          {
-            "$obj": "row2_4"
-          },
-          {
-            "$obj": "row2_5"
-          },
-          {
-            "$obj": "row2_6"
-          },
-          {
-            "$obj": "row2_7"
-          },
-          {
-            "$obj": "row2_8"
-          },
-          {
-            "$obj": "row2_9"
-          },
-          {
-            "$obj": "row2_10"
-          },
-          {
-            "$obj": "row2_11"
-          },
-          {
-            "$obj": "row2_12"
-          },
-          {
-            "$obj": "row2_13"
-          },
-          {
-            "$obj": "row2_14"
-          },
-          {
-            "$obj": "row2_15"
           }
         ],
         "rowNames": [
@@ -2822,6 +797,152 @@
             "kind": "TMP"
           }
         ],
+        "rowObjects": [
+          {
+            "$obj": "row0_0"
+          },
+          {
+            "$obj": "row0_1"
+          },
+          {
+            "$obj": "row0_2"
+          },
+          {
+            "$obj": "row0_3"
+          },
+          {
+            "$obj": "row0_4"
+          },
+          {
+            "$obj": "row0_5"
+          },
+          {
+            "$obj": "row0_6"
+          },
+          {
+            "$obj": "row0_7"
+          },
+          {
+            "$obj": "row0_8"
+          },
+          {
+            "$obj": "row0_9"
+          },
+          {
+            "$obj": "row0_10"
+          },
+          {
+            "$obj": "row0_11"
+          },
+          {
+            "$obj": "row0_12"
+          },
+          {
+            "$obj": "row0_13"
+          },
+          {
+            "$obj": "row0_14"
+          },
+          {
+            "$obj": "row0_15"
+          },
+          {
+            "$obj": "row1_0"
+          },
+          {
+            "$obj": "row1_1"
+          },
+          {
+            "$obj": "row1_2"
+          },
+          {
+            "$obj": "row1_3"
+          },
+          {
+            "$obj": "row1_4"
+          },
+          {
+            "$obj": "row1_5"
+          },
+          {
+            "$obj": "row1_6"
+          },
+          {
+            "$obj": "row1_7"
+          },
+          {
+            "$obj": "row1_8"
+          },
+          {
+            "$obj": "row1_9"
+          },
+          {
+            "$obj": "row1_10"
+          },
+          {
+            "$obj": "row1_11"
+          },
+          {
+            "$obj": "row1_12"
+          },
+          {
+            "$obj": "row1_13"
+          },
+          {
+            "$obj": "row1_14"
+          },
+          {
+            "$obj": "row1_15"
+          },
+          {
+            "$obj": "row2_0"
+          },
+          {
+            "$obj": "row2_1"
+          },
+          {
+            "$obj": "row2_2"
+          },
+          {
+            "$obj": "row2_3"
+          },
+          {
+            "$obj": "row2_4"
+          },
+          {
+            "$obj": "row2_5"
+          },
+          {
+            "$obj": "row2_6"
+          },
+          {
+            "$obj": "row2_7"
+          },
+          {
+            "$obj": "row2_8"
+          },
+          {
+            "$obj": "row2_9"
+          },
+          {
+            "$obj": "row2_10"
+          },
+          {
+            "$obj": "row2_11"
+          },
+          {
+            "$obj": "row2_12"
+          },
+          {
+            "$obj": "row2_13"
+          },
+          {
+            "$obj": "row2_14"
+          },
+          {
+            "$obj": "row2_15"
+          }
+        ],
         "rowScores": [
           {
             "$comp": "rowScore0_0",
@@ -3016,28 +1137,17 @@
             "kind": "TMP"
           }
         ],
-        "rowsPerList": 16
-      }
-    },
-    {
-      "id": "personal",
-      "type": "PersonalScoreList",
-      "object": "personalList",
-      "fields": {
+        "rowsPerList": 16,
         "treasuresPool": {
           "$beh": "controller"
-        },
-        "rowObjects": [
-          {
-            "$obj": "pRow0"
-          },
-          {
-            "$obj": "pRow1"
-          },
-          {
-            "$obj": "pRow2"
-          }
-        ],
+        }
+      },
+      "id": "scoreboard",
+      "object": "scoreboard",
+      "type": "Scoreboard"
+    },
+    {
+      "fields": {
         "rowNames": [
           {
             "$comp": "pRowName0",
@@ -3050,6 +1160,17 @@
           {
             "$comp": "pRowName2",
             "kind": "TMP"
+          }
+        ],
+        "rowObjects": [
+          {
+            "$obj": "pRow0"
+          },
+          {
+            "$obj": "pRow1"
+          },
+          {
+            "$obj": "pRow2"
           }
         ],
         "rowScores": [
@@ -3065,13 +1186,16 @@
             "$comp": "pRowScore2",
             "kind": "TMP"
           }
-        ]
-      }
+        ],
+        "treasuresPool": {
+          "$beh": "controller"
+        }
+      },
+      "id": "personal",
+      "object": "personalList",
+      "type": "PersonalScoreList"
     },
     {
-      "id": "prize",
-      "type": "PersistancePrize",
-      "object": "prize",
       "fields": {
         "prizeContainer": {
           "$obj": "prizeContainer"
@@ -3080,8 +1204,1797 @@
           "$comp": "winSound",
           "kind": "AudioSource"
         }
-      }
+      },
+      "id": "prize",
+      "object": "prize",
+      "type": "PersistancePrize"
     }
   ],
-  "events": []
+  "bundles": {
+    "android": "",
+    "windows": ""
+  },
+  "events": [],
+  "hash": "044cdb57545da266cea288a98f3d79f9fb56ec45",
+  "objects": {
+    "button0": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T0/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button1": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T1/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button10": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T10/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button11": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T11/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button12": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T12/Rotator/Gem/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button13": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T13/Rotator/Gem/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button14": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T14/Rotator/Gem/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button15": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T15/Rotator/Gem/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button16": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T16/Rotator/Gem/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button17": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T17/Rotator/Gem/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button18": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T18/Rotator/Star/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button19": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T19/Rotator/Star/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button2": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T2/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button20": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T20/Rotator/Star/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button21": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T21/Rotator/Star/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button3": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T3/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button4": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T4/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button5": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T5/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button6": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T6/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button7": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T7/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button8": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T8/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "button9": {
+      "click": true,
+      "grab": false,
+      "path": "Treasures/T9/Rotator/Coin/Button",
+      "seat": false,
+      "sync": "none"
+    },
+    "credits": {
+      "click": false,
+      "grab": false,
+      "path": "Credits",
+      "seat": false,
+      "sync": "none"
+    },
+    "list0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0",
+      "seat": false,
+      "sync": "none"
+    },
+    "list1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1",
+      "seat": false,
+      "sync": "none"
+    },
+    "list2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2",
+      "seat": false,
+      "sync": "none"
+    },
+    "listTitle0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/BG/MenuName",
+      "seat": false,
+      "sync": "none"
+    },
+    "listTitle1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/BG/MenuName",
+      "seat": false,
+      "sync": "none"
+    },
+    "listTitle2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/BG/MenuName",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRow0": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row0",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRow1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row1",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRow2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row2",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRowName0": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row0/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRowName1": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row1/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRowName2": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row2/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRowScore0": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row0/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRowScore1": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row1/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "pRowScore2": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList/List/Row2/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "personalList": {
+      "click": false,
+      "grab": false,
+      "path": "PersonalScoreList",
+      "seat": false,
+      "sync": "none"
+    },
+    "pick0": {
+      "click": false,
+      "grab": false,
+      "path": "Effects/Pick0",
+      "seat": false,
+      "sync": "none"
+    },
+    "pick1": {
+      "click": false,
+      "grab": false,
+      "path": "Effects/Pick1",
+      "seat": false,
+      "sync": "none"
+    },
+    "pick2": {
+      "click": false,
+      "grab": false,
+      "path": "Effects/Pick2",
+      "seat": false,
+      "sync": "none"
+    },
+    "pick3": {
+      "click": false,
+      "grab": false,
+      "path": "Effects/Pick3",
+      "seat": false,
+      "sync": "none"
+    },
+    "prize": {
+      "click": false,
+      "grab": false,
+      "path": "Prize",
+      "seat": false,
+      "sync": "none"
+    },
+    "prizeCheese": {
+      "click": false,
+      "grab": true,
+      "path": "Prize/Container/Cheese",
+      "seat": false,
+      "sync": "transform"
+    },
+    "prizeContainer": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Prize/Container",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_0": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row0",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row1",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_10": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row10",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_11": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row11",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_12": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row12",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_13": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row13",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_14": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row14",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_15": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row15",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row2",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_3": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row3",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_4": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row4",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_5": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row5",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_6": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row6",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_7": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row7",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_8": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row8",
+      "seat": false,
+      "sync": "none"
+    },
+    "row0_9": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row9",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_0": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row0",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row1",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_10": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row10",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_11": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row11",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_12": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row12",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_13": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row13",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_14": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row14",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_15": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row15",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row2",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_3": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row3",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_4": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row4",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_5": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row5",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_6": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row6",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_7": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row7",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_8": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row8",
+      "seat": false,
+      "sync": "none"
+    },
+    "row1_9": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row9",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_0": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row0",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row1",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_10": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row10",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_11": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row11",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_12": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row12",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_13": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row13",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_14": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row14",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_15": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row15",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row2",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_3": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row3",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_4": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row4",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_5": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row5",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_6": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row6",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_7": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row7",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_8": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row8",
+      "seat": false,
+      "sync": "none"
+    },
+    "row2_9": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row9",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row0/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row1/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_10": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row10/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_11": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row11/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_12": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row12/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_13": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row13/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_14": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row14/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_15": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row15/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row2/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_3": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row3/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_4": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row4/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_5": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row5/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_6": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row6/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_7": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row7/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_8": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row8/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName0_9": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row9/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row0/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row1/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_10": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row10/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_11": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row11/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_12": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row12/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_13": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row13/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_14": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row14/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_15": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row15/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row2/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_3": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row3/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_4": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row4/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_5": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row5/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_6": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row6/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_7": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row7/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_8": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row8/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName1_9": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row9/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row0/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row1/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_10": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row10/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_11": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row11/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_12": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row12/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_13": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row13/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_14": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row14/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_15": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row15/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row2/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_3": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row3/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_4": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row4/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_5": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row5/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_6": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row6/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_7": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row7/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_8": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row8/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowName2_9": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row9/PlayerNameImg/PlayerNameTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row0/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row1/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_10": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row10/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_11": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row11/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_12": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row12/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_13": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row13/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_14": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row14/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_15": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row15/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row2/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_3": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row3/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_4": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row4/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_5": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row5/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_6": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row6/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_7": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row7/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_8": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row8/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore0_9": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List0/List/Row9/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row0/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row1/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_10": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row10/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_11": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row11/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_12": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row12/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_13": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row13/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_14": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row14/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_15": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row15/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row2/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_3": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row3/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_4": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row4/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_5": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row5/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_6": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row6/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_7": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row7/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_8": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row8/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore1_9": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List1/List/Row9/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_0": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row0/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_1": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row1/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_10": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row10/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_11": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row11/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_12": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row12/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_13": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row13/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_14": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row14/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_15": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row15/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_2": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row2/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_3": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row3/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_4": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row4/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_5": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row5/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_6": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row6/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_7": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row7/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_8": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row8/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "rowScore2_9": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard/HiScoreLists/List2/List/Row9/PlayerScoreImg/PlayerScoreTxt",
+      "seat": false,
+      "sync": "none"
+    },
+    "scoreboard": {
+      "click": false,
+      "grab": false,
+      "path": "Scoreboard",
+      "seat": false,
+      "sync": "none"
+    },
+    "treasures": {
+      "click": false,
+      "grab": false,
+      "path": "Treasures",
+      "seat": false,
+      "sync": "none"
+    },
+    "winSound": {
+      "click": false,
+      "grab": false,
+      "path": "Prize/WinSound",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper0": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T0",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T1",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper10": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T10",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper11": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T11",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper12": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T12",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper13": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T13",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper14": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T14",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper15": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T15",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper16": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T16",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper17": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T17",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper18": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T18",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper19": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T19",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T2",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper20": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T20",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper21": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T21",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper3": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T3",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper4": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T4",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper5": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T5",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper6": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T6",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper7": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T7",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper8": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T8",
+      "seat": false,
+      "sync": "none"
+    },
+    "wrapper9": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Treasures/T9",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone0": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone0",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone1": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone1",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone2": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone2",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone3": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone3",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone4": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone4",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone5": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone5",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone6": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone6",
+      "seat": false,
+      "sync": "none"
+    },
+    "zone7": {
+      "active": false,
+      "click": false,
+      "grab": false,
+      "path": "Zones/Zone7",
+      "seat": false,
+      "sync": "none"
+    }
+  },
+  "refs": [
+    "wrapper0",
+    "wrapper1",
+    "wrapper2",
+    "wrapper3",
+    "wrapper4",
+    "wrapper5",
+    "wrapper6",
+    "wrapper7",
+    "wrapper8",
+    "wrapper9",
+    "wrapper10",
+    "wrapper11",
+    "wrapper12",
+    "wrapper13",
+    "wrapper14",
+    "wrapper15",
+    "wrapper16",
+    "wrapper17",
+    "wrapper18",
+    "wrapper19",
+    "wrapper20",
+    "wrapper21",
+    "pick0",
+    "pick1",
+    "pick2",
+    "pick3",
+    "listTitle0",
+    "rowName0_0",
+    "rowScore0_0",
+    "rowName0_1",
+    "rowScore0_1",
+    "rowName0_2",
+    "rowScore0_2",
+    "rowName0_3",
+    "rowScore0_3",
+    "rowName0_4",
+    "rowScore0_4",
+    "rowName0_5",
+    "rowScore0_5",
+    "rowName0_6",
+    "rowScore0_6",
+    "rowName0_7",
+    "rowScore0_7",
+    "rowName0_8",
+    "rowScore0_8",
+    "rowName0_9",
+    "rowScore0_9",
+    "rowName0_10",
+    "rowScore0_10",
+    "rowName0_11",
+    "rowScore0_11",
+    "rowName0_12",
+    "rowScore0_12",
+    "rowName0_13",
+    "rowScore0_13",
+    "rowName0_14",
+    "rowScore0_14",
+    "rowName0_15",
+    "rowScore0_15",
+    "listTitle1",
+    "rowName1_0",
+    "rowScore1_0",
+    "rowName1_1",
+    "rowScore1_1",
+    "rowName1_2",
+    "rowScore1_2",
+    "rowName1_3",
+    "rowScore1_3",
+    "rowName1_4",
+    "rowScore1_4",
+    "rowName1_5",
+    "rowScore1_5",
+    "rowName1_6",
+    "rowScore1_6",
+    "rowName1_7",
+    "rowScore1_7",
+    "rowName1_8",
+    "rowScore1_8",
+    "rowName1_9",
+    "rowScore1_9",
+    "rowName1_10",
+    "rowScore1_10",
+    "rowName1_11",
+    "rowScore1_11",
+    "rowName1_12",
+    "rowScore1_12",
+    "rowName1_13",
+    "rowScore1_13",
+    "rowName1_14",
+    "rowScore1_14",
+    "rowName1_15",
+    "rowScore1_15",
+    "listTitle2",
+    "rowName2_0",
+    "rowScore2_0",
+    "rowName2_1",
+    "rowScore2_1",
+    "rowName2_2",
+    "rowScore2_2",
+    "rowName2_3",
+    "rowScore2_3",
+    "rowName2_4",
+    "rowScore2_4",
+    "rowName2_5",
+    "rowScore2_5",
+    "rowName2_6",
+    "rowScore2_6",
+    "rowName2_7",
+    "rowScore2_7",
+    "rowName2_8",
+    "rowScore2_8",
+    "rowName2_9",
+    "rowScore2_9",
+    "rowName2_10",
+    "rowScore2_10",
+    "rowName2_11",
+    "rowScore2_11",
+    "rowName2_12",
+    "rowScore2_12",
+    "rowName2_13",
+    "rowScore2_13",
+    "rowName2_14",
+    "rowScore2_14",
+    "rowName2_15",
+    "rowScore2_15",
+    "pRowName0",
+    "pRowScore0",
+    "pRowName1",
+    "pRowScore1",
+    "pRowName2",
+    "pRowScore2",
+    "winSound"
+  ],
+  "schema": 1,
+  "slug": "treasure-hunt"
 }

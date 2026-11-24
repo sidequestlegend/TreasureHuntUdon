@@ -315,7 +315,7 @@ namespace TreasureHunt
                 {
                     if (p.propertyType != SerializedPropertyType.ObjectReference || p.objectReferenceValue == null) continue;
                     string path = AssetDatabase.GetAssetPath(p.objectReferenceValue);
-                    if (Banned.Any(b => path.EndsWith(b, StringComparison.OrdinalIgnoreCase))) bad.Add($"{r.gameObject.name}.{r.GetType().Name}.{p.propertyPath} -> {path}");
+                    if (path.StartsWith(Upstream + "/", StringComparison.OrdinalIgnoreCase) && Banned.Any(b => path.EndsWith(b, StringComparison.OrdinalIgnoreCase))) bad.Add($"{r.gameObject.name}.{r.GetType().Name}.{p.propertyPath} -> {path}");
                 }
             }
             if (bad.Count > 0) throw new Exception("the kit still uses upstream files that cannot ship: " + string.Join("; ", bad.Take(12)));
@@ -405,7 +405,7 @@ namespace TreasureHunt
             "<b>Treasure Hunt</b>: find the coins, gems and stars that appear around here: walk up close and click one. " +
             "<b>Your finds are saved on this device only</b> (another device, or clearing the app's data, starts from zero).\n" +
             "A port of TreasureHuntUdon by Hoshou Neko (github.com/HoshouNeko/TreasureHuntUdon, MIT). Models, sounds, sprites and " +
-            "matcaps made for this port (MIT). Font: Lilita One by Juan Montoreano, and Liberation Sans (both SIL Open Font License 1.1). " +
+            "matcaps made for this port (MIT). Lettering drawn from the font Lilita One by Juan Montoreano (reserved font name Lilita), and Liberation Sans (both SIL Open Font License 1.1). " +
             "Not affiliated with VRChat.";
 
         void Reskin(GameObject root, Dictionary<string, Sprite> sprites)
@@ -472,7 +472,7 @@ namespace TreasureHunt
             var chars = new System.Text.StringBuilder();
             for (int c = 32; c < 127; c++) chars.Append((char)c);
             for (int c = 160; c < 256; c++) chars.Append((char)c);
-            var asset = KitText.StaticFontAsset(source, chars.ToString(), $"{FontFolder}/LilitaOne SDF.asset", 64, 1024);
+            var asset = KitText.StaticFontAsset(source, chars.ToString(), $"{FontFolder}/HuntDisplay SDF.asset", 64, 1024);
             var fallback = KitText.DefaultFont();                                                  // names in other scripts: Liberation Sans, as far as it goes
             if (fallback != null) asset.fallbackFontAssetTable = new List<TMP_FontAsset> { fallback };
             EditorUtility.SetDirty(asset);
