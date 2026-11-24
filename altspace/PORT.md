@@ -1,9 +1,10 @@
 # Treasure hunt: port analysis (PORT.md)
 
-Status (2026-11-24): **rules ported and passing rung 0 and 1** (TypeScript on the portkit runtime, Node,
-fake room). No Unity yet: no kit builder, kit, bundles, Play-mode or two-player editor run. `bindings.json` is
-**provisional** (written by `ts/tools/provisional-bindings.ts` from section 5 of this file), to be replaced by
-the kit builder's. Section 11 has the checklist status, the decisions, the runtime gaps and the art list.
+Status (2026-11-24): **editor-verified in the Unity editor** (rungs 0 to 4; `TESTS.md`): rules in TypeScript on
+the re-synced portkit runtime (Node, fake room, 23 tests), the kit built by `Assets/Kit/Editor/TreasureHuntKitBuilder.cs`
+(bundles PASS the app's kit check), one-player and two-player Play-mode tests through the SDK's desktop player.
+Every upstream asset section 1 rules out is replaced (section 11.6). Nothing ran in the Altspace app or on a Quest
+(section 11.7). Section 11 has the checklist status, the decisions, the runtime gaps and the art list.
 Sections 1 to 10 are the analysis as written before the port (by reading; nothing was run then), with
 section 10.1 updated to what the port does.
 
@@ -494,9 +495,9 @@ Not suited to vectors: anything about who owns, ordering between clients, late j
 | 10 | Wrappers, return buttons, rows and effects created at run time | Built into the kit; rows and effects pooled | Relay refs are fixed at build |
 | 11 | More than 16 rows exist but are clipped (item 37) | 16 rows per list | Same visible result |
 | 11a | Scoreboard order is wrong from four players (item 35) | **Fixed.** Highest first, equal scores in join order (`SortListOfDictionaries`); upstream's loop is kept as `UpstreamSortListOfDictionaries` only for the test vectors | Coordinator decision: a plain bug |
-| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands; with no pose reported yet every click counts (the runtime's own rule) | No hover text for clicks; the runtime's reach check is head-only and takes no setting |
-| 13 | Poiyomi materials | URP matcap graph and URP particle materials | Built-in pipeline shaders |
-| 14 | Pick and win sounds, Revamped font, UI sprites, matcaps, cheese model | Replaced with CC0 or self-made equivalents | Licences (section 1) |
+| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands; with no pose reported yet every click counts (the runtime's own rule) | No hover text for clicks; `Input.InReach` with the setting |
+| 13 | Poiyomi materials | A small URP matcap shader (hand-written HLSL) and URP particle materials | Built-in pipeline shaders |
+| 14 | Pick and win sounds, Revamped font, UI sprites, matcaps, cheese model, treasure models | Self-made (sounds, sprites, matcaps, models) or OFL (font Lilita One); section 11.6 | Licences (section 1) |
 | 15 | Treasure state dies with the instance | Kept up to 24 h in room state; a returning player may find treasures already out | Platform behaviour; harmless |
 | 16 | `PlayerData` keys shared across the whole world | Keys carry the instance key | Several copies must coexist |
 | 17 | `VRCUiShape`, VRCObjectSync branch (`THC:146-152`), `HiScoreElement.cs`, `PSL:102-127`, `PSL:146-155`, `PSL:185-223`, `SB:129-137`, `SB:157-165`, `isPersistanceDataLoaded` (`PP:29`) | Not ported | Dead or not needed |
@@ -524,11 +525,11 @@ client that sees a treasure go, and not for treasures already found when a clien
 
 ## 11. Port status
 
-Where: `altspace/ts/` (sources `src/`, tests `test/`, `tools/provisional-bindings.ts`, `bindings.json`,
-`portkit/` = copy of `C:\workspace\AltspaceGames\portkit\ts` without `node_modules` and `dist`).
-`npm test` = typecheck, lint (page and clock rules), 22 tests; `npm run build` makes `pk-treasure-hunt.js`
-(334,247 bytes, built to a scratch folder; not checked in). `npm run bindings` rewrites the provisional
-`bindings.json`.
+Where: `altspace/ts/` (sources `src/`, tests `test/`, `bindings.json` written by the kit builder, `portkit/` = copy
+of `C:\workspace\AltspaceGames\portkit\ts` without `node_modules` and `dist`); the Unity project `altspace/`
+(`Assets/Kit/Editor/TreasureHuntKitBuilder.cs`, `Assets/Kit/` the kit and its art, `upstream_import.json`,
+`tools/make_sounds.py`, `tools/make_models.py`, `playtest/`). `npm test` = typecheck, lint (page and clock rules),
+23 tests; `npm run build` makes `Assets/WebRoot/pk-treasure-hunt.js` (369,708 bytes).
 
 ### 11.1 Files
 
@@ -554,14 +555,22 @@ and the referee's `ack` leaf). One one-shot per unlock (`WinSequence` with the w
 | Status | Count | Items |
 |---|---|---|
 | Done, checked at rung 1 | 34 | 2, 3, 6, 7, 8, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 24, 28, 29, 30, 31, 32, 33, 34, 36, 37, 39, 40, 41, 42, 43, 44, 46, 52, 53 |
-| Changed on purpose (10.1), checked at rung 1 | 9 | 9 (0.25 s floor), 15 and 18 (no event, no idle write), 22 and 26 (the referee owns the controller), 45 (one prize per hunt), 49 (per device), 50 (room state lasts 24 h), 51 (a late joiner sees the state at once) |
+| ... of which also checked in Play mode (rungs 3-4) | 18 | 3, 11, 12, 13, 14, 16, 21, 23, 24, 29, 30, 31, 32, 33, 36, 41, 42, 43 |
+| Changed on purpose (10.1), checked at rung 1 | 9 | 9 (0.25 s floor), 15 and 18 (no event, no idle write), 22 and 26 (the referee owns the controller), 45 (one prize per hunt), 49 (per device; the reload checked in Play mode), 50 (room state lasts 24 h), 51 (a late joiner sees the state at once; checked in Play mode by a reload) |
 | Upstream bug fixed (coordinator decision), checked at rung 1 | 3 | 20 (timers 0/0), 27 (double credit), 35 (sort from four players) |
-| Rules side done; needs the kit (rung 2-3) | 6 | 1 and 5 (wrappers and return buttons prebuilt by the kit builder), 4 (rotator `Speed` parameter), 25 (pick effect visuals and sound; the rules side is tested by counters and the relay `particles` op), 47 (cheese grabbable), 54 (replacement sounds) |
+| Done with the kit, checked at rungs 2-4 | 4 | 1 and 5 (22 wrappers and return buttons prebuilt by the kit builder; spawn, click and hide checked in Unity), 25 (pick effect: pooled, played by the relay's `particles` and `audio` ops; the page's counters and the relay records checked, the burst and the sound not watched or heard), 54 (pick and win sounds made for the port) |
+| Done with the kit, built but not driven in Play mode | 2 | 4 (rotator: the upstream clip and controller on each wrapper; `animated="false"` sends `animEnabled 0`, checked at rung 1 only; the turning itself not looked at), 47 (the cheese is a grabbable, synced object in the kit; nobody grabbed it in Play mode) |
 | Not applicable or not reproduced | 2 | 38 (editor-only templates), 48 (prize quirks of the missing owner test) |
 
-Total 54. Rungs 2 to 5 are not started: no Unity in this job.
+Total 54.
 
-### 11.3 Tests (`npm test`: 22 passing)
+### 11.3 Tests (`npm test`: 23 passing)
+
+Rung-by-rung evidence is in `TESTS.md`. Since the rules phase: the budget scenario compares digests once the pool
+is out (a spawn every 0.25 s can be in flight at any moment); a new scenario checks that both sounds are relay
+`audio` ops on kit objects (`pick<n>`, `winSound`, their own clip 0) and that `animated="false"` sends
+`animEnabled 0` to every wrapper; `test/bindings.test.ts` now checks the kit builder's bindings (valid, hash its
+own, the behaviour ids the tests use, every treasure starting hidden, the relay's refs).
 
 Vectors (`test/vectors.test.ts`, 7 tests, hand-derived from the C# with the line references in each case; no
 dotnet golden run): spawn choice THC:204-236 (including -1 with no draw); box point THC:239-249 (plain,
@@ -598,41 +607,50 @@ are valid and match their generator.
 - Plain upstream bugs fixed and listed: double credit (10.1 row 8), the 0/0 fault (row 7), the sort (row 11a).
 - Interact with the 0.7 m reach check (`find-distance`).
 
-### 11.5 Runtime gaps met (portkit was not edited)
+### 11.5 Runtime gaps met
 
-| Gap | Local workaround |
+After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
+
+| Gap | Now |
 |---|---|
-| Click reach is head-only and fixed per class or event (`interactReach`, `reach`); it cannot take a snippet setting and ignores hands | `TreasureHuntController.InReach`: nearest of head and hands within `find-distance`; the classes set no `interactReach` |
-| No hover text for clicks ("Found!") | None: a stated loss |
-| The relay `audio` op is not built (README) | The clips sit on objects outside `refs` (`Effects/Pick<n>/Audio`, `Prize/WinSound`), which the page plays itself; `bs.ts` marks that path UNVERIFIED and the fake room warns "no audio source known" (a warning, not an error) |
-| No relay op for `Animator.enabled` | `animFloat Speed 0` when `animated="false"`: the re-made rotator controller needs a `Speed` parameter on its state's speed |
-| No lookup of a creator's scene object by name | `prize-object` is parsed, warned about once, and otherwise ignored |
-| A remote player's first saved data arrives as `OnPlayerRestored`, not `OnPlayerDataUpdated` | Scoreboard, personal list and prize also refresh on `OnPlayerRestored` |
-| No "accepted write" report (section 10.2 risk 4) | Not needed: finds are runtime commands, which the referee runs one at a time |
+| Click reach was head-only and fixed | `this.Input.InReach(position, find-distance)` (nearest of head and hands); the local `InReach` is deleted. In Play mode the page has no pose until the player moves or is teleported: the test teleports; a click from 1.6 m was refused, one from 0.35 m counted |
+| No relay `audio` op | The pick sound is clip 0 of each pooled effect's own BS Audio Source, the win sound clip 0 of `Prize/WinSound`; all five holders are in `refs` and carry the `PkClips` list, so the relay plays them |
+| No relay op for `Animator.enabled` | `AnimatorRef.enabled = false` (op `animEnabled`); the rotator controller is upstream's own, with no `Speed` parameter |
+| First saved data arrived as `OnPlayerRestored` | Scoreboard and personal list refresh on `OnPlayerDataUpdated` only; the prize's `OnPlayerRestored` handler is gone |
+| Deny-by-default network calls | `TreasureHuntController.networkCallable = ["ReturnItem"]`, `PersistancePrize.networkCallable = ["WinSequence"]` |
+| No hover text for clicks ("Found!") | Still open (GAPS.md): a stated loss |
+| No lookup of a creator's scene object by name | Still open (GAPS.md): `prize-object` is parsed, warned about once, and otherwise ignored |
+| An object outside `refs` is switched on and off by two roads (found in Play mode) | Every object the script switches is in `refs` (`TESTS.md`, kit gaps) |
 
-Section 10.2 risk 4 is otherwise closed: the runtime has the present-player list with joins and leaves,
-other players' PlayerData, `OnPlayerDataUpdated`, `Time.deltaTime` in `Update`, and
-`SendCustomEventDelayedFrames`.
+### 11.6 Art and sound: replaced (licences: section 1; sources and sha1 in `THIRD-PARTY-NOTICES.md`)
 
-### 11.6 Art and sound to replace before any bundle (licences: section 1; URP: section 6)
+| Upstream | Replaced with | Licence |
+|---|---|---|
+| `Audio/Pick Audio.wav` (Epic Stock Media, commercial) | `Assets/Kit/Audio/Pick.wav`, synthesised by `tools/make_sounds.py` (a two-step coin chime, 0.62 s) | MIT (this port) |
+| `Audio/Win Audio.wav` (Epic Stock Media, commercial) | `Assets/Kit/Audio/Win.wav`, synthesised (a rising arpeggio and chord, 2.2 s) | MIT (this port) |
+| `Textures/Revamped.otf`, `Revamped SDF.asset` (Chequered Ink, all rights reserved) | Lilita One by Juan Montoreano (Google Fonts), atlas `HuntDisplay SDF` (printable ASCII and Latin-1; Liberation Sans as fallback), named apart from the font because the OFL reserves "Lilita" | SIL OFL 1.1 (full text in the bundle's notices) |
+| `Textures/45 Fill / Frame / Shine Beveled.png` (origin unknown) | `PanelFill`, `PanelFrame`, `PanelShine`, rounded-rectangle sprites drawn by the kit builder | MIT (this port) |
+| `Textures/68.png`, `IMG_0373.jpg` (matcaps, origin unknown) | `GoldMatcap`, `DiamondMatcap`, drawn by the kit builder | MIT (this port) |
+| `Materials/Gold.mat`, `Diamond.mat` and the locked Poiyomi shaders | `Assets/Kit/Shaders/TreasureMatcap.shader` (URP, unlit, written for single-pass instanced stereo) with the new matcaps; the diamond see-through (alpha 0.6, no depth write) | MIT (this port) |
+| `Materials/cheese.mat` | URP Lit, flat 0.92, 0.73, 0.22 | |
+| `Models/Treasures.fbx` (no author in the file; exported from a "VMC Props.blend") | `Assets/Kit/Models/Treasures.fbx`: coin, three gem cuts, star, made with Blender 5.2 headless by `tools/make_models.py`. Authorship of the upstream file could not be established, so it is not used | MIT (this port) |
+| `Models/Cheese.fbx` (origin unknown) | a cheese wedge from the same script | MIT (this port) |
+| `Pick Particle*.mat`, `ZoneOutline.mat` (built-in pipeline) | URP Particles/Unlit (additive) with a drawn soft dot; URP Unlit transparent | |
+| `Animations/Star.controller`, `Treasure_Rotator.anim` (the author's, MIT) | kept as they are (no `Speed` parameter needed any more) | MIT |
 
-| Upstream | Replace with |
-|---|---|
-| `Audio/Pick Audio.wav` (Epic Stock Media, commercial) | A CC0 coin-pick sound, or one made here |
-| `Audio/Win Audio.wav` (Epic Stock Media, commercial) | A CC0 short win jingle, or one made here |
-| `Textures/Revamped.otf`, `Revamped SDF.asset` (Chequered Ink, all rights reserved) | An OFL display font and a new TMP atlas |
-| `Textures/45 Fill Beveled.png`, `45 Frame Beveled.png`, `45 Shine Beveled.png` (origin unknown) | Self-made rounded-rectangle panel, frame and shine sprites |
-| `Textures/68.png`, `IMG_0373.jpg` (matcaps, origin unknown) | Self-made gold and diamond matcap gradients |
-| `Materials/Gold.mat`, `Diamond.mat` and their locked Poiyomi shaders | A small URP matcap Shader Graph (opaque gold, transparent diamond) with the new matcaps |
-| `Materials/cheese.mat` (Poiyomi; six of its textures are missing from the repo) | URP Lit, flat colour 0.92, 0.73, 0.22 |
-| `Models/Cheese.fbx` (origin unknown) | A re-modelled wedge, unless the author confirms it is theirs |
-| `Models/Treasures.fbx` (probably the author's own, not confirmed) | Keep under MIT if the author confirms; otherwise re-model the coin, three gems and star |
-| `Materials/Pick Particle.mat`, `Pick Particle Trail.mat` (built-in Particles/Standard Unlit, default texture) | URP Particles/Unlit with a soft dot texture |
-| `Materials/ZoneOutline.mat` (built-in Standard) | URP Unlit transparent, for the `show-zones` preview cubes |
-| `Animations/Star.controller` (no parameters) | The same clip (`Treasure_Rotator.anim`, the author's, MIT) in a controller with a float `Speed` parameter driving the state's speed |
+The kit builder refuses a kit that still refers to any replaced upstream file (`Banned` in the builder). URP
+materials get URP's own keyword setup (`BaseShaderGUI.SetMaterialKeywords`). Textures: the largest is the font atlas,
+1024 x 1024; the rest are 256 px or less. Bundles: Android 1,381 KiB, Windows 1,825 KiB.
 
-### 11.7 Still to do
+### 11.7 Still unverified
 
-The kit builder (`Assets/Kit/Editor/TreasureHuntKitBuilder.cs`) producing the paths in `bindings.json`; the
-replacements above; the credits line ("saved on this device only"); rungs 2 to 4; an independent review
-against this checklist.
+- **Everything in the app and on a Quest (rung 5):** laser clicks on the 22 return buttons, reach measured from real
+  hands, the matcap shader on Quest and its look under the app's lighting, both sounds (the relay played them in Play
+  mode by the page's account; nobody listened), frame time with 61 TextMesh Pro texts and a relay of 196 refs, and
+  `localStorage` surviving an app restart on Quest.
+- **In Play mode, not driven:** grabbing the cheese, the rotation itself (`animated`), `show-zones` previews (shown,
+  not measured), rotated zones, two hunts in one page, a referee leaving (the spawner hand-over), more than two
+  players on the scoreboard: all covered in Node only.
+- **The gizmos of section 8.2:** the exported snippet markup has only the kit's own position and box gizmo; the zone,
+  personal-list and prize gizmos need a kit hook (`TESTS.md`, kit gaps).
+- An independent review against this checklist (plan step 5) has not been done.

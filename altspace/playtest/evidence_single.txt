@@ -35,45 +35,45 @@ local: script and bundles from the test server http://localhost:42500
 [main] REPLY t14 <b>Treasure Hunt</b>: find the coins, gems and stars that appear around here: walk up close and click one. <b>Your finds are saved on this device only</b> (another device, or clearing the app's data, starts from zero).
 [main] of TreasureHuntUdon by Hoshou Neko (github.com/HoshouNeko/TreasureHuntUdon, MIT). Models, sounds, sprites and matcaps made for this port (MIT). Lettering drawn from the font Lilita One by Juan Montoreano (reserved font name Lilita), and Liberation Sans (both SIL Open Font License 1.1). Not affiliated with VRChat.
 [main] PASS the credits say finds are saved on this device only: <b>Treasure Hunt</b>: find the coins, gems and stars that appear around here: walk up close and click one. <b>Your finds
-[main] PASS treasures spawn until max-active (3) are out: [2,6,8]
-[main] CMD t15 probe pk1:treasure-hunt:0 pos Treasures/T2
-[main] REPLY t15 1.258 1.641 2.206
-[main] CMD t16 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] PASS treasures spawn until max-active (3) are out: [3,6,7]
+[main] CMD t15 probe pk1:treasure-hunt:0 pos Treasures/T3
+[main] REPLY t15 -1.588 1.484 2.305
+[main] CMD t16 probe pk1:treasure-hunt:0 active Treasures/T3
 [main] REPLY t16 True
 [main] CMD t17 probe pk1:treasure-hunt:0 pos Treasures/T13
-[main] REPLY t17 -1.433 1.481 2.297
+[main] REPLY t17 1.135 1.453 2.265
 [main] CMD t18 probe pk1:treasure-hunt:0 active Treasures/T13
 [main] REPLY t18 True
-[main] CMD t19 probe pk1:treasure-hunt:0 pos Treasures/T18
-[main] REPLY t19 0.002 1.483 1.459
-[main] CMD t20 probe pk1:treasure-hunt:0 active Treasures/T18
+[main] CMD t19 probe pk1:treasure-hunt:0 pos Treasures/T14
+[main] REPLY t19 -0.449 1.551 1.696
+[main] CMD t20 probe pk1:treasure-hunt:0 active Treasures/T14
 [main] REPLY t20 True
-[main] PASS every treasure is inside a spawn zone, and Unity shows it at its synced position: #2 Coin at 1.258 1.641 2.206 (Unity 1.258 1.641 2.206, active True, in a zone true); #6 Gem at -1.433 1.481 2.297 (Unity -1.433 1.481 2.297, active True, in a zone true); #8 Star at 0.002 1.483 1.459 (Unity 0.002 1.483 1.459, active True, in a zone true)
-[main] CMD t21 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] PASS every treasure is inside a spawn zone, and Unity shows it at its synced position: #3 Coin at -1.588 1.484 2.305 (Unity -1.588 1.484 2.305, active True, in a zone true); #6 Gem at 1.135 1.453 2.265 (Unity 1.135 1.453 2.265, active True, in a zone true); #7 Gem at -0.449 1.551 1.696 (Unity -0.449 1.551 1.696, active True, in a zone true)
+[main] CMD t21 probe pk1:treasure-hunt:0 active Treasures/T3
 [main] REPLY t21 True
 [main] INFO first treasure's wrapper active in Unity: True
 [main] CMD t22 shot spawned 0 1.6 0 0 1.4 1.4 70
 [main] REPLY t22 Library/PortKit/shots/treasure-single_spawned.jpg
-[main] CMD t23 probe pk1:treasure-hunt:0 pos Treasures/T2/Rotator/Coin/Button
-[main] REPLY t23 1.258 1.641 2.206
-[main] CMD t24 look 1.258 1.641 2.206
-[main] REPLY t24 ok camera at 1.26,1.69,0.61
-[main] CMD t25 click 1.258 1.641 2.206
+[main] CMD t23 probe pk1:treasure-hunt:0 pos Treasures/T3/Rotator/Coin/Button
+[main] REPLY t23 -1.588 1.484 2.305
+[main] CMD t24 look -1.588 1.484 2.305
+[main] REPLY t24 ok camera at -1.59,1.60,0.71
+[main] CMD t25 click -1.588 1.484 2.305
 [main] REPLY t25 ok screen 643,421 of 1285x842
-[main] PASS a click from out of reach finds nothing: 1.60 m from 1.258 1.691 0.606; click ok screen 643,421 of 1285x842
-[main] CMD t26 probe pk1:treasure-hunt:0 pos Treasures/T2/Rotator/Coin/Button
-[main] REPLY t26 1.258 1.641 2.206
-[main] CMD t27 look 1.258 1.641 2.206
-[main] REPLY t27 ok camera at 1.26,1.69,1.86
-[main] CMD t28 click 1.258 1.641 2.206
+[main] PASS a click from out of reach finds nothing: 1.60 m from -1.588 1.600 0.705; click ok screen 643,421 of 1285x842
+[main] CMD t26 probe pk1:treasure-hunt:0 pos Treasures/T3/Rotator/Coin/Button
+[main] REPLY t26 -1.588 1.484 2.305
+[main] CMD t27 look -1.588 1.484 2.305
+[main] REPLY t27 ok camera at -1.59,1.60,1.96
+[main] CMD t28 click -1.588 1.484 2.305
 [main] REPLY t28 ok screen 643,421 of 1285x842
-[main] INFO find Coin click: ok screen 643,421 of 1285x842; reach from {"head":[1.258,1.691,1.856],"position":[1.258,1.691,1.856]}
-[main] PASS a click within reach finds the treasure and credits it once: Coin #2; counts {"name":"Main Editor","sid":"rsess_d8b71215-3b6c-4165-8d55-4ab9b7ef94e0","Coin":1,"Gem":0,"Star":0}; foundBy true
-[main] CMD t29 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] INFO find Coin click: ok screen 643,421 of 1285x842; reach from {"head":[-1.588,1.6,1.955],"position":[-1.588,1.6,1.955]}
+[main] PASS a click within reach finds the treasure and credits it once: Coin #3; counts {"name":"Main Editor","sid":"rsess_3cc468cb-cd82-4d7b-87fd-a964538f5548","Coin":1,"Gem":0,"Star":0}; foundBy true
+[main] CMD t29 probe pk1:treasure-hunt:0 active Treasures/T3
 [main] REPLY t29 True
-[main] CMD t30 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] CMD t30 probe pk1:treasure-hunt:0 active Treasures/T3
 [main] REPLY t30 False
-[main] PASS the found treasure disappears in Unity: active False; page shows it false; respawned false
+[main] PASS the found treasure disappears in Unity: active False 208 ms after the credit; page shows it false; respawned false
 [main] PASS the pick effect plays (particles and the pick sound through the relay): effects 1
 [main] CMD t31 probe pk1:treasure-hunt:0 active PersonalScoreList/List/Row0
 [main] REPLY t31 True
@@ -117,7 +117,7 @@ local: script and bundles from the test server http://localhost:42500
 [main] INFO saved data cleared before the run: 0 keys
 [main] PASS the kit loads from a hand-written bs-snippet and the instance starts:
 [main] INFO reach is measured from {"head":null,"position":null}
-[main] PASS a reload keeps the finds (this device's saved data): before {"name":"Main Editor","sid":"rsess_d8b71215-3b6c-4165-8d55-4ab9b7ef94e0","Coin":1,"Gem":0,"Star":0}, after {"name":"Main Editor","sid":"rsess_610e001c-a1b1-4e98-92b6-502c826a027d","Coin":1,"Gem":0,"Star":0}
+[main] PASS a reload keeps the finds (this device's saved data): before {"name":"Main Editor","sid":"rsess_3cc468cb-cd82-4d7b-87fd-a964538f5548","Coin":1,"Gem":0,"Star":0}, after {"name":"Main Editor","sid":"rsess_2c8f418e-dd2d-4225-9693-8e42a5f19cf4","Coin":1,"Gem":0,"Star":0}
 [main] CMD t1 probe pk1:treasure-hunt:0 active PersonalScoreList/List/Row0
 [main] REPLY t1 True
 [main] CMD t2 probe pk1:treasure-hunt:0 text PersonalScoreList/List/Row0/PlayerNameImg/PlayerNameTxt
@@ -152,7 +152,7 @@ local: script and bundles from the test server http://localhost:42500
 [main] PASS the scoreboard shows them again after the reload (Unity): ["Main Editor 1"]
 [main] CMD t16 probe pk1:treasure-hunt:0 active Prize/Container
 [main] REPLY t16 True
-[main] PASS the unlocked prize is still shown after the reload: page true, Unity True, players 1, counts [{"name":"Main Editor","sid":"rsess_610e001c-a1b1-4e98-92b6-502c826a027d","Coin":1,"Gem":0,"Star":0}]
+[main] PASS the unlocked prize is still shown after the reload: page true, Unity True, players 1, counts [{"name":"Main Editor","sid":"rsess_2c8f418e-dd2d-4225-9693-8e42a5f19cf4","Coin":1,"Gem":0,"Star":0}]
 [main] INFO page result 5 passed, 0 failed
 [main] DONE
 served: /web/pk-treasure-hunt.js x2, /web/playtest/treasure-playtest.js x2, HEAD /kits/windows/treasure-hunt x2
