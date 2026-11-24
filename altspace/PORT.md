@@ -1,7 +1,8 @@
 # Treasure hunt: port analysis (PORT.md)
 
-Status (2026-11-24): **editor-verified in the Unity editor** (rungs 0 to 4; `TESTS.md`): rules in TypeScript on
-the re-synced portkit runtime (Node, fake room, 23 tests), the kit built by `Assets/Kit/Editor/TreasureHuntKitBuilder.cs`
+Status (2026-11-25, after the fix pass): **editor-verified in the Unity editor** (rungs 0 to 4 again; `TESTS.md`): rules
+in TypeScript on portkit 812f285 (Node, fake room, 34 tests), every review finding fixed (`REVIEW-FINDINGS.md`,
+treasure-hunt 1 to 6; the trust limits that remain are section 10.3), the kit built by `Assets/Kit/Editor/TreasureHuntKitBuilder.cs`
 (bundles PASS the app's kit check), one-player and two-player Play-mode tests through the SDK's desktop player.
 Every upstream asset section 1 rules out is replaced (section 11.6). Nothing ran in the Altspace app or on a Quest
 (section 11.7). Section 11 has the checklist status, the decisions, the runtime gaps and the art list.
@@ -547,7 +548,8 @@ Where: `altspace/ts/` (sources `src/`, tests `test/`, `bindings.json` written by
 of `C:\workspace\AltspaceGames\portkit\ts` without `node_modules` and `dist`); the Unity project `altspace/`
 (`Assets/Kit/Editor/TreasureHuntKitBuilder.cs`, `Assets/Kit/` the kit and its art, `upstream_import.json`,
 `tools/make_sounds.py`, `tools/make_models.py`, `playtest/`). `npm test` = typecheck, lint (page and clock rules),
-23 tests; `npm run build` makes `Assets/WebRoot/pk-treasure-hunt.js` (369,708 bytes).
+34 tests; `npm run build` makes `Assets/WebRoot/pk-treasure-hunt.js` (400,517 bytes; it starts with the upstream MIT
+notice from `ts/script-header.txt`, then portkit's).
 
 ### 11.1 Files
 
@@ -582,9 +584,14 @@ and the referee's `ack` leaf). One one-shot per unlock (`WinSequence` with the w
 
 Total 54.
 
-### 11.3 Tests (`npm test`: 23 passing)
+### 11.3 Tests (`npm test`: 34 passing)
 
-Rung-by-rung evidence is in `TESTS.md`. Since the rules phase: the budget scenario compares digests once the pool
+Rung-by-rung evidence is in `TESTS.md`. The fix pass added `test/trust.test.ts` (5: a modified client 50 m away
+collects nothing; the referee's slack and its limit; no position known, no find; the referee fails closed with no head
+or no answer; an older state copy credits nothing again), `test/markup.test.ts` (3: the markup declares what the script
+reads, with its defaults; the gizmos) and `test/notices.test.ts` (3: copyright lines, licence texts, the script's
+header). The scenarios that click step up to the treasure first (`findAt`), and the fake room answers the relay op
+`userHead` from each client's head (`test/helpers.ts`). Since the rules phase: the budget scenario compares digests once the pool
 is out (a spawn every 0.25 s can be in flight at any moment); a new scenario checks that both sounds are relay
 `audio` ops on kit objects (`pick<n>`, `winSound`, their own clip 0) and that `animated="false"` sends
 `animEnabled 0` to every wrapper; `test/bindings.test.ts` now checks the kit builder's bindings (valid, hash its
@@ -660,17 +667,22 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 
 The kit builder refuses a kit that still refers to any replaced upstream file (`Banned` in the builder). URP
 materials get URP's own keyword setup (`BaseShaderGUI.SetMaterialKeywords`). Textures: the largest is the font atlas,
-1024 x 1024; the rest are 256 px or less. Bundles: Android 1,381 KiB, Windows 1,825 KiB.
+1024 x 1024; the rest are 256 px or less. Bundles: Android 1,399 KiB, Windows 1,841 KiB (1,381 and 1,825 KiB before
+the fix pass: the licence texts and the `userHead` op). Licence texts in the bundle: `Assets/Kit/Licenses/`
+(`TreasureHuntUdon-LICENSE.txt`, `LilitaOne-OFL.txt`) and TextMesh Pro's `LiberationSans - OFL.txt`; the notices name
+each font's copyright lines.
 
 ### 11.7 Still unverified
 
 - **Everything in the app and on a Quest (rung 5):** laser clicks on the 22 return buttons, reach measured from real
-  hands, the matcap shader on Quest and its look under the app's lighting, both sounds (the relay played them in Play
+  hands, the referee's head reading of real avatars (Play mode has orb avatars whose head is the camera; whether
+  `REFEREE_REACH_SLACK` of 2.5 m is enough for a walking finder's lag, and whether a head reading is ever missing in the
+  app, are unmeasured), the matcap shader on Quest and its look under the app's lighting, both sounds (the relay played them in Play
   mode by the page's account; nobody listened), frame time with 61 TextMesh Pro texts and a relay of 196 refs, and
   `localStorage` surviving an app restart on Quest.
 - **In Play mode, not driven:** grabbing the cheese, the rotation itself (`animated`), `show-zones` previews (shown,
   not measured), rotated zones, two hunts in one page, a referee leaving (the spawner hand-over), more than two
   players on the scoreboard: all covered in Node only.
-- **The gizmos of section 8.2:** the exported snippet markup has only the kit's own position and box gizmo; the zone,
-  personal-list and prize gizmos need a kit hook (`TESTS.md`, kit gaps).
+- **The gizmos of section 8.2** are in the exported markup (`SnippetGizmos`); nobody looked at them drawn in a
+  creator's Scene view.
 - An independent review against this checklist (plan step 5) has not been done.
