@@ -103,29 +103,13 @@ namespace TreasureHunt
 
         /// <summary>
         /// The kit as it starts is the scoreboard, the personal list and the credits: uGUI only (every treasure, row, zone
-        /// cube and the prize start off), and the kit's footprint and photo count renderers only, so both are given here:
-        /// the three lists, the personal list and the credits under them (sized from the photo: the lists reach about
-        /// 1.3 m to the right of the root and 0.8 m to the left).
+        /// cube and the prize start off). The three lists, the personal list and the credits under them, sized from the
+        /// photo: the lists reach about 1.3 m to the right of the root and 0.8 m to the left. Kept on portkit c971100, whose
+        /// footprint counts world-space uGUI: it measures this kit as 1.5 x 0.89 x 0 m, which frames the photo off-centre
+        /// (the Star list at the edge) and gives a box gizmo of 1.5 0.2 0.0 (TESTS.md, kit gaps).
         /// </summary>
         public override string GizmoSize => "2.6 0.9 0.2";
         public override Bounds? PhotoBounds => new Bounds(new Vector3(0.3f, -0.08f, 0f), new Vector3(2.0f, 0.95f, 0.3f));
-
-        /// <summary>
-        /// The game's own relay op `userHead` (README "Relay ops"): args request id, session id. Answers with the graph-to-page
-        /// event `userHead` (request id, x, y, z): that session's head as this app places the avatar (the SDK's Get User State,
-        /// which reads the user's Head transform; 0 0 0 for a user it does not know or whose body is not there yet). The referee
-        /// checks a find's reach with it (TreasureHuntController.OnUserHead), since a page's own word on where it is cannot be
-        /// trusted. The target (the treasure's wrapper) is not used.
-        /// </summary>
-        public override void RelayOps(RelayGraph.Ops ops)
-        {
-            ops.Add("userHead", () =>
-            {
-                var g = ops.g;
-                var head = g.Keep(g.PlatformValue("GetUserState", "Position", typeof(Vector3), ("id, uid, or name", ops.Text(1))));
-                g.PageEvent("userHead", ops.Arg(0), g.InvariantText(g.X(head)), g.InvariantText(g.Y(head)), g.InvariantText(g.Z(head)));
-            });
-        }
 
         TMP_FontAsset font;
 

@@ -1,45 +1,50 @@
+play.1 already held by treasure-hunt
+local relay room cleared (1 saved rooms)
+Player 2: Launched (Clone)
+armed 'treasure-multi': 3 elements, test server http://localhost:42500 (running), page port 42400
+2026-11-25T04:45:30.2873830+04:00 play -> entering play mode
 local: script and bundles from the test server http://localhost:42500
 [main] INFO main in Play, page port 42400
 [main] INFO saved data cleared before the run: 2 keys
 [main] PASS the kit loads from a hand-written bs-snippet and the instance starts:
 [main] INFO reach is measured from {"head":null,"position":[0,1.6,0]}
-[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_43f51cb6-854b-4699-afa8-3a3f2f383b85"},{"id":2,"name":"Player 2","sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea"}]
-[main] PASS both players see the same treasures at the same places (digests match): 84985324 / 84985324; 1.402 1.382 2.326, 1.579 1.564 2.242, 1.445 1.607 2.328
-[main] CMD t1 probe pk1:treasure-hunt:0 pos Treasures/T2
-[main] REPLY t1 1.402 1.382 2.326
-[main] CMD t2 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_9675ed57-e461-49ff-904b-9fa884ca9b2c"},{"id":2,"name":"Player 2","sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30"}]
+[main] PASS both players see the same treasures at the same places (digests match): 48abceaa / 48abceaa; -1.293 1.375 2.301, -1.149 1.402 2.336, 0.105 1.562 1.474
+[main] CMD t1 probe pk1:treasure-hunt:0 pos Treasures/T1
+[main] REPLY t1 -1.293 1.375 2.301
+[main] CMD t2 probe pk1:treasure-hunt:0 active Treasures/T1
 [main] REPLY t2 True
-[main] CMD t3 probe pk1:treasure-hunt:0 pos Treasures/T12
-[main] REPLY t3 1.579 1.564 2.242
-[main] CMD t4 probe pk1:treasure-hunt:0 active Treasures/T12
+[main] CMD t3 probe pk1:treasure-hunt:0 pos Treasures/T2
+[main] REPLY t3 -1.149 1.402 2.336
+[main] CMD t4 probe pk1:treasure-hunt:0 active Treasures/T2
 [main] REPLY t4 True
-[main] CMD t5 probe pk1:treasure-hunt:0 pos Treasures/T13
-[main] REPLY t5 1.445 1.607 2.328
-[main] CMD t6 probe pk1:treasure-hunt:0 active Treasures/T13
+[main] CMD t5 probe pk1:treasure-hunt:0 pos Treasures/T18
+[main] REPLY t5 0.105 1.562 1.474
+[main] CMD t6 probe pk1:treasure-hunt:0 active Treasures/T18
 [main] REPLY t6 True
-[main] PASS this page shows every treasure inside a zone, in Unity: #2 Coin at 1.402 1.382 2.326 (Unity 1.402 1.382 2.326, active True, in a zone true); #5 Gem at 1.579 1.564 2.242 (Unity 1.579 1.564 2.242, active True, in a zone true); #6 Gem at 1.445 1.607 2.328 (Unity 1.445 1.607 2.328, active True, in a zone true)
+[main] PASS this page shows every treasure inside a zone, in Unity: #1 Coin at -1.293 1.375 2.301 (Unity -1.293 1.375 2.301, active True, in a zone true); #2 Coin at -1.149 1.402 2.336 (Unity -1.149 1.402 2.336, active True, in a zone true); #8 Star at 0.105 1.562 1.474 (Unity 0.105 1.562 1.474, active True, in a zone true)
 [main] INFO Main Editor watches, as the referee
-[main] CMD t7 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] CMD t7 probe pk1:treasure-hunt:0 active Treasures/T18
 [main] REPLY t7 False
-[main] PASS a find by the other player hides the treasure here too (Unity): #2 active False 8 ms after the page hid it
+[main] PASS a find by the other player hides the treasure here too (Unity): #8 active False 7 ms after the page hid it
 [main] PASS this player is not credited, and sees the pick effect: credited 0, effects 1
-[main] PASS as the referee, this page refuses the far find (its app's head reading of the other player): {"sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea","index":5,"head":[1.579,1.614,-3.758],"distance":6.0002083297165605,"allowed":3.2,"ok":false}
-[main] PASS only the finder's saved count went up, as this page reads both: [{"name":"Main Editor","sid":"rsess_43f51cb6-854b-4699-afa8-3a3f2f383b85","Coin":0,"Gem":0,"Star":0},{"name":"Player 2","sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea","Coin":1,"Gem":0,"Star":0}]
-[main] CMD t8 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row0
+[main] PASS as the referee, this page refuses the far find (its app's head reading of the other player): {"sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30","index":1,"head":[-1.293,1.6,-3.699],"distance":6.00421726788763,"allowed":3.2,"ok":false}
+[main] PASS only the finder's saved count went up, as this page reads both: [{"name":"Main Editor","sid":"rsess_9675ed57-e461-49ff-904b-9fa884ca9b2c","Coin":0,"Gem":0,"Star":0},{"name":"Player 2","sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30","Coin":0,"Gem":0,"Star":1}]
+[main] CMD t8 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row0
 [main] REPLY t8 True
-[main] CMD t9 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row0/PlayerNameImg/PlayerNameTxt
+[main] CMD t9 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row0/PlayerNameImg/PlayerNameTxt
 [main] REPLY t9 Player 2
-[main] CMD t10 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row0/PlayerScoreImg/PlayerScoreTxt
+[main] CMD t10 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row0/PlayerScoreImg/PlayerScoreTxt
 [main] REPLY t10 1
-[main] CMD t11 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row1
+[main] CMD t11 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row1
 [main] REPLY t11 True
-[main] CMD t12 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row1/PlayerNameImg/PlayerNameTxt
+[main] CMD t12 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row1/PlayerNameImg/PlayerNameTxt
 [main] REPLY t12 Main Editor
-[main] CMD t13 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row1/PlayerScoreImg/PlayerScoreTxt
+[main] CMD t13 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row1/PlayerScoreImg/PlayerScoreTxt
 [main] REPLY t13 0
-[main] CMD t14 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row2
+[main] CMD t14 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row2
 [main] REPLY t14 False
-[main] CMD t15 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row3
+[main] CMD t15 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row3
 [main] REPLY t15 False
 [main] PASS the scoreboard shows both players, highest first (Unity): ["Player 2 1","Main Editor 0"]
 [main] CMD t16 probe pk1:treasure-hunt:0 active PersonalScoreList/List/Row0
@@ -66,23 +71,23 @@ local: script and bundles from the test server http://localhost:42500
 [main] INFO saved data cleared before the run: 0 keys
 [main] PASS the kit loads from a hand-written bs-snippet and the instance starts:
 [main] INFO reach is measured from {"head":null,"position":[0,1.6,0]}
-[main] PASS two players in the room: [{"id":2,"name":"Player 2","sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea"},{"id":3,"name":"Main Editor","sid":"rsess_a5171f80-c49f-49be-8ee1-0eba4d4a7fab"}]
-[main] PASS after reloading its page the watcher sees the same treasures (late join; digests match): 434a49b6 / 434a49b6; 1.097 1.588 2.339, 1.579 1.564 2.242, 1.445 1.607 2.328
-[main] CMD t1 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row0
+[main] PASS two players in the room: [{"id":2,"name":"Player 2","sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30"},{"id":3,"name":"Main Editor","sid":"rsess_bf0dbc81-26e6-4ced-a480-7b4c89748c19"}]
+[main] PASS after reloading its page the watcher sees the same treasures (late join; digests match): 179637ee / 179637ee; -1.293 1.375 2.301, -1.149 1.402 2.336, 1.007 1.390 2.110
+[main] CMD t1 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row0
 [main] REPLY t1 True
-[main] CMD t2 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row0/PlayerNameImg/PlayerNameTxt
+[main] CMD t2 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row0/PlayerNameImg/PlayerNameTxt
 [main] REPLY t2 Player 2
-[main] CMD t3 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row0/PlayerScoreImg/PlayerScoreTxt
+[main] CMD t3 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row0/PlayerScoreImg/PlayerScoreTxt
 [main] REPLY t3 1
-[main] CMD t4 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row1
+[main] CMD t4 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row1
 [main] REPLY t4 True
-[main] CMD t5 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row1/PlayerNameImg/PlayerNameTxt
+[main] CMD t5 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row1/PlayerNameImg/PlayerNameTxt
 [main] REPLY t5 Main Editor
-[main] CMD t6 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row1/PlayerScoreImg/PlayerScoreTxt
+[main] CMD t6 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row1/PlayerScoreImg/PlayerScoreTxt
 [main] REPLY t6 0
-[main] CMD t7 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row2
+[main] CMD t7 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row2
 [main] REPLY t7 False
-[main] CMD t8 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row3
+[main] CMD t8 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row3
 [main] REPLY t8 False
 [main] PASS after the reload the scoreboard still shows both players: ["Player 2 1","Main Editor 0"]
 [main] INFO page result 4 passed, 0 failed
@@ -91,54 +96,54 @@ local: script and bundles from the test server http://localhost:42500
 [vp-mppm30e59380] INFO saved data cleared before the run: 2 keys
 [vp-mppm30e59380] PASS the kit loads from a hand-written bs-snippet and the instance starts:
 [vp-mppm30e59380] INFO reach is measured from {"head":null,"position":[0,1.6,0]}
-[vp-mppm30e59380] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_43f51cb6-854b-4699-afa8-3a3f2f383b85"},{"id":2,"name":"Player 2","sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea"}]
-[vp-mppm30e59380] PASS both players see the same treasures at the same places (digests match): 84985324 / 84985324; 1.402 1.382 2.326, 1.579 1.564 2.242, 1.445 1.607 2.328
-[vp-mppm30e59380] CMD t1 probe pk1:treasure-hunt:0 pos Treasures/T2
-[vp-mppm30e59380] REPLY t1 1.402 1.382 2.326
-[vp-mppm30e59380] CMD t2 probe pk1:treasure-hunt:0 active Treasures/T2
+[vp-mppm30e59380] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_9675ed57-e461-49ff-904b-9fa884ca9b2c"},{"id":2,"name":"Player 2","sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30"}]
+[vp-mppm30e59380] PASS both players see the same treasures at the same places (digests match): 48abceaa / 48abceaa; -1.293 1.375 2.301, -1.149 1.402 2.336, 0.105 1.562 1.474
+[vp-mppm30e59380] CMD t1 probe pk1:treasure-hunt:0 pos Treasures/T1
+[vp-mppm30e59380] REPLY t1 -1.293 1.375 2.301
+[vp-mppm30e59380] CMD t2 probe pk1:treasure-hunt:0 active Treasures/T1
 [vp-mppm30e59380] REPLY t2 True
-[vp-mppm30e59380] CMD t3 probe pk1:treasure-hunt:0 pos Treasures/T12
-[vp-mppm30e59380] REPLY t3 1.579 1.564 2.242
-[vp-mppm30e59380] CMD t4 probe pk1:treasure-hunt:0 active Treasures/T12
+[vp-mppm30e59380] CMD t3 probe pk1:treasure-hunt:0 pos Treasures/T2
+[vp-mppm30e59380] REPLY t3 -1.149 1.402 2.336
+[vp-mppm30e59380] CMD t4 probe pk1:treasure-hunt:0 active Treasures/T2
 [vp-mppm30e59380] REPLY t4 True
-[vp-mppm30e59380] CMD t5 probe pk1:treasure-hunt:0 pos Treasures/T13
-[vp-mppm30e59380] REPLY t5 1.445 1.607 2.328
-[vp-mppm30e59380] CMD t6 probe pk1:treasure-hunt:0 active Treasures/T13
+[vp-mppm30e59380] CMD t5 probe pk1:treasure-hunt:0 pos Treasures/T18
+[vp-mppm30e59380] REPLY t5 0.105 1.562 1.474
+[vp-mppm30e59380] CMD t6 probe pk1:treasure-hunt:0 active Treasures/T18
 [vp-mppm30e59380] REPLY t6 True
-[vp-mppm30e59380] PASS this page shows every treasure inside a zone, in Unity: #2 Coin at 1.402 1.382 2.326 (Unity 1.402 1.382 2.326, active True, in a zone true); #5 Gem at 1.579 1.564 2.242 (Unity 1.579 1.564 2.242, active True, in a zone true); #6 Gem at 1.445 1.607 2.328 (Unity 1.445 1.607 2.328, active True, in a zone true)
+[vp-mppm30e59380] PASS this page shows every treasure inside a zone, in Unity: #1 Coin at -1.293 1.375 2.301 (Unity -1.293 1.375 2.301, active True, in a zone true); #2 Coin at -1.149 1.402 2.336 (Unity -1.149 1.402 2.336, active True, in a zone true); #8 Star at 0.105 1.562 1.474 (Unity 0.105 1.562 1.474, active True, in a zone true)
 [vp-mppm30e59380] INFO Player 2 finds
-[vp-mppm30e59380] CMD t7 probe pk1:treasure-hunt:0 pos Treasures/T2/Rotator/Coin/Button
-[vp-mppm30e59380] REPLY t7 1.402 1.382 2.326
-[vp-mppm30e59380] CMD t8 look 1.402 1.382 2.326
-[vp-mppm30e59380] REPLY t8 ok camera at 1.40,1.60,1.98
-[vp-mppm30e59380] CMD t9 click 1.402 1.382 2.326
+[vp-mppm30e59380] CMD t7 probe pk1:treasure-hunt:0 pos Treasures/T18/Rotator/Star/Button
+[vp-mppm30e59380] REPLY t7 0.105 1.562 1.474
+[vp-mppm30e59380] CMD t8 look 0.105 1.562 1.474
+[vp-mppm30e59380] REPLY t8 ok camera at 0.11,1.61,1.12
+[vp-mppm30e59380] CMD t9 click 0.105 1.562 1.474
 [vp-mppm30e59380] REPLY t9 ok screen 1280,351 of 2560x702
-[vp-mppm30e59380] INFO find Coin click: ok screen 1280,351 of 2560x702; reach from {"head":[1.402,1.6,1.976],"position":[1.402,1.6,1.976]}
-[vp-mppm30e59380] PASS the finder's click finds the treasure and the finder is credited: Coin #2
+[vp-mppm30e59380] INFO find Star click: ok screen 1280,351 of 2560x702; reach from {"head":[0.105,1.612,1.124],"position":[0.105,1.612,1.124]}
+[vp-mppm30e59380] PASS the finder's click finds the treasure and the finder is credited: Star #8
 [vp-mppm30e59380] CMD t10 probe - head
-[vp-mppm30e59380] REPLY t10 1.402 1.600 1.976
-[vp-mppm30e59380] PASS the treasure disappeared for the other player, who was not credited: {"thTest":1,"kind":"seen","hidden":true,"credited":0,"effects":1,"check":{"sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea","index":2,"head":[1.402,1.6,1.976],"distance":0.4123396658096334,"allowed":3.2,"ok":true}}
-[vp-mppm30e59380] PASS the referee (the other page) checked the find against this player's head as its own app shows it: {"sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea","index":2,"head":[1.402,1.6,1.976],"distance":0.4123396658096334,"allowed":3.2,"ok":true}; this camera 1.402 1.600 1.976; 0.00 m apart
+[vp-mppm30e59380] REPLY t10 0.105 1.612 1.124
+[vp-mppm30e59380] PASS the treasure disappeared for the other player, who was not credited: {"thTest":1,"kind":"seen","hidden":true,"credited":0,"effects":1,"check":{"sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30","index":8,"head":[0.105,1.612,1.124],"distance":0.3535533905932736,"allowed":3.2,"ok":true}}
+[vp-mppm30e59380] PASS the referee (the other page) checked the find against this player's head as its own app shows it: {"sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30","index":8,"head":[0.105,1.612,1.124],"distance":0.3535533905932736,"allowed":3.2,"ok":true}; this camera 0.105 1.612 1.124; 0.00 m apart
 [vp-mppm30e59380] CMD t11 probe - head
-[vp-mppm30e59380] REPLY t11 1.579 1.614 -3.758
-[vp-mppm30e59380] PASS the referee refuses a find this page sends from 6 m away, from this player's head as its own app shows it: {"thTest":1,"kind":"refused","refused":true,"stillOut":true,"check":{"sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea","index":5,"head":[1.579,1.614,-3.758],"distance":6.0002083297165605,"allowed":3.2,"ok":false}}; this camera 1.579 1.614 -3.758; 0.00 m apart
+[vp-mppm30e59380] REPLY t11 -1.293 1.600 -3.699
+[vp-mppm30e59380] PASS the referee refuses a find this page sends from 6 m away, from this player's head as its own app shows it: {"thTest":1,"kind":"refused","refused":true,"stillOut":true,"check":{"sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30","index":1,"head":[-1.293,1.6,-3.699],"distance":6.00421726788763,"allowed":3.2,"ok":false}}; this camera -1.293 1.600 -3.699; 0.00 m apart
 [vp-mppm30e59380] PASS the refused find credits nothing: credited 1
-[vp-mppm30e59380] PASS only the finder's saved count went up, as this page reads both: [{"name":"Main Editor","sid":"rsess_43f51cb6-854b-4699-afa8-3a3f2f383b85","Coin":0,"Gem":0,"Star":0},{"name":"Player 2","sid":"rsess_9d9d7771-8c11-4870-904a-f6e7248956ea","Coin":1,"Gem":0,"Star":0}]
-[vp-mppm30e59380] CMD t12 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row0
+[vp-mppm30e59380] PASS only the finder's saved count went up, as this page reads both: [{"name":"Main Editor","sid":"rsess_9675ed57-e461-49ff-904b-9fa884ca9b2c","Coin":0,"Gem":0,"Star":0},{"name":"Player 2","sid":"rsess_c863d4b5-dd20-42ea-9852-999693602d30","Coin":0,"Gem":0,"Star":1}]
+[vp-mppm30e59380] CMD t12 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row0
 [vp-mppm30e59380] REPLY t12 True
-[vp-mppm30e59380] CMD t13 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row0/PlayerNameImg/PlayerNameTxt
+[vp-mppm30e59380] CMD t13 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row0/PlayerNameImg/PlayerNameTxt
 [vp-mppm30e59380] REPLY t13 Player 2
-[vp-mppm30e59380] CMD t14 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row0/PlayerScoreImg/PlayerScoreTxt
+[vp-mppm30e59380] CMD t14 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row0/PlayerScoreImg/PlayerScoreTxt
 [vp-mppm30e59380] REPLY t14 1
-[vp-mppm30e59380] CMD t15 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row1
+[vp-mppm30e59380] CMD t15 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row1
 [vp-mppm30e59380] REPLY t15 True
-[vp-mppm30e59380] CMD t16 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row1/PlayerNameImg/PlayerNameTxt
+[vp-mppm30e59380] CMD t16 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row1/PlayerNameImg/PlayerNameTxt
 [vp-mppm30e59380] REPLY t16 Main Editor
-[vp-mppm30e59380] CMD t17 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List0/List/Row1/PlayerScoreImg/PlayerScoreTxt
+[vp-mppm30e59380] CMD t17 probe pk1:treasure-hunt:0 text Scoreboard/HiScoreLists/List2/List/Row1/PlayerScoreImg/PlayerScoreTxt
 [vp-mppm30e59380] REPLY t17 0
-[vp-mppm30e59380] CMD t18 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row2
+[vp-mppm30e59380] CMD t18 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row2
 [vp-mppm30e59380] REPLY t18 False
-[vp-mppm30e59380] CMD t19 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List0/List/Row3
+[vp-mppm30e59380] CMD t19 probe pk1:treasure-hunt:0 active Scoreboard/HiScoreLists/List2/List/Row3
 [vp-mppm30e59380] REPLY t19 False
 [vp-mppm30e59380] PASS the scoreboard shows both players, highest first (Unity): ["Player 2 1","Main Editor 0"]
 [vp-mppm30e59380] CMD t20 probe pk1:treasure-hunt:0 active PersonalScoreList/List/Row0
@@ -146,7 +151,7 @@ local: script and bundles from the test server http://localhost:42500
 [vp-mppm30e59380] CMD t21 probe pk1:treasure-hunt:0 text PersonalScoreList/List/Row0/PlayerNameImg/PlayerNameTxt
 [vp-mppm30e59380] REPLY t21 Coin
 [vp-mppm30e59380] CMD t22 probe pk1:treasure-hunt:0 text PersonalScoreList/List/Row0/PlayerScoreImg/PlayerScoreTxt
-[vp-mppm30e59380] REPLY t22 1
+[vp-mppm30e59380] REPLY t22 0
 [vp-mppm30e59380] CMD t23 probe pk1:treasure-hunt:0 active PersonalScoreList/List/Row1
 [vp-mppm30e59380] REPLY t23 True
 [vp-mppm30e59380] CMD t24 probe pk1:treasure-hunt:0 text PersonalScoreList/List/Row1/PlayerNameImg/PlayerNameTxt
@@ -158,12 +163,13 @@ local: script and bundles from the test server http://localhost:42500
 [vp-mppm30e59380] CMD t27 probe pk1:treasure-hunt:0 text PersonalScoreList/List/Row2/PlayerNameImg/PlayerNameTxt
 [vp-mppm30e59380] REPLY t27 Star
 [vp-mppm30e59380] CMD t28 probe pk1:treasure-hunt:0 text PersonalScoreList/List/Row2/PlayerScoreImg/PlayerScoreTxt
-[vp-mppm30e59380] REPLY t28 0
-[vp-mppm30e59380] PASS the personal list shows this player's own count only (Unity): ["Coin 1","Gem 0","Star 0"]
-[vp-mppm30e59380] PASS the watcher came back after its reload: 434a49b6
+[vp-mppm30e59380] REPLY t28 1
+[vp-mppm30e59380] PASS the personal list shows this player's own count only (Unity): ["Coin 0","Gem 0","Star 1"]
+[vp-mppm30e59380] PASS the watcher came back after its reload: 179637ee
 [vp-mppm30e59380] INFO page result 13 passed, 0 failed
 [vp-mppm30e59380] DONE
 served: /web/pk-treasure-hunt.js x3, /web/playtest/treasure-playtest.js x3, HEAD /kits/windows/treasure-hunt x3
 console (main editor): 0 error lines
 RESULT 27 passed, 0 failed
 DONE
+keeping the Play slot for treasure-hunt (--keep-play): release it with editor_slot.sh release treasure-hunt play

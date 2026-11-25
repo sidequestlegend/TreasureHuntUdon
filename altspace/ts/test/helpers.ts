@@ -18,29 +18,15 @@ export function bindings(): unknown {
   return JSON.parse(readFileSync(fileURLToPath(new URL("../bindings.json", import.meta.url)), "utf8"));
 }
 
-/** Instance keys the tests use (the fake graph's op handler is not told which instance a record is for). */
-const INSTANCES = ["0", "north", "south"];
-
 /**
- * The game on a fake room. The kit's relay graph answers the game's own op `userHead` as the app's would (SDK Get User
- * State): with the named session's head as the room knows it (`client.head`, set by `pose()`), 0 0 0 for a session it
- * does not know or that has no head yet, a frame later. `heads: "none"` declares the op with no answer (an old kit).
+ * The game on a fake room. The kit's relay graph answers `Networking.HeadOf` (op `pkHead`) as the app's would (SDK Get
+ * User State): with the named session's head as the room knows it (`client.head`, set by `pose()`), 0 0 0 for a session
+ * it does not know or that has no head yet, a frame later. `heads: "none"` stands for a kit or app that never answers.
  */
 export function makeWorld(options: FakeRoomOptions & { heads?: "app" | "none" } = {}): TestWorld {
   const { heads = "app", ...roomOptions } = options;
   const w = new TestWorld(game, bindings(), roomOptions);
-  if (heads === "none") {
-    w.room.defineRelayOp("userHead", null);
-    return w;
-  }
-  w.room.defineRelayOp("userHead", (record, client) => {
-    const [id, sid] = record.args;
-    const inst = INSTANCES.find((k) => client.hasInstance(SLUG, k) && client.graph(SLUG, k).events.some((e) => e.args === record.args));
-    if (inst === undefined) return;
-    const head = w.clients.find((c) => c.sid === sid)?.head ?? null;
-    const at = head ?? Vector3.zero;
-    w.room.schedule(16, () => client.graphEvent(SLUG, inst, "userHead", `${id}|${at.x}|${at.y}|${at.z}`), client);
-  });
+  if (heads === "none") w.room.headAnswers = false;
   return w;
 }
 

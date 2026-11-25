@@ -14,6 +14,9 @@ import { TreasureReturner } from "./TreasureReturner.ts";
 const game: GameDefinition = {
   slug: "treasure-hunt",
   behaviours: { TreasureHuntController, TreasureReturner, Scoreboard, PersonalScoreList, PersistancePrize },
+  // No click with a reach counts before the page knows where the player is (the finds' own check, RequestReturn, asks
+  // InReach to fail closed too).
+  reachWhenUnknown: false,
   debug: (instance: GameInstance) => debugHooks(instance),
 };
 

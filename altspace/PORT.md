@@ -1,7 +1,7 @@
 # Treasure hunt: port analysis (PORT.md)
 
-Status (2026-11-25, after the fix pass): **editor-verified in the Unity editor** (rungs 0 to 4 again; `TESTS.md`): rules
-in TypeScript on portkit 812f285 (Node, fake room, 34 tests), every review finding fixed (`REVIEW-FINDINGS.md`,
+Status (2026-11-25, after the fix pass and the re-sync to portkit c971100): **editor-verified in the Unity editor** (rungs 0
+to 4 again on c971100; `TESTS.md`): rules in TypeScript on portkit c971100 (Node, fake room, 34 tests), every review finding fixed (`REVIEW-FINDINGS.md`,
 treasure-hunt 1 to 6; the trust limits that remain are section 10.3), the kit built by `Assets/Kit/Editor/TreasureHuntKitBuilder.cs`
 (bundles PASS the app's kit check), one-player and two-player Play-mode tests through the SDK's desktop player.
 Every upstream asset section 1 rules out is replaced (section 11.6). Nothing ran in the Altspace app or on a Quest
@@ -500,8 +500,8 @@ Not suited to vectors: anything about who owns, ordering between clients, late j
 | 10 | Wrappers, return buttons, rows and effects created at run time | Built into the kit; rows and effects pooled | Relay refs are fixed at build |
 | 11 | More than 16 rows exist but are clipped (item 37) | 16 rows per list | Same visible result |
 | 11a | Scoreboard order is wrong from four players (item 35) | **Fixed.** Highest first, equal scores in join order (`SortListOfDictionaries`); upstream's loop is kept as `UpstreamSortListOfDictionaries` only for the test vectors | Coordinator decision: a plain bug |
-| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands (`Input.InReach`). With no position known yet (no pose, no teleport, no start reading) no click counts: the port fails closed where the runtime's `InReach` lets every click count | No hover text for clicks |
-| 12a | The finder's client alone decides that a find is in reach (Interact is client-side), so a modified client finds every treasure from anywhere | The referee checks again: it asks its own app where the finder's head is (game relay op `userHead`: the SDK's Get User State, the avatar's Head transform as the app places it, which no page can write) and accepts the find only within `find-distance` + 2.5 m (`REFEREE_REACH_SLACK`: an arm's length, since the finder counts from the nearer hand, and a remote head's lag). An unknown head (Get User State gives 0 0 0) or no answer within 2 s refuses the find. See 10.3 for what this leaves open | Review finding (should-fix): 3 of 3 treasures from 50 m with no check on the referee |
+| 12 | "Found!" hover text, 0.7 m proximity by the platform | No label; the script checks `find-distance` (0.7 m) from the nearest of the local head and hands (`Input.InReach`). With no position known yet (no pose, no teleport, no start reading) no click counts: `InReach(point, find-distance, false)` fails closed (and the definition sets `reachWhenUnknown: false`) | No hover text for clicks |
+| 12a | The finder's client alone decides that a find is in reach (Interact is client-side), so a modified client finds every treasure from anywhere | The referee checks again: it asks its own app where the finder's head is (`Networking.HeadOf`, the kit's relay op `pkHead`: the SDK's Get User State, the avatar's Head transform as the app places it, which no page can write) and accepts the find only within `find-distance` + 2.5 m (`REFEREE_REACH_SLACK`: an arm's length, since the finder counts from the nearer hand, and a remote head's lag). An unknown head (Get User State gives 0 0 0) or no answer within 2 s refuses the find. See 10.3 for what this leaves open | Review finding (should-fix): 3 of 3 treasures from 50 m with no check on the referee |
 | 12b | (none) | Each client credits a treasure's find once per spawn and never for an older spawn again (the highest serial credited per treasure) | Public state written back to an earlier copy credited the same find again (review finding, minor) |
 | 13 | Poiyomi materials | A small URP matcap shader (hand-written HLSL) and URP particle materials | Built-in pipeline shaders |
 | 14 | Pick and win sounds, Revamped font, UI sprites, matcaps, cheese model, treasure models | Self-made (sounds, sprites, matcaps, models) or OFL (font Lilita One); section 11.6 | Licences (section 1) |
@@ -590,8 +590,8 @@ Rung-by-rung evidence is in `TESTS.md`. The fix pass added `test/trust.test.ts` 
 collects nothing; the referee's slack and its limit; no position known, no find; the referee fails closed with no head
 or no answer; an older state copy credits nothing again), `test/markup.test.ts` (3: the markup declares what the script
 reads, with its defaults; the gizmos) and `test/notices.test.ts` (3: copyright lines, licence texts, the script's
-header). The scenarios that click step up to the treasure first (`findAt`), and the fake room answers the relay op
-`userHead` from each client's head (`test/helpers.ts`). Since the rules phase: the budget scenario compares digests once the pool
+header). The scenarios that click step up to the treasure first (`findAt`), and the fake room answers the kit's relay op
+`pkHead` (`Networking.HeadOf`) from each client's head. Since the rules phase: the budget scenario compares digests once the pool
 is out (a spawn every 0.25 s can be in flight at any moment); a new scenario checks that both sounds are relay
 `audio` ops on kit objects (`pick<n>`, `winSound`, their own clip 0) and that `animated="false"` sends
 `animEnabled 0` to every wrapper; `test/bindings.test.ts` now checks the kit builder's bindings (valid, hash its
@@ -647,7 +647,10 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 | No lookup of a creator's scene object by name | Still open (GAPS.md): `prize-object` is parsed, warned about once, and otherwise ignored |
 | An object outside `refs` is switched on and off by two roads (found in Play mode) | Every object the script switches is in `refs` (`TESTS.md`, kit gaps); the kit now sends them all through the relay too |
 | No `KitStage.Clips`, no `SnippetGizmos` (this game's kit gaps) | Both in the kit since d8f370d: the builder uses `stage.Clips` (its own helper is deleted) and declares the gizmos of section 8.2 |
-| No way to read a remote player's position from a page | The game's own relay op `userHead` (`TreasureHuntKitBuilder.RelayOps`): the SDK's Get User State node, answered as the graph-to-page event `userHead` (TESTS.md, kit gaps) |
+| No way to read a remote player's position from a page | `this.Networking.HeadOf(player, 2)` (kit relay op `pkHead`, the SDK's Get User State; kit c971100). The game's own op `userHead` and `TreasureHuntKitBuilder.RelayOps` are deleted |
+| `InReach` let every click count while no position was known | `this.Input.InReach(point, find-distance, false)` and `reachWhenUnknown: false` (kit c971100); the game's own `Input.Position` check is deleted |
+| The fake room's relay-op handler was not told the instance | The handler and its `INSTANCES` guess are deleted from `test/helpers.ts`: the kit's fake room answers `pkHead` itself (`room.headAnswers = false` for the no-answer case) |
+| The footprint and photo counted Renderers only (a uGUI-only kit had none) | The kit counts world-space uGUI since c971100, but measures this kit as 1.5 x 0.89 x 0 m centred on the root (the lists reach 1.3 m right): the photo framed off-centre and a `1.5 0.2 0.0` box gizmo. `GizmoSize` and `PhotoBounds` are kept in the builder (TESTS.md, kit gaps) |
 
 ### 11.6 Art and sound: replaced (licences: section 1; sources and sha1 in `THIRD-PARTY-NOTICES.md`)
 
@@ -667,8 +670,8 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 
 The kit builder refuses a kit that still refers to any replaced upstream file (`Banned` in the builder). URP
 materials get URP's own keyword setup (`BaseShaderGUI.SetMaterialKeywords`). Textures: the largest is the font atlas,
-1024 x 1024; the rest are 256 px or less. Bundles: Android 1,399 KiB, Windows 1,841 KiB (1,381 and 1,825 KiB before
-the fix pass: the licence texts and the `userHead` op). Licence texts in the bundle: `Assets/Kit/Licenses/`
+1024 x 1024; the rest are 256 px or less. Bundles: Android 1,400 KiB, Windows 1,844 KiB on c971100 (1,399 and 1,841 KiB on 812f285 with the game's own
+`userHead` op; 1,381 and 1,825 KiB before the fix pass). Licence texts in the bundle: `Assets/Kit/Licenses/`
 (`TreasureHuntUdon-LICENSE.txt`, `LilitaOne-OFL.txt`) and TextMesh Pro's `LiberationSans - OFL.txt`; the notices name
 each font's copyright lines.
 

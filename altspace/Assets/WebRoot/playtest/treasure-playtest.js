@@ -81,6 +81,16 @@
     scene.TeleportTo(new window.BS.Vector3(p[0], Math.max(0, p[1] - 1.55), p[2] - back), 0, true);
   }
 
+  /**
+   * Of the treasures out (and `ok`), the one with the lowest z: findTreasure approaches from -z, so no other treasure can
+   * stand between the camera and it (a run of the re-sync clicked a treasure 0.09 m off the line, in front of the target).
+   */
+  function frontmost(ok) {
+    const h = hunt();
+    const out = activeIdx().filter((x) => !ok || ok(x));
+    return out.reduce((best, x) => (best === undefined || h.positions[x][2] < h.positions[best][2] ? x : best), undefined);
+  }
+
   /** Finds treasure `i` with the desktop mouse: teleports close, looks at its click target and clicks it. */
   async function findTreasure(i, label) {
     const h = hunt();
@@ -219,7 +229,7 @@
 
     // a find within reach
     const before2 = hunt();
-    const i = activeIdx().find((x) => !before2.foundBy[x]) ?? activeIdx()[0];
+    const i = frontmost((x) => !before2.foundBy[x]) ?? frontmost();
     const kind = kindOfSlot(before2.slots[i]);
     await findTreasure(i, "find " + kind);
     const credited = await until(() => hunt().findsCredited === 1, 8000, 100);
@@ -229,7 +239,7 @@
     const cam = await camera();
     const off = hc && hc.head ? dist(hc.head, cam) : -1;
     check(!!hc && hc.ok && hc.sid === me.sid && hc.index === i && !!hc.head && off >= 0 && off < 0.5,
-      "the referee checked the find against the head its app reports (relay op userHead, Get User State)", `${JSON.stringify(hc)}; camera ${fmt(cam)}; ${off.toFixed(2)} m apart`);
+      "the referee checked the find against the head its app reports (Networking.HeadOf: relay op pkHead, Get User State)", `${JSON.stringify(hc)}; camera ${fmt(cam)}; ${off.toFixed(2)} m apart`);
     const tGone = Date.now();
     let gone = await probe("active", before2.wrapperPaths[i]);
     for (let n = 0; n < 10 && gone !== "False"; n++) {
@@ -362,7 +372,7 @@
     // 2. the finder finds one; it disappears for the other, and only the finder is credited
     let kindName = "";
     if (finder) {
-      const i = activeIdx()[0];
+      const i = frontmost();
       const h = hunt();
       const kind = kindOfSlot(h.slots[i]);
       kindName = kind;

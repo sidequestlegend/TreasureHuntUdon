@@ -30,8 +30,11 @@ test("a modified client 50 m away that sends ReturnItem itself collects nothing:
   for (const k of out) assert.equal(controller(w, ann).isTreasureActive[k], true, `treasure ${k} is still out`);
   assert.equal(total(w, ann, bob), 0);
   assert.equal(c.findsCredited, 0);
-  const ref = controller(w, referee(w, [ann, bob]));
+  const refClient = referee(w, [ann, bob]);
+  const ref = controller(w, refClient);
   assert.equal(ref.reachRefused, out.length);
+  // The referee asked its app through the kit (Networking.HeadOf, op pkHead), once per request.
+  assert.equal(refClient.graph(SLUG).events.filter((e) => e.op === "pkHead" && e.args[1] === bob.sid).length, out.length);
   assert.ok(ref.lastHeadCheck && !ref.lastHeadCheck.ok && ref.lastHeadCheck.distance > 45, JSON.stringify(ref.lastHeadCheck));
   // Bob walks up to one: now it counts.
   assert.ok(findAt(w, bob, out[0]!));
