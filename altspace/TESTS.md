@@ -21,6 +21,21 @@ portkit/tools/remote.sh altspace menu "PortKit/Kit/Take Photos"; ... "PortKit/Ki
 The art is made by `python altspace/tools/make_sounds.py` and
 `"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" --background --python altspace/tools/make_models.py`.
 
+## Canvas colliders, 2026-11-25 evening (portkit 476075d)
+
+In world 9d7311 the SDK's `BSKitItem` gave every world-space canvas without a BoxCollider a solid one when the kit
+loaded: rect x scale, on the canvas's layer. rp-toolkit's head-label canvas then pushed its wearer about (measured in
+the hub's Play mode, portkit GAPS.md "Fourth pass"). Re-synced to portkit `476075d`, whose builder gives every
+world-space canvas a trigger box of its own first, and whose `PortKit/Kit/Check` fails a canvas that would end up
+solid. Rebuilt:
+
+- Build Prefabs: 6 trigger boxes added to world-space canvases, 0 canvas boxes made triggers.
+- rung 0/1: `npm test` **34 of 34** (0 failed). `npm run build`: 413668 bytes.
+- rung 2: Check all PASS (bindings `52572c10`, the new "canvas colliders" line, both bundles). Android 1401 KiB, Windows 1849 KiB.
+- rung 3 (`playtest/single.json`, treasure-single): **21 passed, 0 failed**, 0 console error lines (`playtest/evidence_single.txt`).
+- rung 4 (`playtest/multi.json`, treasure-multi): **27 passed, 0 failed**, 0 console error lines (`playtest/evidence_multi.txt`).
+- `dist/` exported: 8 files (3 licence texts), footprint 1.5 x 0.89 x 0 m, bindings 52572c10b5939322d04b83de8437e5d9909f0b27.
+
 ## Re-sync to c971100
 
 - `portkit/tools/sync.sh treasure-hunt`; `npm test` 34/34 before any game change and after.
