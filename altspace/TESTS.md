@@ -21,6 +21,14 @@ portkit/tools/remote.sh altspace menu "PortKit/Kit/Take Photos"; ... "PortKit/Ki
 The art is made by `python altspace/tools/make_sounds.py` and
 `"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" --background --python altspace/tools/make_models.py`.
 
+## Page script on portkit 552622c, 2026-11-25 evening
+
+Re-synced `ts/portkit` and the package to portkit `552622c`. That commit includes `425bd55`: the page loads kit
+items one at a time, because overlapping loads lost relay graphs and Variables in the app. It also includes
+`0880bf5`: a referee claimant starts only once its claim has stood for 1.5 s, which fixes the equal-term double
+claim, and user-state flushes go one at a time. The bundles are unchanged from the rebuild below. `npm test`:
+**34 of 34** (0 failed). `npm run build`: 415218 bytes. Export Artifacts -> `dist/`: 8 files (3 licence texts), footprint 1.5 x 0.89 x 0 m, bindings 52572c10b5939322d04b83de8437e5d9909f0b27.
+
 ## Canvas colliders, 2026-11-25 evening (portkit 476075d)
 
 In world 9d7311 the SDK's `BSKitItem` gave every world-space canvas without a BoxCollider a solid one when the kit
