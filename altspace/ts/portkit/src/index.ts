@@ -39,5 +39,8 @@ export type { Commitment, DealCheck, DealState, DrawState, DrawStatus, Opening }
 export { sha256, sha256Text } from "./sha256.ts";
 export { Button, Hand } from "./types.ts";
 export type { Ability, BlockableControl, ButtonName, HandSide, HostEventDetail, HostEventKind, InputEvent, LocalPoses, Platform, Pose, RayHit } from "./types.ts";
+export { el, DEFAULT_PIXELS_PER_METRE, UI_COMMON_PROPERTIES, UI_PROPERTIES, UiElement, UiLayer, UiPanel, uiPropertyKnown, uiTypeKnown } from "./ui.ts";
+export type { PanelDef, UiAttributes, UiNode, UiView } from "./ui.ts";
+export type { PlatformPanel, UiEventKind, UiOp, UiPanelSpec, UiValue } from "./types.ts";
 export { canonicalJson, fnv1a } from "./util.ts";
 export { Color, Curve, decodeValue, encodeValue, intDiv, Mathf, Quaternion, UnityRandom, Vector2, Vector3, Vector4 } from "./values.ts";

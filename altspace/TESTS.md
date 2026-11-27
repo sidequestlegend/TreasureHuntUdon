@@ -1,6 +1,6 @@
 # treasure-hunt: test evidence
 
-Everything here ran on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor: first on 2026-11-24, then
+Everything here ran on Windows, Unity 6000.3.21f1, Creator SDK 4.0.29, in the Unity editor (the UI Toolkit pass of 2026-11-27 is the first section below): first on 2026-11-24, then
 again on 2026-11-25 after the fix pass (re-sync to portkit 812f285 and the review's findings, `REVIEW-FINDINGS.md`),
 and again on 2026-11-25 after the re-sync to portkit c971100 (the numbers below are this re-sync's; "Re-sync to
 c971100" says what changed). Nothing ran in the Altspace app, on a Quest, or with controllers (rung 5: not
@@ -20,6 +20,53 @@ portkit/tools/remote.sh altspace menu "PortKit/Kit/Take Photos"; ... "PortKit/Ki
 
 The art is made by `python altspace/tools/make_sounds.py` and
 `"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe" --background --python altspace/tools/make_models.py`.
+
+## UI Toolkit pass, 2026-11-27 (portkit a0e926c: UI panels)
+
+The scoreboard, the personal list and the credits are UI Toolkit panels of the Altspace UI Kit that the page builds with
+portkit's UI layer (`ui.ts`); the kit has no uGUI left (PORT.md 11.8). Re-synced `ts/portkit` and the package to portkit
+`a0e926c`.
+
+**Spike first** (`playtest/spike.json`, `Assets/WebRoot/playtest/ui-spike.js`: raw page API, no portkit UI layer), in this
+project's Play mode, SDK 4.0.29. Proven: `new BS.GameObject({ parent: <kit object> })` is created under the kit object
+(`go.parent` is its id); a `BS.UIPanel` there with `UIKitSurface`, `UIKitText`, `UIKitButton`, `UIKitToggle` shows (Unity:
+active, layer 5, 400 x 240 px at 0.25 scale = 1.0 x 0.6 m, pivot Center); the text the script sets shows; the panel follows
+its kit object when that moves (0.5 m, seen in Unity); a desktop-pointer click (InputSim's mouse, the SDK's desktop
+controller, the EventSystem) on the `UIKitButton` reaches `OnClick` and the text it sets shows; on the `UIKitToggle` it
+raises `OnChange` with `true`; a disabled button takes no click; `visible = false` hides an element, and on the top element
+the whole panel, which takes clicks again when shown; panels under a bound kit object (`Prize`) and under the relay-switched
+`Prize/Container` take clicks; 23 panels on one page, the last still clickable. Found: a panel's `worldBound` is in its
+object's local units, centred, y up (portkit's `uiclick` maps with that and checks it with the EventSystem's raycast).
+**Found, and designed around:** switching off the panel's own object, or a kit object above it (page `SetActive` or the
+relay's `active` op), destroys the panel's object: it is gone from the scene and `SetActive(true)` answers
+`SET_ACTIVE: Could not find object with id: 778` (three runs). Hence anchors that stay on and `panel.visible` (portkit
+GAPS.md, UI Toolkit pass). Final spike run: 19 passed, the 3 that failed are exactly these deactivation checks.
+
+- rung 0/1: `npm test` **39 of 39** (0 failed): the 34 ported (the scoreboard, personal list and title checks now read the
+  fake app's panels: `boardRows`, `boardTitle`, `personalRows` in `test/helpers.ts`; the bindings test now requires the
+  three anchors, on from the start and outside the relay, and no list or row keys; the notices test now requires that no
+  font ships and none is claimed), and 5 new in `test/ui.test.ts`: the three panels under their anchors at their sizes, no
+  `text` relay op at all; only the pool's lists, titled in order, rows capped; a find sends at most 6 UI ops on a watching
+  page; the credits (shown, `credits="false"` hides them and they take no press, the fold button folds for its viewer
+  only); the personal list's panel goes where `personal-list` puts its anchor. `npm run build`: 398,749 bytes.
+- Kit build: 111 objects, 64 bound (1 synced, 1 grabbable, 22 clickable), 36 refs, 27 behaviours (600, 223, 196, 26 before);
+  bindings `13fe1f8b6cb538e949eb4cf243f018b2e18d6a1f`.
+- rung 2 (`PortKit/Kit/Check`): graphs PASS, bindings PASS (64 objects resolve), canvas colliders PASS, **Android PASS,
+  Windows PASS**. Bundles: **Android 399,404 bytes (390 KiB), Windows 805,401 bytes (787 KiB)**; before: 1,434,681 and
+  1,893,134 (the uGUI, the Lilita One atlas, Liberation Sans and the panel sprites left). Licence texts packed:
+  `TreasureHuntUdon-LICENSE.txt` only.
+- rung 3 (`playtest/single.json`): **23 passed, 0 failed, 0 console error lines, twice in a row**
+  (`playtest/evidence_single_run1.txt`, `_run2.txt`). New or changed lines: the board's titles, the personal list, the
+  credits read with `uiprobe` in Unity; the credits' fold button clicked twice with `uiclick` (folded in Unity, the
+  saved-on-this-device line still shown, then open again).
+- rung 4 (`playtest/multi.json`): **31 passed, 0 failed, 0 console error lines, twice in a row**
+  (`playtest/evidence_multi_run1.txt`, `_run2.txt`). New: the finder folds its credits with a real click, the other page's
+  stay open, a second click opens them; the boards read with `uiprobe` on both pages, after the find and after the reload.
+- `dist/` exported: 6 files (1 licence text), footprint 2.1 x 0.92 x 0.2 m (`FootprintBounds`, by hand: the kit's own
+  footprint is 0 x 0 x 0 now), box gizmo `2.6 0.9 0.2`, personal list gizmo `0.3 0.24`. **The photo is empty** (a dark
+  frame): nothing the kit draws is on at start, and the panels are the page's (portkit GAPS.md).
+- Not checked: the look and VR laser clicks in the app and on the Quest (the coordinator's); readability at distance was
+  judged from a Play-mode shot only (`Library/PortKit/shots/treasure-single_boards.jpg`).
 
 ## Page script on portkit 552622c, 2026-11-25 evening
 
@@ -257,6 +304,8 @@ used the same bundle files (`Library/PortKit/kits`, byte-identical to `dist/`).
 | A game's relay op handler in the fake room is not told which instance a record is for | `portkit/ts/src/platform/fake.ts` | (was) the `INSTANCES` guess in `test/helpers.ts` | **done in the kit** (f7547fb); the handler itself is gone (the kit answers `pkHead`) |
 | The footprint and the photo count `Renderer`s only (a uGUI-only kit gets a 0 x 0 x 0 footprint) | `portkit/unity/Editor/Kit/KitArtifacts.cs` (`Drawn`) | `GizmoSize` and `PhotoBounds` | **done in the kit** (f7547fb), but see the next row: kept here |
 | `Drawn` measures this kit's panels as 1.5 x 0.89 x 0 m centred on the root (`dist/manifest.json` footprint: centre 0 -0.08 0, size 1.5 0.89 0.003), while the three lists reach about 1.3 m right of the root and 0.8 m left (the photo with `PhotoBounds`). Without the overrides the photo is framed off-centre and closer, the Star list at the edge, and the box gizmo is `1.5 0.2 0.0`: a flat panel gives depth 0 | `portkit/unity/Editor/Kit/KitArtifacts.cs` (`Drawn`, `Markup`) | `GizmoSize` and `PhotoBounds` kept | find why the lists' graphics are missed or misplaced (a guess: measured before the canvases are laid out; call `Canvas.ForceUpdateCanvases()` on the measured copy first) and give a flat footprint a minimum depth in the box gizmo (e.g. 0.2 m, as its height) |
+| A page-made panel is destroyed when an object above it is switched off (SDK 4.0.29 Play mode) | portkit `ui.ts`, the SDK | anchors stay on; credits hidden by `panel.visible` | **in the kit** (a0e926c: `panel.visible`, an error log when an anchor goes off, the fake does the same); the SDK behaviour itself is for Shane |
+| The photo cannot see page-made panels; the kit's footprint is 0 x 0 x 0 | `portkit/unity/Editor/Kit/KitArtifacts.cs` | `FootprintBounds`, `PhotoBounds`, `GizmoSize` by hand; the photo is empty | a Play-mode `shot` as the photo (`KitBuilder.PhotoShot`), or editor-only panel placeholders (portkit GAPS.md) |
 | `InReach` lets every click count while no position is known (README, Input) | `portkit/ts/src/instance.ts` | (was) the game checks `Input.Position` first | **done in the kit** (f7547fb: `InReach(p, d, false)`, `reachWhenUnknown`); used |
 
 ## What remains unverified

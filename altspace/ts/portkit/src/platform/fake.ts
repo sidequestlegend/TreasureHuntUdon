@@ -19,6 +19,7 @@ import { holderName, relayKey } from "../names.ts";
 import type { InputEvent, LocalPoses } from "../types.ts";
 import { seededRandom, utf8Length } from "../util.ts";
 import { KEY_CODES } from "./keycodes.ts";
+import { UI_COMMON_PROPERTIES, UI_PROPERTIES } from "../ui.ts";
 import { Quaternion, Vector3 } from "../values.ts";
 import { BsPlatform, type BsOptions, type PageEnv } from "./bs.ts";
 
@@ -630,6 +631,46 @@ class Emitter {
   }
 }
 
+/** A UI panel as the fake app has it (BS.UIPanel on its own object under a kit object). */
+export interface FakePanel {
+  readonly config: any;
+  readonly resolution: { x: number; y: number };
+  readonly alive: boolean;
+  readonly gameObject: FakeObjectView | null;
+  readonly all: FakeUiElement[];
+  element(name: string): FakeUiElement | null;
+}
+
+/** What a test reads of a page object. */
+export interface FakeObjectView {
+  readonly name: string;
+  readonly path: string;
+  readonly active: boolean;
+  readonly activeInHierarchy: boolean;
+  readonly destroyed: boolean;
+  readonly layer: number;
+  readonly local: { position: Vector3; rotation: Vector3; scale: Vector3 } | null;
+}
+
+/** One element of a fake panel: what the app was told. */
+export interface FakeUiElement {
+  /** The app's own id (BS gives each element one). */
+  readonly id: string;
+  /** portkit's element id. */
+  readonly name: string;
+  readonly type: string;
+  readonly parent: FakeUiElement | null;
+  readonly children: FakeUiElement[];
+  readonly props: Map<string, unknown>;
+  readonly styles: Map<string, string>;
+  readonly classes: Set<string>;
+  readonly destroyed: boolean;
+  readonly shown: boolean;
+  readonly enabledInHierarchy: boolean;
+  readonly shownText: string;
+  readonly listeners: { click: Array<(e: any) => void>; change: Array<(e: any) => void> };
+}
+
 export interface FakeSnippet {
   getAttribute(name: string): string | null;
   setAttribute(name: string, value: string): void;
@@ -679,6 +720,9 @@ class FakeObject extends Emitter {
   watchCallback: (() => void) | null = null;
   kit: { url: string; loaded: boolean } | null = null;
   graph: GraphState | null = null;
+  /** Made by the page under another object (`new BS.GameObject({ parent })`), with the local transform it was given. */
+  pageMade = false;
+  local: { position: Vector3; rotation: Vector3; scale: Vector3 } | null = null;
   /** The page's handle for the object, and the key of `scene.objects` once the page knows it. */
   readonly unityId: number;
   /** The object above this one in the scene; the page reads it as that object's id. */
@@ -693,6 +737,12 @@ class FakeObject extends Emitter {
     this.unityId = app.nextUnityId++;
     this.path = parent ? `${parent.path}/${name}` : name;
     if (parent) parent.children.push(this);
+  }
+
+  /** On, and every object above it on. */
+  get activeInHierarchy(): boolean {
+    for (let at: FakeObject | null = this; at; at = at.above) if (!at.active || at.destroyed) return false;
+    return true;
   }
 
   /** As the page API has it: the parent's id as text, "0" at the top of the scene. */
@@ -723,6 +773,7 @@ class FakeObject extends Emitter {
   SetActive(active: boolean): Promise<void> {
     return this.app.bridge(() => {
       this.active = active;
+      if (!active) this.app.deactivated(this);
     });
   }
 
@@ -1013,13 +1064,152 @@ class FakeApp {
         return app.bridge(() => void client.seated.delete(this.gameObject!.path));
       }
     }
+
+    // ---- UI panels (BS.UIPanel and its elements, BS.UI<type>), as ui-system.md and ui-kit.md describe them ----
+    let nextElementId = 1;
+    class UIPanel extends Component {
+      config: any;
+      /** Every element made for this panel, in order (destroyed ones are marked). */
+      readonly all: UIElement[] = [];
+      constructor(config: any = {}) {
+        super();
+        this.componentType = "UIPanel";
+        this.config = config;
+      }
+      get resolution(): { x: number; y: number } {
+        const r = this.config.resolution ?? { x: 512, y: 512 };
+        return { x: Number(r.x), y: Number(r.y) };
+      }
+      attached(object: FakeObject): void {
+        object.layer = 5; // "It puts its object on the UI layer"
+        app.uiPanels.push(this);
+        this.isLoaded = true;
+      }
+      /** Gone with its object (destroyed, or switched off: deactivated()). */
+      get alive(): boolean {
+        return !!this.gameObject && !this.gameObject.destroyed;
+      }
+      SetBackgroundColor(color: any): void {
+        this.config.background = color;
+      }
+      /** The live element with that name (portkit names every element with its id). */
+      element(name: string): UIElement | null {
+        return this.all.find((e) => e.name === name && !e.destroyed) ?? null;
+      }
+    }
+    class UIElement {
+      readonly id: string;
+      readonly type: string;
+      readonly panel: UIPanel;
+      parent: UIElement | null;
+      readonly children: UIElement[] = [];
+      readonly props = new Map<string, unknown>();
+      readonly styles = new Map<string, string>();
+      readonly classes = new Set<string>();
+      destroyed = false;
+      name = "";
+      readonly listeners = { click: [] as Array<(e: any) => void>, change: [] as Array<(e: any) => void> };
+      constructor(type: string, panel: UIPanel, parent?: UIElement) {
+        if (!(panel instanceof UIPanel)) throw new Error(`BS.UI${type}: the first argument must be the panel`);
+        this.id = "ui" + nextElementId++;
+        this.type = type;
+        this.panel = panel;
+        this.parent = parent ?? null;
+        if (parent) parent.children.push(this);
+        panel.all.push(this);
+        for (const name of [...UI_COMMON_PROPERTIES, ...(UI_PROPERTIES[type] ?? [])]) {
+          Object.defineProperty(this, name, {
+            enumerable: true,
+            get: () => this.props.get(name),
+            set: (value: unknown) => {
+              if (!this.destroyed) this.props.set(name, value);
+            },
+          });
+        }
+      }
+      SetStyle(name: string, value: string): void {
+        this.styles.set(name, String(value));
+      }
+      GetStyle(name: string): string | undefined {
+        return this.styles.get(name);
+      }
+      AddClass(name: string): void {
+        this.classes.add(name);
+      }
+      RemoveClass(name: string): void {
+        this.classes.delete(name);
+      }
+      HasClass(): boolean {
+        return false; // as documented: HasClass always returns false
+      }
+      OnClick(handler: (e: any) => void): void {
+        this.listeners.click.push(handler);
+      }
+      OnChange(handler: (e: any) => void): void {
+        this.listeners.change.push(handler);
+      }
+      Destroy(): void {
+        const sweep = (e: UIElement) => {
+          e.destroyed = true;
+          e.children.forEach(sweep);
+        };
+        sweep(this);
+        if (this.parent) this.parent.children.splice(this.parent.children.indexOf(this), 1);
+      }
+      /** What a player sees: this element and every one above it visible and not display:none, the panel alive and on. */
+      get shown(): boolean {
+        if (!this.panel.alive || !this.panel.gameObject!.activeInHierarchy) return false;
+        for (let at: UIElement | null = this; at; at = at.parent) {
+          if (at.destroyed || at.props.get("visible") === false || at.styles.get("display") === "none" || at.styles.get("visibility") === "hidden") return false;
+        }
+        return true;
+      }
+      /** Takes input: this element and every one above it enabled. */
+      get enabledInHierarchy(): boolean {
+        for (let at: UIElement | null = this; at; at = at.parent) if (at.props.get("enabled") === false) return false;
+        return true;
+      }
+      /** The control's text as a player reads it: its text, else its title, value or label. */
+      get shownText(): string {
+        for (const name of ["text", "title", "value", "label"]) {
+          const v = this.props.get(name);
+          if (v !== undefined) return String(v);
+        }
+        return "";
+      }
+    }
+    const uiClasses: Record<string, unknown> = {};
+    for (const type of Object.keys(UI_PROPERTIES)) {
+      uiClasses["UI" + type] = class extends UIElement {
+        constructor(panel: UIPanel, parent?: UIElement) {
+          super(type, panel, parent);
+        }
+      };
+    }
     this.BS = {
       Scene: { GetInstance: () => scene },
       GameObject: class extends FakeObject {
         constructor(nameOrConfig: any) {
-          super(app, typeof nameOrConfig === "string" ? nameOrConfig : String(nameOrConfig?.name ?? "New Game Object"), null);
-          app.holders.set(this.name, this);
+          const parent = nameOrConfig && typeof nameOrConfig === "object" && nameOrConfig.parent instanceof FakeObject ? (nameOrConfig.parent as FakeObject) : null;
+          super(app, typeof nameOrConfig === "string" ? nameOrConfig : String(nameOrConfig?.name ?? "New Game Object"), parent);
+          if (parent) {
+            // "With a parent, it ... is created under it, and the local position, rotation and scale are relative to the parent."
+            const v = (x: any, d: number) => new Vector3(Number(x?.x ?? d), Number(x?.y ?? d), Number(x?.z ?? d));
+            this.pageMade = true;
+            this.local = { position: v(nameOrConfig.localPosition, 0), rotation: v(nameOrConfig.localEulerAngles, 0), scale: v(nameOrConfig.localScale, 1) };
+            if (nameOrConfig.active === false) this.active = false;
+          } else app.holders.set(this.name, this);
           this.announce();
+        }
+      },
+      UIPanel,
+      ...uiClasses,
+      Vector2: class {
+        x: number;
+        y: number;
+        constructor(x = 0, y = 0) {
+          this.x = x;
+          this.y = y;
         }
       },
       Vector3: Vec3,
@@ -1410,6 +1600,27 @@ class FakeApp {
     this.objectMoved(object, true);
   }
 
+  /**
+   * As seen in SDK 4.0.29 Play mode (README, "UI panels"): a page-made object that is deactivated, itself or by an object
+   * above it (the page's SetActive or the relay's `active` op), is gone from the scene afterwards, a UI panel on it
+   * included. The fake does the same and notes it, so a game that hides a panel by switching its anchor off fails in Node.
+   */
+  deactivated(object: FakeObject): void {
+    const lost: FakeObject[] = [];
+    const sweep = (o: FakeObject) => {
+      if (o.pageMade && !o.destroyed) lost.push(o);
+      else o.children.forEach(sweep);
+    };
+    sweep(object);
+    for (const o of lost) {
+      this.client.notes.push(`page-made object ${o.name} destroyed: ${o === object ? "it was" : `${object.name} above it was`} switched off`);
+      o.Destroy();
+    }
+  }
+
+  /** Every UI panel made on this page (BS.UIPanel components), in order. */
+  readonly uiPanels: any[] = [];
+
   destroyObject(object: FakeObject): void {
     if (this.holders.get(object.name) === object) this.holders.delete(object.name);
     const sweep = (o: FakeObject) => {
@@ -1457,7 +1668,10 @@ class FakeApp {
           const path = target.startsWith("@") ? target.slice(1) : kit.pathOfKey.get(target);
           let node: FakeObject | undefined = path === undefined ? undefined : holder.children[0];
           if (path) for (const part of path.split("/")) node = node?.children.find((c) => c.name === part);
-          if (node) node.active = args[0] === "1";
+          if (node) {
+            node.active = args[0] === "1";
+            if (!node.active) this.deactivated(node);
+          }
           break;
         }
         case "animBool":
@@ -1840,6 +2054,64 @@ export class FakeClient {
   /** The app teleported the local player (a spawn, a portal): the page hears `player-teleported`. */
   teleported(position: Vector3, isSpawn = false): void {
     this.app.scene.emit("player-teleported", { position: { x: position.x, y: position.y, z: position.z }, rotation: { x: 0, y: 0, z: 0 }, isSpawn });
+  }
+
+  // ---- UI panels ----------------------------------------------------------------------------------------------
+
+  /** A UI panel a game made (portkit names its object `pk1ui:<slug>:<inst>:<panel id>`), or null. */
+  panel(slug: string, inst: string, panelId: string): FakePanel | null {
+    const name = `pk1ui:${slug}:${inst}:${panelId}`;
+    return (this.app.uiPanels.filter((p) => p.gameObject?.name === name).pop() as FakePanel | undefined) ?? null;
+  }
+
+  /** An element of a panel, by its id; throws when the panel or the element is not there (destroyed ones included). */
+  ui(slug: string, inst: string, panelId: string, elementId: string): FakeUiElement {
+    const panel = this.panel(slug, inst, panelId);
+    if (!panel) throw new Error(`${this.name} has no UI panel ${panelId} for ${slug}:${inst}`);
+    if (!panel.alive) throw new Error(`${this.name}: UI panel ${panelId} of ${slug}:${inst} is destroyed`);
+    const element = panel.element(elementId);
+    if (!element) throw new Error(`${this.name}: UI panel ${panelId} of ${slug}:${inst} has no element '${elementId}'`);
+    return element;
+  }
+
+  /** What an element shows as text (its text, title, value or label), as the app has it. */
+  uiText(slug: string, inst: string, panelId: string, elementId: string): string {
+    return this.ui(slug, inst, panelId, elementId).shownText;
+  }
+
+  /** Whether a player sees the element (it, its parents and its panel shown, and the panel's object on). */
+  uiShown(slug: string, inst: string, panelId: string, elementId: string): boolean {
+    const panel = this.panel(slug, inst, panelId);
+    const element = panel && panel.alive ? panel.element(elementId) : null;
+    return !!element && element.shown;
+  }
+
+  /**
+   * The local player presses an element, as the app reports it: only an element that is shown and enabled takes it
+   * (false, and nothing happens, otherwise). The page hears it a moment later.
+   */
+  uiClick(slug: string, inst: string, panelId: string, elementId: string): boolean {
+    const element = this.ui(slug, inst, panelId, elementId);
+    if (!element.shown || !element.enabledInHierarchy) return false;
+    this.room.schedule(this.room.options.bridgeMs, () => {
+      if (!element.destroyed) for (const handler of element.listeners.click.slice()) handler({ type: "click" });
+    }, this);
+    return true;
+  }
+
+  /**
+   * The local player changes a control (a toggle's `checked`, a slider's or a dropdown's `value`, tabs' key) or presses a
+   * named part (`card:action`): the app takes the new value, then the page hears the change event with it.
+   */
+  uiChange(slug: string, inst: string, panelId: string, elementId: string, value: unknown): boolean {
+    const element = this.ui(slug, inst, panelId, elementId);
+    if (!element.shown || !element.enabledInHierarchy) return false;
+    const named = typeof value === "string" && /^[a-z]+:[a-z]+$/.test(value);
+    if (!named) element.props.set(element.type === "KitToggle" || element.type === "Toggle" ? "checked" : "value", value);
+    this.room.schedule(this.room.options.bridgeMs, () => {
+      if (!element.destroyed) for (const handler of element.listeners.change.slice()) handler({ type: "change", value });
+    }, this);
+    return true;
   }
 
   /** Log lines of one level, for assertions. */

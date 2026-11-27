@@ -1,15 +1,16 @@
 // Scoreboard.cs (SB) on the portkit runtime: one list per treasure name, one row per player present.
 //
 // Upstream instantiates a list per name and a row per player (SB:315-347) and destroys rows on every refresh.
-// The kit holds three lists of sixteen rows (rows past the mask were clipped upstream anyway, item 37); a
-// refresh shows, fills or hides them, and the relay host sends only texts that changed.
+// The board is a UI Toolkit panel the page builds (portkit ui.ts) on the kit's "Scoreboard" anchor, where upstream's
+// canvas sat: three lists of sixteen rows (rows past the mask were clipped upstream anyway, item 37); a refresh
+// shows, fills or hides them, and the UI layer sends only what changed, once per tick.
 //
 // Changed (PORT.md 10.1, coordinator decision): SortListOfDictionaries (SB:408-431) is meant to put the highest
 // score first but reads the outer score once and never refreshes it after a swap, so from four players it can
 // show rows out of order (item 35; for scores 0,0,2,1 in join order it shows 2,0,1,0). The port sorts properly:
 // highest first, ties in join order. `UpstreamSortListOfDictionaries` keeps the old loop for the test vectors.
 
-import { Behaviour, type GameObject, type Player, type TextRef } from "../portkit/src/index.ts";
+import { Behaviour, el, type Player, type UiPanel } from "../portkit/src/index.ts";
 import { GetCount } from "./PlayerData.ts";
 import type { Kind } from "./Settings.ts";
 import type { TreasureHuntController } from "./TreasureHuntController.ts";
@@ -49,17 +50,38 @@ export function UpstreamSortListOfDictionaries(list: readonly ScoreEntry[]): Sco
   return currentDataList;
 }
 
+/** Lists on the board: one per kind the kit carries. */
+export const BOARD_LISTS = 3;
+
+/**
+ * The board panel (PORT.md 11.8): upstream's three lists side by side, 1.6 x 0.73 m, each a card titled with its treasure
+ * name over its rows (player name, saved count). Element ids: `list<l>`, `title<l>`, `row<l>_<r>`, `name<l>_<r>`, `score<l>_<r>`.
+ */
+export function boardPanel(rows: number) {
+  const lists = [];
+  for (let l = 0; l < BOARD_LISTS; l++) {
+    const items = [el("KitText", { id: `title${l}`, text: "", variant: "heading" }), el("KitDivider", { inset: "s1" })];
+    for (let r = 0; r < rows; r++) {
+      items.push(
+        el("VisualElement", { id: `row${l}_${r}`, class: ["alt", "alt-row", "alt-row--between"], visible: false, style: { height: 17 } }, [
+          el("KitText", { id: `name${l}_${r}`, text: "", variant: "small", truncate: true, class: "alt-grow" }),
+          el("KitText", { id: `score${l}_${r}`, text: "", variant: "small", tone: "accent", class: "alt-no-shrink" }),
+        ]),
+      );
+    }
+    lists.push(el("KitSurface", { id: `list${l}`, variant: "card", padding: "s3", style: { flexGrow: "1", flexBasis: "0px", marginLeft: l ? 8 : 0 } }, items));
+  }
+  return el("KitSurface", { id: "board", variant: "page", radius: "panel", padding: "s3", direction: "row", style: { width: "100%", height: "100%" } }, lists);
+}
+
 export class Scoreboard extends Behaviour {
   // From bindings.json.
   /** Upstream: TreasuresContainer, read for the wrapper names. Here the controller, which knows the pool. */
   treasuresPool!: TreasureHuntController;
-  /** The kit's prebuilt lists: root, title, and `rowsPerList` rows each (row object, name text, score text). */
-  listRoots: GameObject[] = [];
-  listTitles: TextRef[] = [];
-  rowObjects: GameObject[] = [];
-  rowNames: TextRef[] = [];
-  rowScores: TextRef[] = [];
   rowsPerList = 16;
+
+  /** The board (made in Start, on this behaviour's own object: the kit's "Scoreboard" anchor). */
+  panel!: UiPanel;
 
   listOfTreasures: Kind[] = [];
   /** Name -> rows, as SB's dataBase (a dictionary of lists of one-entry dictionaries). */
@@ -69,6 +91,7 @@ export class Scoreboard extends Behaviour {
   refreshes = 0;
 
   override Start(): void {
+    this.panel = this.UI.Panel({ id: "board", anchor: this.gameObject.key, size: [1.6, 0.73], pixelsPerMetre: 540, root: boardPanel(this.rowsPerList) });
     this.SendCustomEventDelayedSeconds("Initiate", 1);
   }
 
@@ -100,10 +123,10 @@ export class Scoreboard extends Behaviour {
 
   /** SB:315-325: one list per name, titled with it. Lists the pool does not use are hidden. */
   PrintLists(): void {
-    for (let i = 0; i < this.listRoots.length; i++) {
+    for (let i = 0; i < BOARD_LISTS; i++) {
       const name = this.listOfTreasures[i];
-      this.listRoots[i]!.SetActive(name !== undefined);
-      if (name !== undefined && this.listTitles[i]) this.listTitles[i]!.text = name;
+      this.panel.Get(`list${i}`).visible = name !== undefined;
+      if (name !== undefined) this.panel.Get(`title${i}`).text = name;
     }
   }
 
@@ -111,17 +134,14 @@ export class Scoreboard extends Behaviour {
   PrintElements(): void {
     if (!this.initiated) return;
     this.refreshes++;
-    for (let i = 0; i < this.listRoots.length; i++) {
+    for (let i = 0; i < BOARD_LISTS; i++) {
       const entries = this.dataBase.get(this.listOfTreasures[i]!) ?? [];
       for (let p = 0; p < this.rowsPerList; p++) {
-        const at = i * this.rowsPerList + p;
-        const row = this.rowObjects[at];
-        if (!row) continue;
         const entry = entries[p];
-        row.SetActive(entry !== undefined);
+        this.panel.Get(`row${i}_${p}`).visible = entry !== undefined;
         if (!entry) continue;
-        this.rowNames[at]!.text = entry.name;
-        this.rowScores[at]!.text = String(entry.score);
+        this.panel.Get(`name${i}_${p}`).text = entry.name;
+        this.panel.Get(`score${i}_${p}`).text = String(entry.score);
       }
     }
   }

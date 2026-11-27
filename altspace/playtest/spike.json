@@ -1,0 +1,9 @@
+{
+  "name": "ui-spike",
+  "timeout": 300,
+  "players": 1,
+  "elements": [
+    "<script src=\"{SERVER}/web/playtest/ui-spike.js\"></script>",
+    "<bs-snippet name=\"treasure-hunt\" title=\"Treasure Hunt\" script=\"{SERVER}/web/pk-treasure-hunt.js\" position=\"0 1.45 3.2\" zone1-size=\"0 0 0\" zone2-size=\"0 0 0\" zone3-size=\"0 0 0\" windows=\"{SERVER}/kits/windows/treasure-hunt\" android=\"{SERVER}/kits/android/treasure-hunt\"></bs-snippet>"
+  ]
+}

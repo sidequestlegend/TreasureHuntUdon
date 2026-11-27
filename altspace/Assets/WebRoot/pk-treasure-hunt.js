@@ -46,7 +46,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-/* pk-treasure-hunt.js: portkit runtime with the rules of 'treasure-hunt' (protocol pk1, bindings 52572c10b5939322d04b83de8437e5d9909f0b27). Built file: do not edit. */
+/* pk-treasure-hunt.js: portkit runtime with the rules of 'treasure-hunt' (protocol pk1, bindings 13fe1f8b6cb538e949eb4cf243f018b2e18d6a1f). Built file: do not edit. */
 (() => {
   var __defProp = Object.defineProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -113,6 +113,10 @@
     /** Values only the world's owner and moderators can write. */
     get Protected() {
       return linkOf(this).protectedValues;
+    }
+    /** World-space UI panels of UI Kit controls under kit objects (ui.ts): `this.UI.Panel({...})` in Start. */
+    get UI() {
+      return linkOf(this).ui;
     }
     /**
      * For a per-player behaviour: the player it belongs to. Null on an ordinary behaviour. An upstream field named
@@ -2141,6 +2145,8 @@
       __publicField(this, "pathOf", () => void 0);
       /** Plays a clip of the object's own list through the page when the page can reach the object. */
       __publicField(this, "fallbackClip", () => false);
+      /** Told of every SetActive before it is sent (the UI layer warns when a panel's anchor goes off). */
+      __publicField(this, "onSetActive", null);
       this.platform = platform;
       this.slug = slug;
       this.inst = inst;
@@ -2189,6 +2195,7 @@
       this.value("uiColor", target, "uiColor", [relayNumber(color.r), relayNumber(color.g), relayNumber(color.b), relayNumber(color.a)]);
     }
     setActive(target, active) {
+      this.onSetActive?.(target, active);
       if (!target.startsWith("@") && this.refs.indexOf(target) < 0) {
         const path = this.pathOf(target);
         if (path !== void 0) target = "@" + path;
@@ -4932,6 +4939,506 @@ ${label}`)));
     }
   };
 
+  // portkit/src/ui.ts
+  var UI_PROPERTIES = {
+    KitText: ["text", "variant", "tone", "wrap", "truncate"],
+    KitIcon: ["icon", "size", "tone", "image"],
+    KitImage: ["image", "fit", "radius", "corners", "aspect"],
+    KitButton: ["text", "icon", "iconPosition", "variant", "size", "block", "selected", "loading"],
+    KitIconButton: ["icon", "size", "variant", "selected"],
+    KitTextField: ["value", "text", "label", "placeholder", "multiline", "maxLength", "isReadOnly", "isPasswordField", "size", "invalid", "icon"],
+    KitToggle: ["checked", "value", "label", "size"],
+    KitSlider: ["value", "minValue", "maxValue", "step", "showValue", "valueFormat", "label", "tone"],
+    KitDropdown: ["choices", "value", "index", "placeholder", "size", "open", "maxVisible"],
+    KitChip: ["text", "selected", "count", "icon", "caret", "variant"],
+    KitBadge: ["text", "icon", "tone", "variant", "size"],
+    KitAvatar: ["image", "initials", "size", "presence", "speaking", "ring", "badgeImage"],
+    KitDivider: ["orientation", "inset"],
+    KitProgressBar: ["value", "tone", "size", "label"],
+    KitSpinner: ["size", "tone", "paused"],
+    KitScrollView: ["scrollbar", "horizontalScrolling", "verticalScrolling"],
+    KitSurface: ["variant", "radius", "padding", "direction"],
+    KitSearchBar: ["value", "text", "placeholder", "size", "clearable"],
+    KitOptionRow: ["label", "description", "valueText", "divider"],
+    KitFormField: ["label", "counter", "required", "help", "error"],
+    KitTabs: ["choices", "value", "variant", "disabledChoices"],
+    KitChipGroup: ["label", "choices", "value", "multiple"],
+    KitCountPill: ["icon", "count", "active", "tone", "size", "interactive"],
+    KitStat: ["icon", "value", "label", "tone"],
+    KitListRow: ["title", "subtitle", "meta", "icon", "image", "imageShape", "selected", "unread"],
+    KitMessageBubble: ["text", "side", "author", "time", "grouped"],
+    KitNavItem: ["key", "text", "icon", "selected", "badge"],
+    KitEmptyState: ["icon", "title", "message"],
+    KitSectionHeader: ["eyebrow", "title", "count", "actionText"],
+    KitCard: ["variant", "image", "title", "subtitle", "badges", "count", "countIcon", "countActive", "liveCount", "actionText", "actionIcon", "stats", "selected", "menu"],
+    KitEventCard: ["day", "month", "image", "title", "time", "host", "badges", "live", "liveCount", "interested", "count", "countActive"],
+    KitPersonCard: ["variant", "image", "title", "subtitle", "meta", "presence", "speaking", "status", "badge", "badgeTone"],
+    KitHeroBanner: ["image", "eyebrow", "eyebrowTone", "title", "meta", "size"],
+    KitDetailHeader: ["image", "eyebrow", "title", "badges", "meta", "stats"],
+    KitModal: ["open", "title", "message", "variant", "showClose", "primaryText", "secondaryText", "primaryVariant", "scrim", "dismissOnScrim"],
+    KitNavBar: ["value"],
+    KitActionGrid: ["columns"],
+    // the plain elements (ui-system.md), for layout around the kit's controls
+    VisualElement: [],
+    Label: ["text"],
+    Button: ["text"],
+    Toggle: ["checked"],
+    Slider: ["minValue", "maxValue", "value"],
+    ScrollView: ["horizontalScrolling", "verticalScrolling"],
+    TextField: ["value", "placeholder", "maxLength", "isPasswordField", "isReadOnly", "label"]
+  };
+  var UI_COMMON_PROPERTIES = ["visible", "enabled", "tooltip"];
+  var VALUE_PROPERTY = {
+    KitToggle: "checked",
+    Toggle: "checked",
+    KitSlider: "value",
+    Slider: "value",
+    KitDropdown: "value",
+    KitTabs: "value",
+    KitChipGroup: "value",
+    KitTextField: "value",
+    TextField: "value",
+    KitSearchBar: "value",
+    KitNavBar: "value"
+  };
+  function uiTypeKnown(type) {
+    return Object.prototype.hasOwnProperty.call(UI_PROPERTIES, type);
+  }
+  function uiPropertyKnown(type, name) {
+    return UI_COMMON_PROPERTIES.indexOf(name) >= 0 || (UI_PROPERTIES[type] ?? []).indexOf(name) >= 0;
+  }
+  function el(type, attributes = {}, children = []) {
+    const props = {};
+    const style = {};
+    let classes = [];
+    let id;
+    for (const [key, value] of Object.entries(attributes)) {
+      if (value === void 0) continue;
+      if (key === "id") id = String(value);
+      else if (key === "style") for (const [k, v] of Object.entries(value)) style[k] = typeof v === "number" ? `${v}px` : String(v);
+      else if (key === "class") classes = Array.isArray(value) ? value.map(String) : String(value).split(/\s+/).filter(Boolean);
+      else props[key] = value;
+    }
+    const node = { type, props, style, classes, children };
+    if (id !== void 0) node.id = id;
+    return node;
+  }
+  var ID = /^[A-Za-z0-9_-]{1,48}$/;
+  var UiElement = class {
+    /** @internal made by UiPanel */
+    constructor(panel, id, type, parent) {
+      __publicField(this, "id");
+      __publicField(this, "type");
+      __publicField(this, "panel");
+      __publicField(this, "parent");
+      __publicField(this, "children", []);
+      __publicField(this, "destroyed", false);
+      __publicField(this, "props", /* @__PURE__ */ new Map());
+      __publicField(this, "styles", /* @__PURE__ */ new Map());
+      __publicField(this, "classSet", /* @__PURE__ */ new Set());
+      __publicField(this, "clickHandlers", []);
+      __publicField(this, "changeHandlers", []);
+      this.panel = panel;
+      this.id = id;
+      this.type = type;
+      this.parent = parent;
+    }
+    /** A property as the game last set it (or as the player changed it), or undefined. */
+    Get(name) {
+      return this.props.get(name);
+    }
+    /** Sets a control property; sent at the end of the tick, and only if it differs from what was sent. */
+    Set(name, value) {
+      if (this.destroyed) return this;
+      if (!uiPropertyKnown(this.type, name)) {
+        this.panel._warn(`${this.type} '${this.id}' has no property '${name}' (UI_PROPERTIES)`);
+        return this;
+      }
+      this.props.set(name, value);
+      this.panel._queueSet(this, name, value);
+      return this;
+    }
+    get text() {
+      return String(this.props.get("text") ?? "");
+    }
+    set text(value) {
+      this.Set("text", value);
+    }
+    /** False hides the element and takes it out of the layout. */
+    get visible() {
+      return this.props.get("visible") !== false;
+    }
+    set visible(value) {
+      this.Set("visible", value);
+    }
+    /** False greys it out and stops input. */
+    get enabled() {
+      return this.props.get("enabled") !== false;
+    }
+    set enabled(value) {
+      this.Set("enabled", value);
+    }
+    get value() {
+      return this.props.get("value");
+    }
+    set value(value) {
+      this.Set("value", value);
+    }
+    get checked() {
+      return this.props.get("checked") === true;
+    }
+    set checked(value) {
+      this.Set("checked", value);
+    }
+    /** True when this element and every element above it are visible, and the panel is. */
+    get shown() {
+      for (let at = this; at; at = at.parent) if (!at.visible || at.styles.get("display") === "none") return false;
+      return this.panel.visible && !this.destroyed;
+    }
+    get enabledInHierarchy() {
+      for (let at = this; at; at = at.parent) if (!at.enabled) return false;
+      return true;
+    }
+    GetStyle(name) {
+      return this.styles.get(name);
+    }
+    /** A style by camelCase name; a number is pixels. */
+    SetStyle(name, value) {
+      if (this.destroyed) return this;
+      const text = typeof value === "number" ? `${value}px` : value;
+      this.styles.set(name, text);
+      this.panel._queueStyle(this, name, text);
+      return this;
+    }
+    HasClass(name) {
+      return this.classSet.has(name);
+    }
+    AddClass(name) {
+      if (this.destroyed || this.classSet.has(name)) return this;
+      this.classSet.add(name);
+      this.panel._queue({ op: "class", id: this.id, name, on: true });
+      return this;
+    }
+    RemoveClass(name) {
+      if (this.destroyed || !this.classSet.has(name)) return this;
+      this.classSet.delete(name);
+      this.panel._queue({ op: "class", id: this.id, name, on: false });
+      return this;
+    }
+    /** The player pressed it. */
+    OnClick(handler) {
+      if (!this.clickHandlers.length) this.panel._queue({ op: "listen", id: this.id, kind: "click" });
+      this.clickHandlers.push(handler);
+      return () => remove(this.clickHandlers, handler);
+    }
+    /**
+     * The player changed it (a toggle, a slider, tabs, a dropdown, a text field: the new value), or pressed one of a
+     * control's named parts (`card:action`, `modal:close`: the action's name). Not raised when the script sets a value.
+     */
+    OnChange(handler) {
+      if (!this.changeHandlers.length) this.panel._queue({ op: "listen", id: this.id, kind: "change" });
+      this.changeHandlers.push(handler);
+      return () => remove(this.changeHandlers, handler);
+    }
+    /** Adds an element (and its children) at the end of this one. */
+    Append(node) {
+      return this.panel._build(node, this);
+    }
+    /** Removes the element and everything under it. */
+    Destroy() {
+      if (this.destroyed) return;
+      this.panel._destroy(this);
+    }
+    /** @internal what the platform reported */
+    _event(kind, raw) {
+      if (this.destroyed || !this.shown || !this.enabledInHierarchy) return;
+      if (kind === "click") {
+        for (const handler of this.clickHandlers.slice()) this.panel._guard(`${this.panel.id}/${this.id} click`, () => handler());
+        return;
+      }
+      const valueProperty = VALUE_PROPERTY[this.type];
+      let value = raw === null || raw === void 0 ? "" : typeof raw === "number" || typeof raw === "boolean" ? raw : String(raw);
+      const named = typeof value === "string" && /^[a-z]+:[a-z]+$/.test(value) && valueProperty !== "value";
+      if (valueProperty && !named) {
+        if (valueProperty === "checked") value = value === true || value === "true" || value === "True" || value === 1 || value === "1";
+        else if (this.type === "KitSlider" || this.type === "Slider") value = Number(value);
+        this.props.set(valueProperty, value);
+        this.panel._accepted(this, valueProperty, value);
+      }
+      for (const handler of this.changeHandlers.slice()) this.panel._guard(`${this.panel.id}/${this.id} change`, () => handler(value));
+    }
+    /** @internal */
+    _initial(node) {
+      for (const [name, value] of Object.entries(node.props)) this.Set(name, value);
+      for (const [name, value] of Object.entries(node.style)) this.SetStyle(name, value);
+      for (const name of node.classes) this.AddClass(name);
+    }
+  };
+  var UiPanel = class {
+    /** @internal made by UiLayer */
+    constructor(layer, def, name, platform) {
+      __publicField(this, "id");
+      /** The panel GameObject's name: `pk1ui:<slug>:<inst>:<id>`. */
+      __publicField(this, "name");
+      __publicField(this, "def");
+      /** The panel's own top element (it fills the panel); the definition's nodes are its children. */
+      __publicField(this, "root");
+      __publicField(this, "resolution");
+      __publicField(this, "scale");
+      __publicField(this, "destroyed", false);
+      __publicField(this, "layer");
+      __publicField(this, "elements", /* @__PURE__ */ new Map());
+      __publicField(this, "platform");
+      __publicField(this, "ops", []);
+      /** (id, property) -> the pending op, so a second change before the flush replaces the first in place. */
+      __publicField(this, "pendingSets", /* @__PURE__ */ new Map());
+      /** (id, property) -> what the platform has (sent, or reported by the player). */
+      __publicField(this, "sent", /* @__PURE__ */ new Map());
+      __publicField(this, "autoId", 0);
+      this.layer = layer;
+      this.id = def.id;
+      this.def = def;
+      this.name = name;
+      const density = def.pixelsPerMetre && def.pixelsPerMetre > 0 ? def.pixelsPerMetre : DEFAULT_PIXELS_PER_METRE;
+      this.resolution = { x: Math.max(1, Math.round(def.size[0] * density)), y: Math.max(1, Math.round(def.size[1] * density)) };
+      this.scale = 100 / density;
+      this.platform = platform(this);
+      this.root = new UiElement(this, "__root", "VisualElement", null);
+      this.elements.set(this.root.id, this.root);
+      this._queue({ op: "create", id: this.root.id, type: "VisualElement", parent: null });
+      this.root.SetStyle("width", "100%");
+      this.root.SetStyle("height", "100%");
+      if (def.visible === false) this.root.visible = false;
+      for (const node of Array.isArray(def.root) ? def.root : [def.root]) this._build(node, this.root);
+    }
+    /** The element with that id. Throws if there is none (a typo in a game should fail loudly in its tests). */
+    Get(id) {
+      const found = this.elements.get(id);
+      if (!found || found.destroyed) throw new Error(`panel '${this.id}' has no element '${id}'`);
+      return found;
+    }
+    Has(id) {
+      const found = this.elements.get(id);
+      return !!found && !found.destroyed;
+    }
+    get elementIds() {
+      return [...this.elements.keys()].filter((id) => id !== "__root");
+    }
+    /** The whole panel shown or hidden (its top element: a panel's object is never switched off, see README). */
+    get visible() {
+      return this.root.visible;
+    }
+    set visible(value) {
+      this.root.visible = value;
+    }
+    Destroy() {
+      if (this.destroyed) return;
+      this.destroyed = true;
+      for (const element of this.elements.values()) element.destroyed = true;
+      this.ops = [];
+      this.pendingSets.clear();
+      this.platform?.destroy();
+      this.layer._forget(this);
+    }
+    /** @internal sends what changed since the last flush */
+    _flush() {
+      if (this.destroyed || !this.ops.length) return;
+      const ops = [];
+      for (const op of this.ops) {
+        if (op.op === "set" || op.op === "style") {
+          const key = `${op.id}\0${op.op}\0${op.name}`;
+          this.pendingSets.delete(key);
+          if (this.sent.has(key) && this.sent.get(key) === op.value) continue;
+          this.sent.set(key, op.value);
+        }
+        ops.push(op);
+      }
+      this.ops = [];
+      this.pendingSets.clear();
+      if (ops.length) {
+        this.layer.stats.flushes++;
+        this.layer.stats.ops += ops.length;
+        this.platform?.apply(ops);
+      }
+    }
+    /** @internal */
+    _event(id, kind, value) {
+      if (this.destroyed) return;
+      const element = this.elements.get(id);
+      if (element) element._event(kind, value);
+    }
+    /** @internal */
+    _build(node, parent) {
+      if (this.destroyed) throw new Error(`panel '${this.id}' is destroyed`);
+      if (!uiTypeKnown(node.type)) throw new Error(`panel '${this.id}': no UI element type '${node.type}' (UI_PROPERTIES)`);
+      let id = node.id;
+      if (id === void 0) {
+        do
+          id = `e${++this.autoId}`;
+        while (this.elements.has(id) && !this.elements.get(id).destroyed);
+      } else if (!ID.test(id) || id === "__root") throw new Error(`panel '${this.id}': '${id}' is not an element id (letters, digits, _ and -, up to 48)`);
+      const existing = this.elements.get(id);
+      if (existing && !existing.destroyed) throw new Error(`panel '${this.id}' already has an element '${id}'`);
+      const element = new UiElement(this, id, node.type, parent);
+      this.elements.set(id, element);
+      parent.children.push(element);
+      this._queue({ op: "create", id, type: node.type, parent: parent.id });
+      element._initial(node);
+      for (const child of node.children) this._build(child, element);
+      return element;
+    }
+    /** @internal */
+    _destroy(element) {
+      const mark = (e) => {
+        e.destroyed = true;
+        for (const child of e.children) mark(child);
+        for (const key of [...this.sent.keys()]) if (key.startsWith(e.id + "\0")) this.sent.delete(key);
+      };
+      mark(element);
+      if (element.parent) remove(element.parent.children, element);
+      const gone = /* @__PURE__ */ new Set();
+      const collect = (e) => {
+        gone.add(e.id);
+        e.children.forEach(collect);
+      };
+      collect(element);
+      this.ops = this.ops.filter((op) => !((op.op === "set" || op.op === "style" || op.op === "class" || op.op === "listen") && gone.has(op.id)));
+      for (const key of [...this.pendingSets.keys()]) if (gone.has(key.slice(0, key.indexOf("\0")))) this.pendingSets.delete(key);
+      this._queue({ op: "destroy", id: element.id });
+    }
+    /** @internal */
+    _queue(op) {
+      if (this.destroyed) return;
+      this.ops.push(op);
+    }
+    /** @internal */
+    _queueSet(element, name, value) {
+      this.queueValue("set", element, name, value);
+    }
+    /** @internal */
+    _queueStyle(element, name, value) {
+      this.queueValue("style", element, name, value);
+    }
+    queueValue(kind, element, name, value) {
+      if (this.destroyed) return;
+      const key = `${element.id}\0${kind}\0${name}`;
+      const pending = this.pendingSets.get(key);
+      if (pending) {
+        pending.value = value;
+        return;
+      }
+      const op = kind === "set" ? { op: "set", id: element.id, name, value } : { op: "style", id: element.id, name, value: String(value) };
+      this.pendingSets.set(key, op);
+      this.ops.push(op);
+    }
+    /** @internal the player changed a value: the platform has it already, so it is not sent back */
+    _accepted(element, name, value) {
+      this.sent.set(`${element.id}\0set\0${name}`, value);
+    }
+    /** @internal */
+    _warn(message) {
+      this.layer._warn(`panel '${this.id}': ${message}`);
+    }
+    /** @internal */
+    _guard(where, fn) {
+      this.layer._guard(where, fn);
+    }
+  };
+  var DEFAULT_PIXELS_PER_METRE = 400;
+  var UiLayer = class {
+    constructor(host) {
+      __publicField(this, "host");
+      __publicField(this, "list", []);
+      __publicField(this, "warned", /* @__PURE__ */ new Set());
+      /** For tests: flushes that sent something, and the ops they sent. */
+      __publicField(this, "stats", { flushes: 0, ops: 0 });
+      __publicField(this, "disposed", false);
+      this.host = host;
+    }
+    get panels() {
+      return this.list;
+    }
+    GetPanel(id) {
+      return this.list.find((p) => p.id === id) ?? null;
+    }
+    Panel(def) {
+      if (this.disposed) throw new Error("the instance is gone");
+      if (!ID.test(def.id)) throw new Error(`'${def.id}' is not a panel id (letters, digits, _ and -, up to 48)`);
+      if (this.GetPanel(def.id)) throw new Error(`there is already a panel '${def.id}'`);
+      if (!Array.isArray(def.size) || def.size.length !== 2 || !(def.size[0] > 0) || !(def.size[1] > 0)) throw new Error(`panel '${def.id}': size must be [width, height] in metres`);
+      const name = `pk1ui:${this.host.slug}:${this.host.inst}:${def.id}`;
+      const panel = new UiPanel(this, def, name, (made) => {
+        const platform = this.host.platform;
+        if (!platform || !platform.createPanel) return null;
+        const anchor = this.host.anchor(def.anchor);
+        if (!anchor) {
+          this.host.log("warn", `panel '${def.id}': its anchor '${def.anchor}' is not a kit object that was found; the panel is not shown`);
+          return null;
+        }
+        return platform.createPanel(
+          { name, anchor, position: vec(def.position), rotation: vec(def.rotation), scale: made.scale, resolution: made.resolution },
+          (id, kind, value) => {
+            if (this.disposed) return;
+            this.host.guard(`ui ${def.id}/${id} ${kind}`, () => made._event(id, kind, value));
+          }
+        );
+      });
+      this.list.push(panel);
+      return panel;
+    }
+    /**
+     * A kit object at `path` (under the kit root; "" the root) is being switched off. In SDK 4.0.29 Play mode that destroys
+     * every page-made object under it, so a panel anchored there or below is gone for good: said loudly, once per panel.
+     * Hide a panel with `panel.visible`, and keep its anchor on.
+     */
+    switchedOff(path) {
+      for (const panel of this.list) {
+        const anchorPath = this.host.pathOf?.(panel.def.anchor);
+        if (anchorPath === void 0) continue;
+        if (path === "" || anchorPath === path || anchorPath.startsWith(path + "/")) {
+          this._error(`panel '${panel.id}': its anchor '${panel.def.anchor}' (${anchorPath}) is under '${path || "the kit root"}', which was switched off: the app destroys a page-made panel whose parent goes off. Hide the panel with panel.visible instead.`);
+        }
+      }
+    }
+    /** Sends every panel's changes (the instance calls it at the end of each tick). */
+    flush() {
+      if (this.disposed) return;
+      for (const panel of this.list) panel._flush();
+    }
+    dispose() {
+      if (this.disposed) return;
+      for (const panel of this.list.slice()) panel.Destroy();
+      this.disposed = true;
+    }
+    /** @internal */
+    _forget(panel) {
+      remove(this.list, panel);
+    }
+    /** @internal */
+    _warn(message) {
+      if (this.warned.has(message)) return;
+      this.warned.add(message);
+      this.host.log("warn", message);
+    }
+    /** @internal */
+    _guard(where, fn) {
+      this.host.guard(where, fn);
+    }
+    _error(message) {
+      if (this.warned.has(message)) return;
+      this.warned.add(message);
+      this.host.log("error", message);
+    }
+  };
+  function vec(v) {
+    if (!v) return new Vector3();
+    return Array.isArray(v) ? new Vector3(v[0], v[1], v[2]) : new Vector3(v.x, v.y, v.z);
+  }
+  function remove(list, item) {
+    const at = list.indexOf(item);
+    if (at >= 0) list.splice(at, 1);
+  }
+
   // portkit/src/instance.ts
   var HEAD_OP = "pkHead";
   var HEAD_EVENT = "pkHead";
@@ -4974,6 +5481,8 @@ ${label}`)));
       __publicField(this, "clockSync");
       __publicField(this, "storage");
       __publicField(this, "networking");
+      /** The instance's UI panels (ui.ts): made by behaviours, flushed at the end of each tick. */
+      __publicField(this, "ui");
       __publicField(this, "settings", /* @__PURE__ */ new Map());
       __publicField(this, "objects", /* @__PURE__ */ new Map());
       /** Set when the instance has started its behaviours. */
@@ -5058,6 +5567,20 @@ ${label}`)));
         refused: (kind, code, key, behaviour) => this.refuse(behaviour, { kind, code, key, final: true })
       });
       this.networking = new Networking(this);
+      this.ui = new UiLayer({
+        slug: game2.slug,
+        inst,
+        platform,
+        anchor: (key) => this.kit?.objects.get(key) ?? null,
+        guard: (where, fn) => {
+          if (this.started && !this.core.disposed) this.core.guard(where, fn);
+        },
+        log: (level, message) => this.core.log(level, message),
+        pathOf: (key) => bindings.objects[key]?.path
+      });
+      this.host.onSetActive = (target, active) => {
+        if (!active) this.ui.switchedOff(target.startsWith("@") ? target.slice(1) : bindings.objects[target]?.path ?? target);
+      };
       const scheduler = this.scheduler;
       this.timeView = {
         get time() {
@@ -5403,6 +5926,7 @@ ${label}`)));
         playerData: this.perUser,
         input: this.inputView,
         protectedValues: this.protectedValues,
+        ui: this.ui,
         player,
         instanceKey: this.inst,
         shared: this.shared,
@@ -5873,6 +6397,7 @@ ${label}`)));
       this.perUser.flush();
       this.presence.flush();
       this.host.flush();
+      this.ui.flush();
       if (this.scheduler.ticks % 20 === 0) {
         this.presence.tend();
         this.players.tend();
@@ -5965,6 +6490,7 @@ ${label}`)));
       this.perUser.retire();
       this.host.abandonClock();
       this.platform.expose(relayKey(core.slug, core.inst), null);
+      this.ui.dispose();
       core.dispose();
       this.kit?.destroy();
       this.kit = null;
@@ -6173,6 +6699,39 @@ ${label}`)));
     return Quaternion.Euler(zone.rotation.x, zone.rotation.y, zone.rotation.z);
   }
 
+  // src/Credits.ts
+  var CREDITS_TITLE = "Treasure Hunt";
+  var CREDITS_SAVED = "Your finds are saved on this device only (another device, or clearing the app's data, starts from zero).";
+  var CREDITS_ABOUT = "Find the coins, gems and stars that appear around here: walk up close and click one. A port of TreasureHuntUdon by Hoshou Neko (github.com/HoshouNeko/TreasureHuntUdon, MIT). Models, sounds and matcaps made for this port (MIT). Not affiliated with VRChat.";
+  function creditsPanel() {
+    return el("KitSurface", { id: "credits", variant: "page", radius: "card", padding: "s2", style: { width: "100%", height: "100%" } }, [
+      el("VisualElement", { id: "head", class: ["alt", "alt-row"] }, [
+        el("KitText", { id: "title", text: CREDITS_TITLE, variant: "label", class: ["alt-no-shrink", "alt-mr-3"] }),
+        el("KitText", { id: "saved", text: CREDITS_SAVED, variant: "small", tone: "warning", wrap: true, class: "alt-grow" }),
+        el("KitIconButton", { id: "fold", icon: "chevron-up", size: "xs", variant: "ghost", tooltip: "Fold the credits away" })
+      ]),
+      el("KitText", { id: "about", text: CREDITS_ABOUT, variant: "caption", tone: "secondary", wrap: true, class: "alt-mt-1" })
+    ]);
+  }
+  var Credits = class extends Behaviour {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "panel");
+      /** This viewer folded the attribution away. */
+      __publicField(this, "folded", false);
+    }
+    Start() {
+      this.panel = this.UI.Panel({ id: "credits", anchor: this.gameObject.key, size: [1.5, 0.16], pixelsPerMetre: 600, visible: readSettings(this.Settings).credits, root: creditsPanel() });
+      this.panel.Get("fold").OnClick(() => this.Fold(!this.folded));
+    }
+    /** Folds the attribution away (the line about saving stays) or opens it again. */
+    Fold(folded) {
+      this.folded = folded;
+      this.panel.Get("about").visible = !folded;
+      this.panel.Get("fold").Set("icon", folded ? "chevron-down" : "chevron-up").Set("tooltip", folded ? "Show the credits" : "Fold the credits away");
+    }
+  };
+
   // src/PlayerData.ts
   var PRIZE_KEY = "prize";
   function GetCount(data, player, kind) {
@@ -6291,19 +6850,32 @@ ${label}`)));
   function SortListOfDictionaries(list) {
     return list.slice().sort((a, b) => b.score - a.score);
   }
+  var BOARD_LISTS = 3;
+  function boardPanel(rows) {
+    const lists = [];
+    for (let l = 0; l < BOARD_LISTS; l++) {
+      const items = [el("KitText", { id: `title${l}`, text: "", variant: "heading" }), el("KitDivider", { inset: "s1" })];
+      for (let r = 0; r < rows; r++) {
+        items.push(
+          el("VisualElement", { id: `row${l}_${r}`, class: ["alt", "alt-row", "alt-row--between"], visible: false, style: { height: 17 } }, [
+            el("KitText", { id: `name${l}_${r}`, text: "", variant: "small", truncate: true, class: "alt-grow" }),
+            el("KitText", { id: `score${l}_${r}`, text: "", variant: "small", tone: "accent", class: "alt-no-shrink" })
+          ])
+        );
+      }
+      lists.push(el("KitSurface", { id: `list${l}`, variant: "card", padding: "s3", style: { flexGrow: "1", flexBasis: "0px", marginLeft: l ? 8 : 0 } }, items));
+    }
+    return el("KitSurface", { id: "board", variant: "page", radius: "panel", padding: "s3", direction: "row", style: { width: "100%", height: "100%" } }, lists);
+  }
   var Scoreboard = class extends Behaviour {
     constructor() {
       super(...arguments);
       // From bindings.json.
       /** Upstream: TreasuresContainer, read for the wrapper names. Here the controller, which knows the pool. */
       __publicField(this, "treasuresPool");
-      /** The kit's prebuilt lists: root, title, and `rowsPerList` rows each (row object, name text, score text). */
-      __publicField(this, "listRoots", []);
-      __publicField(this, "listTitles", []);
-      __publicField(this, "rowObjects", []);
-      __publicField(this, "rowNames", []);
-      __publicField(this, "rowScores", []);
       __publicField(this, "rowsPerList", 16);
+      /** The board (made in Start, on this behaviour's own object: the kit's "Scoreboard" anchor). */
+      __publicField(this, "panel");
       __publicField(this, "listOfTreasures", []);
       /** Name -> rows, as SB's dataBase (a dictionary of lists of one-entry dictionaries). */
       __publicField(this, "dataBase", /* @__PURE__ */ new Map());
@@ -6312,6 +6884,7 @@ ${label}`)));
       __publicField(this, "refreshes", 0);
     }
     Start() {
+      this.panel = this.UI.Panel({ id: "board", anchor: this.gameObject.key, size: [1.6, 0.73], pixelsPerMetre: 540, root: boardPanel(this.rowsPerList) });
       this.SendCustomEventDelayedSeconds("Initiate", 1);
     }
     /** SB:255-261. */
@@ -6339,27 +6912,24 @@ ${label}`)));
     }
     /** SB:315-325: one list per name, titled with it. Lists the pool does not use are hidden. */
     PrintLists() {
-      for (let i = 0; i < this.listRoots.length; i++) {
+      for (let i = 0; i < BOARD_LISTS; i++) {
         const name = this.listOfTreasures[i];
-        this.listRoots[i].SetActive(name !== void 0);
-        if (name !== void 0 && this.listTitles[i]) this.listTitles[i].text = name;
+        this.panel.Get(`list${i}`).visible = name !== void 0;
+        if (name !== void 0) this.panel.Get(`title${i}`).text = name;
       }
     }
     /** SB:326-347: the rows, shown and filled instead of instantiated. */
     PrintElements() {
       if (!this.initiated) return;
       this.refreshes++;
-      for (let i = 0; i < this.listRoots.length; i++) {
+      for (let i = 0; i < BOARD_LISTS; i++) {
         const entries = this.dataBase.get(this.listOfTreasures[i]) ?? [];
         for (let p = 0; p < this.rowsPerList; p++) {
-          const at = i * this.rowsPerList + p;
-          const row = this.rowObjects[at];
-          if (!row) continue;
           const entry = entries[p];
-          row.SetActive(entry !== void 0);
+          this.panel.Get(`row${i}_${p}`).visible = entry !== void 0;
           if (!entry) continue;
-          this.rowNames[at].text = entry.name;
-          this.rowScores[at].text = String(entry.score);
+          this.panel.Get(`name${i}_${p}`).text = entry.name;
+          this.panel.Get(`score${i}_${p}`).text = String(entry.score);
         }
       }
     }
@@ -6385,14 +6955,29 @@ ${label}`)));
   };
 
   // src/PersonalScoreList.ts
+  var PERSONAL_ROWS = 3;
+  function personalPanel() {
+    const rows = [];
+    for (let r = 0; r < PERSONAL_ROWS; r++) {
+      rows.push(
+        el("VisualElement", { id: `prow${r}`, class: ["alt", "alt-row", "alt-row--between"], visible: false }, [
+          el("KitText", { id: `pname${r}`, text: "", variant: "body" }),
+          el("KitText", { id: `pscore${r}`, text: "", variant: "body", tone: "accent" })
+        ])
+      );
+    }
+    return el("KitSurface", { id: "personal", variant: "page", radius: "panel", padding: "s3", style: { width: "100%", height: "100%" } }, [
+      el("KitText", { id: "title", text: "found:", variant: "heading" }),
+      el("KitDivider", { inset: "s1" }),
+      ...rows
+    ]);
+  }
   var PersonalScoreList = class extends Behaviour {
     constructor() {
       super(...arguments);
       // From bindings.json.
       __publicField(this, "treasuresPool");
-      __publicField(this, "rowObjects", []);
-      __publicField(this, "rowNames", []);
-      __publicField(this, "rowScores", []);
+      __publicField(this, "panel");
       __publicField(this, "listOfTreasures", []);
       /** Name -> the local player's count (PSL's dataBase). */
       __publicField(this, "dataBase", /* @__PURE__ */ new Map());
@@ -6402,6 +6987,7 @@ ${label}`)));
       const settings = readSettings(this.Settings);
       const r = settings.personalListRotation;
       this.transform.SetPositionAndRotation(settings.personalListPosition, Quaternion.Euler(r.x, r.y, r.z));
+      this.panel = this.UI.Panel({ id: "personal", anchor: this.gameObject.key, size: [0.3, 0.24], pixelsPerMetre: 600, root: personalPanel() });
       this.SendCustomEventDelayedSeconds("Initiate", 1);
     }
     /** PSL:33-39. */
@@ -6424,12 +7010,12 @@ ${label}`)));
     /** PSL:71-100. */
     PrintElements() {
       if (!this.initiated) return;
-      for (let i = 0; i < this.rowObjects.length; i++) {
+      for (let i = 0; i < PERSONAL_ROWS; i++) {
         const name = this.listOfTreasures[i];
-        this.rowObjects[i].SetActive(name !== void 0);
+        this.panel.Get(`prow${i}`).visible = name !== void 0;
         if (name === void 0) continue;
-        this.rowNames[i].text = name;
-        this.rowScores[i].text = String(this.dataBase.get(name) ?? 0);
+        this.panel.Get(`pname${i}`).text = name;
+        this.panel.Get(`pscore${i}`).text = String(this.dataBase.get(name) ?? 0);
       }
     }
     Refresh() {
@@ -6505,7 +7091,6 @@ ${label}`)));
       __publicField(this, "pickEffects", []);
       __publicField(this, "pickParticles", []);
       __publicField(this, "pickAudio", []);
-      __publicField(this, "credits", null);
       /** Settings, read in Start. */
       __publicField(this, "settings");
       /** Kind and kit slot of each pool index. */
@@ -6570,7 +7155,6 @@ ${label}`)));
       this.placed = new Array(itemCount).fill(null);
       this.shownSerial = new Array(itemCount).fill(0);
       this.ShowZones();
-      if (this.credits) this.credits.SetActive(this.settings.credits);
       this.StartSpawnCycle();
     }
     /** THC:122-132. The 0/0 case no longer recurses (PORT.md 10.1 row 7). */
@@ -6840,7 +7424,7 @@ ${label}`)));
   // src/index.ts
   var game = {
     slug: "treasure-hunt",
-    behaviours: { TreasureHuntController, TreasureReturner, Scoreboard, PersonalScoreList, PersistancePrize },
+    behaviours: { TreasureHuntController, TreasureReturner, Scoreboard, PersonalScoreList, PersistancePrize, Credits },
     // No click with a reach counts before the page knows where the player is (the finds' own check, RequestReturn, asks
     // InReach to fail closed too).
     reachWhenUnknown: false,
@@ -6898,7 +7482,9 @@ ${label}`)));
         const v = (p) => p ? [p.x, p.y, p.z] : null;
         return { head: v(inner.poses?.head.position), position: v(inner.position) };
       },
-      prizeShown: () => byType("PersistancePrize").IsShown
+      prizeShown: () => byType("PersistancePrize").IsShown,
+      /** Whether this viewer folded the credits (their fold button). */
+      creditsFolded: () => byType("Credits").folded
     };
   }
   var src_default = game;
@@ -6908,9 +7494,6 @@ ${label}`)));
     behaviours: [
       {
         fields: {
-          credits: {
-            $obj: "credits"
-          },
           pickAudio: [
             {
               $comp: "pick0",
@@ -7484,565 +8067,6 @@ ${label}`)));
       },
       {
         fields: {
-          listRoots: [
-            {
-              $obj: "list0"
-            },
-            {
-              $obj: "list1"
-            },
-            {
-              $obj: "list2"
-            }
-          ],
-          listTitles: [
-            {
-              $comp: "listTitle0",
-              kind: "TMP"
-            },
-            {
-              $comp: "listTitle1",
-              kind: "TMP"
-            },
-            {
-              $comp: "listTitle2",
-              kind: "TMP"
-            }
-          ],
-          rowNames: [
-            {
-              $comp: "rowName0_0",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_1",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_2",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_3",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_4",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_5",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_6",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_7",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_8",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_9",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_10",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_11",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_12",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_13",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_14",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName0_15",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_0",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_1",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_2",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_3",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_4",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_5",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_6",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_7",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_8",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_9",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_10",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_11",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_12",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_13",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_14",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName1_15",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_0",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_1",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_2",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_3",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_4",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_5",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_6",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_7",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_8",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_9",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_10",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_11",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_12",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_13",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_14",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowName2_15",
-              kind: "TMP"
-            }
-          ],
-          rowObjects: [
-            {
-              $obj: "row0_0"
-            },
-            {
-              $obj: "row0_1"
-            },
-            {
-              $obj: "row0_2"
-            },
-            {
-              $obj: "row0_3"
-            },
-            {
-              $obj: "row0_4"
-            },
-            {
-              $obj: "row0_5"
-            },
-            {
-              $obj: "row0_6"
-            },
-            {
-              $obj: "row0_7"
-            },
-            {
-              $obj: "row0_8"
-            },
-            {
-              $obj: "row0_9"
-            },
-            {
-              $obj: "row0_10"
-            },
-            {
-              $obj: "row0_11"
-            },
-            {
-              $obj: "row0_12"
-            },
-            {
-              $obj: "row0_13"
-            },
-            {
-              $obj: "row0_14"
-            },
-            {
-              $obj: "row0_15"
-            },
-            {
-              $obj: "row1_0"
-            },
-            {
-              $obj: "row1_1"
-            },
-            {
-              $obj: "row1_2"
-            },
-            {
-              $obj: "row1_3"
-            },
-            {
-              $obj: "row1_4"
-            },
-            {
-              $obj: "row1_5"
-            },
-            {
-              $obj: "row1_6"
-            },
-            {
-              $obj: "row1_7"
-            },
-            {
-              $obj: "row1_8"
-            },
-            {
-              $obj: "row1_9"
-            },
-            {
-              $obj: "row1_10"
-            },
-            {
-              $obj: "row1_11"
-            },
-            {
-              $obj: "row1_12"
-            },
-            {
-              $obj: "row1_13"
-            },
-            {
-              $obj: "row1_14"
-            },
-            {
-              $obj: "row1_15"
-            },
-            {
-              $obj: "row2_0"
-            },
-            {
-              $obj: "row2_1"
-            },
-            {
-              $obj: "row2_2"
-            },
-            {
-              $obj: "row2_3"
-            },
-            {
-              $obj: "row2_4"
-            },
-            {
-              $obj: "row2_5"
-            },
-            {
-              $obj: "row2_6"
-            },
-            {
-              $obj: "row2_7"
-            },
-            {
-              $obj: "row2_8"
-            },
-            {
-              $obj: "row2_9"
-            },
-            {
-              $obj: "row2_10"
-            },
-            {
-              $obj: "row2_11"
-            },
-            {
-              $obj: "row2_12"
-            },
-            {
-              $obj: "row2_13"
-            },
-            {
-              $obj: "row2_14"
-            },
-            {
-              $obj: "row2_15"
-            }
-          ],
-          rowScores: [
-            {
-              $comp: "rowScore0_0",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_1",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_2",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_3",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_4",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_5",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_6",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_7",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_8",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_9",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_10",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_11",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_12",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_13",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_14",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore0_15",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_0",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_1",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_2",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_3",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_4",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_5",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_6",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_7",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_8",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_9",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_10",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_11",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_12",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_13",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_14",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore1_15",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_0",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_1",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_2",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_3",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_4",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_5",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_6",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_7",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_8",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_9",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_10",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_11",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_12",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_13",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_14",
-              kind: "TMP"
-            },
-            {
-              $comp: "rowScore2_15",
-              kind: "TMP"
-            }
-          ],
           rowsPerList: 16,
           treasuresPool: {
             $beh: "controller"
@@ -8054,45 +8078,6 @@ ${label}`)));
       },
       {
         fields: {
-          rowNames: [
-            {
-              $comp: "pRowName0",
-              kind: "TMP"
-            },
-            {
-              $comp: "pRowName1",
-              kind: "TMP"
-            },
-            {
-              $comp: "pRowName2",
-              kind: "TMP"
-            }
-          ],
-          rowObjects: [
-            {
-              $obj: "pRow0"
-            },
-            {
-              $obj: "pRow1"
-            },
-            {
-              $obj: "pRow2"
-            }
-          ],
-          rowScores: [
-            {
-              $comp: "pRowScore0",
-              kind: "TMP"
-            },
-            {
-              $comp: "pRowScore1",
-              kind: "TMP"
-            },
-            {
-              $comp: "pRowScore2",
-              kind: "TMP"
-            }
-          ],
           treasuresPool: {
             $beh: "controller"
           }
@@ -8100,6 +8085,12 @@ ${label}`)));
         id: "personal",
         object: "personalList",
         type: "PersonalScoreList"
+      },
+      {
+        fields: {},
+        id: "credits",
+        object: "credits",
+        type: "Credits"
       },
       {
         fields: {
@@ -8121,7 +8112,7 @@ ${label}`)));
       windows: ""
     },
     events: [],
-    hash: "52572c10b5939322d04b83de8437e5d9909f0b27",
+    hash: "13fe1f8b6cb538e949eb4cf243f018b2e18d6a1f",
     objects: {
       button0: {
         click: true,
@@ -8284,114 +8275,6 @@ ${label}`)));
         seat: false,
         sync: "none"
       },
-      list0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0",
-        seat: false,
-        sync: "none"
-      },
-      list1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1",
-        seat: false,
-        sync: "none"
-      },
-      list2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2",
-        seat: false,
-        sync: "none"
-      },
-      listTitle0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/BG/MenuName",
-        seat: false,
-        sync: "none"
-      },
-      listTitle1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/BG/MenuName",
-        seat: false,
-        sync: "none"
-      },
-      listTitle2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/BG/MenuName",
-        seat: false,
-        sync: "none"
-      },
-      pRow0: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row0",
-        seat: false,
-        sync: "none"
-      },
-      pRow1: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row1",
-        seat: false,
-        sync: "none"
-      },
-      pRow2: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row2",
-        seat: false,
-        sync: "none"
-      },
-      pRowName0: {
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row0/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      pRowName1: {
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row1/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      pRowName2: {
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row2/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      pRowScore0: {
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      pRowScore1: {
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      pRowScore2: {
-        click: false,
-        grab: false,
-        path: "PersonalScoreList/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
       personalList: {
         click: false,
         grab: false,
@@ -8446,1062 +8329,6 @@ ${label}`)));
         click: false,
         grab: false,
         path: "Prize/Container",
-        seat: false,
-        sync: "none"
-      },
-      row0_0: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row0",
-        seat: false,
-        sync: "none"
-      },
-      row0_1: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row1",
-        seat: false,
-        sync: "none"
-      },
-      row0_10: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row10",
-        seat: false,
-        sync: "none"
-      },
-      row0_11: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row11",
-        seat: false,
-        sync: "none"
-      },
-      row0_12: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row12",
-        seat: false,
-        sync: "none"
-      },
-      row0_13: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row13",
-        seat: false,
-        sync: "none"
-      },
-      row0_14: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row14",
-        seat: false,
-        sync: "none"
-      },
-      row0_15: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row15",
-        seat: false,
-        sync: "none"
-      },
-      row0_2: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row2",
-        seat: false,
-        sync: "none"
-      },
-      row0_3: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row3",
-        seat: false,
-        sync: "none"
-      },
-      row0_4: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row4",
-        seat: false,
-        sync: "none"
-      },
-      row0_5: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row5",
-        seat: false,
-        sync: "none"
-      },
-      row0_6: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row6",
-        seat: false,
-        sync: "none"
-      },
-      row0_7: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row7",
-        seat: false,
-        sync: "none"
-      },
-      row0_8: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row8",
-        seat: false,
-        sync: "none"
-      },
-      row0_9: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row9",
-        seat: false,
-        sync: "none"
-      },
-      row1_0: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row0",
-        seat: false,
-        sync: "none"
-      },
-      row1_1: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row1",
-        seat: false,
-        sync: "none"
-      },
-      row1_10: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row10",
-        seat: false,
-        sync: "none"
-      },
-      row1_11: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row11",
-        seat: false,
-        sync: "none"
-      },
-      row1_12: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row12",
-        seat: false,
-        sync: "none"
-      },
-      row1_13: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row13",
-        seat: false,
-        sync: "none"
-      },
-      row1_14: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row14",
-        seat: false,
-        sync: "none"
-      },
-      row1_15: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row15",
-        seat: false,
-        sync: "none"
-      },
-      row1_2: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row2",
-        seat: false,
-        sync: "none"
-      },
-      row1_3: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row3",
-        seat: false,
-        sync: "none"
-      },
-      row1_4: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row4",
-        seat: false,
-        sync: "none"
-      },
-      row1_5: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row5",
-        seat: false,
-        sync: "none"
-      },
-      row1_6: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row6",
-        seat: false,
-        sync: "none"
-      },
-      row1_7: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row7",
-        seat: false,
-        sync: "none"
-      },
-      row1_8: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row8",
-        seat: false,
-        sync: "none"
-      },
-      row1_9: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row9",
-        seat: false,
-        sync: "none"
-      },
-      row2_0: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row0",
-        seat: false,
-        sync: "none"
-      },
-      row2_1: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row1",
-        seat: false,
-        sync: "none"
-      },
-      row2_10: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row10",
-        seat: false,
-        sync: "none"
-      },
-      row2_11: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row11",
-        seat: false,
-        sync: "none"
-      },
-      row2_12: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row12",
-        seat: false,
-        sync: "none"
-      },
-      row2_13: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row13",
-        seat: false,
-        sync: "none"
-      },
-      row2_14: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row14",
-        seat: false,
-        sync: "none"
-      },
-      row2_15: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row15",
-        seat: false,
-        sync: "none"
-      },
-      row2_2: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row2",
-        seat: false,
-        sync: "none"
-      },
-      row2_3: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row3",
-        seat: false,
-        sync: "none"
-      },
-      row2_4: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row4",
-        seat: false,
-        sync: "none"
-      },
-      row2_5: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row5",
-        seat: false,
-        sync: "none"
-      },
-      row2_6: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row6",
-        seat: false,
-        sync: "none"
-      },
-      row2_7: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row7",
-        seat: false,
-        sync: "none"
-      },
-      row2_8: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row8",
-        seat: false,
-        sync: "none"
-      },
-      row2_9: {
-        active: false,
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row9",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row0/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row1/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_10: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row10/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_11: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row11/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_12: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row12/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_13: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row13/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_14: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row14/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_15: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row15/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row2/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_3: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row3/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_4: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row4/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_5: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row5/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_6: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row6/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_7: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row7/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_8: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row8/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName0_9: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row9/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row0/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row1/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_10: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row10/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_11: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row11/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_12: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row12/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_13: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row13/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_14: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row14/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_15: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row15/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row2/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_3: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row3/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_4: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row4/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_5: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row5/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_6: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row6/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_7: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row7/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_8: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row8/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName1_9: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row9/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row0/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row1/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_10: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row10/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_11: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row11/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_12: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row12/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_13: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row13/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_14: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row14/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_15: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row15/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row2/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_3: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row3/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_4: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row4/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_5: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row5/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_6: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row6/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_7: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row7/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_8: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row8/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowName2_9: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row9/PlayerNameImg/PlayerNameTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_10: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row10/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_11: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row11/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_12: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row12/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_13: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row13/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_14: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row14/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_15: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row15/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_3: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row3/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_4: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row4/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_5: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row5/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_6: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row6/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_7: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row7/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_8: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row8/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore0_9: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List0/List/Row9/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_10: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row10/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_11: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row11/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_12: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row12/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_13: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row13/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_14: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row14/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_15: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row15/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_3: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row3/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_4: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row4/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_5: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row5/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_6: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row6/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_7: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row7/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_8: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row8/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore1_9: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List1/List/Row9/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_0: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row0/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_1: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row1/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_10: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row10/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_11: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row11/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_12: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row12/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_13: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row13/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_14: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row14/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_15: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row15/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_2: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row2/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_3: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row3/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_4: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row4/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_5: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row5/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_6: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row6/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_7: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row7/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_8: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row8/PlayerScoreImg/PlayerScoreTxt",
-        seat: false,
-        sync: "none"
-      },
-      rowScore2_9: {
-        click: false,
-        grab: false,
-        path: "Scoreboard/HiScoreLists/List2/List/Row9/PlayerScoreImg/PlayerScoreTxt",
         seat: false,
         sync: "none"
       },
@@ -9802,168 +8629,8 @@ ${label}`)));
       "zone5",
       "zone6",
       "zone7",
-      "list0",
-      "listTitle0",
-      "row0_0",
-      "rowName0_0",
-      "rowScore0_0",
-      "row0_1",
-      "rowName0_1",
-      "rowScore0_1",
-      "row0_2",
-      "rowName0_2",
-      "rowScore0_2",
-      "row0_3",
-      "rowName0_3",
-      "rowScore0_3",
-      "row0_4",
-      "rowName0_4",
-      "rowScore0_4",
-      "row0_5",
-      "rowName0_5",
-      "rowScore0_5",
-      "row0_6",
-      "rowName0_6",
-      "rowScore0_6",
-      "row0_7",
-      "rowName0_7",
-      "rowScore0_7",
-      "row0_8",
-      "rowName0_8",
-      "rowScore0_8",
-      "row0_9",
-      "rowName0_9",
-      "rowScore0_9",
-      "row0_10",
-      "rowName0_10",
-      "rowScore0_10",
-      "row0_11",
-      "rowName0_11",
-      "rowScore0_11",
-      "row0_12",
-      "rowName0_12",
-      "rowScore0_12",
-      "row0_13",
-      "rowName0_13",
-      "rowScore0_13",
-      "row0_14",
-      "rowName0_14",
-      "rowScore0_14",
-      "row0_15",
-      "rowName0_15",
-      "rowScore0_15",
-      "list1",
-      "listTitle1",
-      "row1_0",
-      "rowName1_0",
-      "rowScore1_0",
-      "row1_1",
-      "rowName1_1",
-      "rowScore1_1",
-      "row1_2",
-      "rowName1_2",
-      "rowScore1_2",
-      "row1_3",
-      "rowName1_3",
-      "rowScore1_3",
-      "row1_4",
-      "rowName1_4",
-      "rowScore1_4",
-      "row1_5",
-      "rowName1_5",
-      "rowScore1_5",
-      "row1_6",
-      "rowName1_6",
-      "rowScore1_6",
-      "row1_7",
-      "rowName1_7",
-      "rowScore1_7",
-      "row1_8",
-      "rowName1_8",
-      "rowScore1_8",
-      "row1_9",
-      "rowName1_9",
-      "rowScore1_9",
-      "row1_10",
-      "rowName1_10",
-      "rowScore1_10",
-      "row1_11",
-      "rowName1_11",
-      "rowScore1_11",
-      "row1_12",
-      "rowName1_12",
-      "rowScore1_12",
-      "row1_13",
-      "rowName1_13",
-      "rowScore1_13",
-      "row1_14",
-      "rowName1_14",
-      "rowScore1_14",
-      "row1_15",
-      "rowName1_15",
-      "rowScore1_15",
-      "list2",
-      "listTitle2",
-      "row2_0",
-      "rowName2_0",
-      "rowScore2_0",
-      "row2_1",
-      "rowName2_1",
-      "rowScore2_1",
-      "row2_2",
-      "rowName2_2",
-      "rowScore2_2",
-      "row2_3",
-      "rowName2_3",
-      "rowScore2_3",
-      "row2_4",
-      "rowName2_4",
-      "rowScore2_4",
-      "row2_5",
-      "rowName2_5",
-      "rowScore2_5",
-      "row2_6",
-      "rowName2_6",
-      "rowScore2_6",
-      "row2_7",
-      "rowName2_7",
-      "rowScore2_7",
-      "row2_8",
-      "rowName2_8",
-      "rowScore2_8",
-      "row2_9",
-      "rowName2_9",
-      "rowScore2_9",
-      "row2_10",
-      "rowName2_10",
-      "rowScore2_10",
-      "row2_11",
-      "rowName2_11",
-      "rowScore2_11",
-      "row2_12",
-      "rowName2_12",
-      "rowScore2_12",
-      "row2_13",
-      "rowName2_13",
-      "rowScore2_13",
-      "row2_14",
-      "rowName2_14",
-      "rowScore2_14",
-      "row2_15",
-      "rowName2_15",
-      "rowScore2_15",
-      "pRow0",
-      "pRowName0",
-      "pRowScore0",
-      "pRow1",
-      "pRowName1",
-      "pRowScore1",
-      "pRow2",
-      "pRowName2",
-      "pRowScore2",
       "winSound",
-      "prizeContainer",
-      "credits"
+      "prizeContainer"
     ],
     schema: 1,
     slug: "treasure-hunt"
@@ -10778,6 +9445,101 @@ ${label}`)));
         }
       };
     }
+    // ---- UI panels ----------------------------------------------------------------------------------------------
+    /**
+     * A BS.UIPanel on a page-made object under the anchor (`new BS.GameObject({ parent })`: created under it, its transform
+     * local to it, so it follows the kit object). The elements are `BS.UI<type>`, each named with its id; ops that come
+     * before the panel exists are kept and applied in order once it does. Proven in editor Play mode (README, "UI panels").
+     * The panel's object is never switched off: in SDK 4.0.29 Play mode a page-made object that is deactivated (itself,
+     * or by its kit parent through the page) is gone from the scene afterwards.
+     */
+    createPanel(spec, onEvent) {
+      const BS = this.env.BS;
+      const anchor = spec.anchor instanceof BsHostObject ? spec.anchor.handle : null;
+      if (!anchor || typeof BS.UIPanel !== "function") {
+        this.log("warn", `panel ${spec.name}: ${anchor ? "this app has no BS.UIPanel" : "its anchor is not an object of this page"}`);
+        return null;
+      }
+      const queue = [];
+      const elements = /* @__PURE__ */ new Map();
+      let panel = null;
+      let go = null;
+      let gone = false;
+      const warned = /* @__PURE__ */ new Set();
+      const warn = (message) => {
+        if (warned.has(message)) return;
+        warned.add(message);
+        this.log("warn", `panel ${spec.name}: ${message}`);
+      };
+      const run = (op) => {
+        if (op.op === "create") {
+          const Cls = BS["UI" + op.type];
+          if (typeof Cls !== "function") return warn(`this app has no BS.UI${op.type} (an app older than the UI Kit shows nothing for it)`);
+          const parent = op.parent === null ? void 0 : elements.get(op.parent);
+          const made = parent === void 0 ? new Cls(panel) : new Cls(panel, parent);
+          made.name = op.id;
+          elements.set(op.id, made);
+          return;
+        }
+        const element = elements.get(op.id);
+        if (!element) return;
+        switch (op.op) {
+          case "set":
+            if (!(op.name in element)) return warn(`BS.UI${element.constructor?.name ?? "?"} '${op.id}' has no property '${op.name}'`);
+            element[op.name] = op.value;
+            return;
+          case "style":
+            element.SetStyle(op.name, op.value);
+            return;
+          case "class":
+            if (op.on) element.AddClass(op.name);
+            else element.RemoveClass(op.name);
+            return;
+          case "listen":
+            if (op.kind === "click") element.OnClick(() => onEvent(op.id, "click", void 0));
+            else element.OnChange((e) => onEvent(op.id, "change", e ? e.value : void 0));
+            return;
+          case "destroy":
+            element.Destroy();
+            elements.delete(op.id);
+            return;
+        }
+      };
+      const runAll = (ops) => {
+        for (const op of ops) this.attempt(`panel ${spec.name} ${op.op} ${op.id}`, () => run(op));
+      };
+      void (async () => {
+        try {
+          go = new BS.GameObject({
+            name: spec.name,
+            parent: anchor,
+            localPosition: toBs3(BS, spec.position),
+            localEulerAngles: toBs3(BS, spec.rotation),
+            localScale: new BS.Vector3(spec.scale, spec.scale, spec.scale)
+          });
+          await go.Async();
+          if (gone) return go.Destroy();
+          panel = await go.AddComponent(new BS.UIPanel({ resolution: new BS.Vector2(spec.resolution.x, spec.resolution.y) }));
+          if (gone) return go.Destroy();
+          runAll(queue.splice(0));
+        } catch (error) {
+          this.log("warn", `panel ${spec.name} could not be made: ${describe(error)}`);
+        }
+      })();
+      return {
+        apply: (ops) => {
+          if (gone) return;
+          if (!panel || queue.length) queue.push(...ops);
+          else runAll(ops);
+        },
+        destroy: () => {
+          if (gone) return;
+          gone = true;
+          queue.length = 0;
+          if (go && panel) this.attempt("panel Destroy", () => go.Destroy());
+        }
+      };
+    }
     bundles(slug) {
       const table = this.env.win.__pk1_bundles;
       const entry = table ? table[slug] : void 0;
@@ -10789,32 +9551,32 @@ ${label}`)));
     // ---- snippets -----------------------------------------------------------------------------------------------
     snippets(slug) {
       const all = Array.from(this.env.doc.querySelectorAll("bs-snippet"));
-      const mine = all.filter((el) => (el.getAttribute("name") || "") === slug);
-      return mine.map((el, index) => this.wrap(el, slug, index, mine));
+      const mine = all.filter((el2) => (el2.getAttribute("name") || "") === slug);
+      return mine.map((el2, index) => this.wrap(el2, slug, index, mine));
     }
-    wrap(el, slug, index, sameName) {
-      let wrapper = this.wrappers.get(el);
+    wrap(el2, slug, index, sameName) {
+      let wrapper = this.wrappers.get(el2);
       if (!wrapper) {
         const made = {
           _index: index,
           _peers: sameName,
-          getAttribute: (name) => el.getAttribute(name),
-          attributeNames: () => typeof el.getAttributeNames === "function" ? el.getAttributeNames() : [],
+          getAttribute: (name) => el2.getAttribute(name),
+          attributeNames: () => typeof el2.getAttributeNames === "function" ? el2.getAttributeNames() : [],
           get connected() {
-            return el.isConnected !== false;
+            return el2.isConnected !== false;
           },
           get active() {
-            const single = el.getAttribute("single");
+            const single = el2.getAttribute("single");
             if (single === null || single === "false") return true;
-            if ("ownsSingleton" in el) return el.ownsSingleton === slug;
-            return made._peers.indexOf(el) === 0;
+            if ("ownsSingleton" in el2) return el2.ownsSingleton === slug;
+            return made._peers.indexOf(el2) === 0;
           },
           get index() {
             return made._index;
           }
         };
         wrapper = made;
-        this.wrappers.set(el, made);
+        this.wrappers.set(el2, made);
       }
       wrapper._index = index;
       wrapper._peers = sameName;
@@ -10984,6 +9746,10 @@ ${label}`)));
       this.hasNetworkId = networkId2 !== "";
       this.attachNetworkId = attachNetworkId;
       this.attachable = attachable;
+    }
+    /** @internal the page's GameObject (createPanel parents a panel under it) */
+    get handle() {
+      return this.go;
     }
     on(kind, handler) {
       const name = HOST_EVENTS[kind];

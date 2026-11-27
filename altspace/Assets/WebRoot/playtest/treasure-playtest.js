@@ -47,7 +47,7 @@
     for (;;) {
       let value = false;
       try {
-        value = test();
+        value = await test();
       } catch (e) {
         value = false;
       }
@@ -105,23 +105,37 @@
     return r.startsWith("ok");
   }
 
-  /** The texts of one score list as Unity shows them: "name score" for each row switched on. */
+  // The boards are UI Toolkit panels the page builds (portkit ui.ts): read in Unity with portkit's uiprobe, by panel object
+  // name and element id, and pressed with uiclick (the SDK's desktop pointer, through the EventSystem).
+  const PANEL = (id) => "pk1ui:treasure-hunt:0:" + id;
+  const ui = (panel, element, what) => cmd("uiprobe " + PANEL(panel) + " " + element + " " + what);
+  /** The texts of one score list as Unity shows them: "name score" for each row shown. */
   async function boardRows(l) {
     const out = [];
     for (let r = 0; r < 4; r++) {
-      const on = await probe("active", pathOf(`row${l}_${r}`));
-      if (on !== "True") continue;
-      out.push((await probe("text", pathOf(`rowName${l}_${r}`))) + " " + (await probe("text", pathOf(`rowScore${l}_${r}`))));
+      if ((await ui("board", `row${l}_${r}`, "shown")) !== "True") continue;
+      out.push((await ui("board", `name${l}_${r}`, "text")) + " " + (await ui("board", `score${l}_${r}`, "text")));
     }
     return out;
   }
   async function personalRows() {
     const out = [];
     for (let r = 0; r < 3; r++) {
-      if ((await probe("active", pathOf(`pRow${r}`))) !== "True") continue;
-      out.push((await probe("text", pathOf(`pRowName${r}`))) + " " + (await probe("text", pathOf(`pRowScore${r}`))));
+      if ((await ui("personal", `prow${r}`, "shown")) !== "True") continue;
+      out.push((await ui("personal", `pname${r}`, "text")) + " " + (await ui("personal", `pscore${r}`, "text")));
     }
     return out;
+  }
+  /** Folds this player's credits (the credits panel's own button) and back, through the desktop pointer; checks Unity and the page. */
+  async function foldCredits(label) {
+    const r1 = await cmd("uiclick " + PANEL("credits") + " fold");
+    const folded = await until(() => debug().creditsFolded() === true, 4000, 100);
+    const hidden = await until(async () => (await ui("credits", "about", "shown")) === "False", 4000, 150);
+    const saved = await ui("credits", "saved", "shown");
+    check(!!folded && !!hidden && saved === "True", label + ": a click on the credits' fold button (UIKitIconButton) reaches the page; the attribution folds away in Unity, the saved-on-this-device line stays", `${r1}; folded ${debug().creditsFolded()}, saved line shown ${saved}`);
+    const r2 = await cmd("uiclick " + PANEL("credits") + " fold");
+    const open = await until(async () => (await ui("credits", "about", "shown")) === "True", 4000, 150);
+    check(!!open && debug().creditsFolded() === false, label + ": a second click opens them again", `${r2}; folded ${debug().creditsFolded()}`);
   }
 
   async function waitStarted() {
@@ -195,13 +209,15 @@
 
     // the boards
     await sleep(2500);
-    const titles = [await probe("text", pathOf("listTitle0")), await probe("text", pathOf("listTitle1")), await probe("text", pathOf("listTitle2"))];
-    check(titles.join(",") === "Coin,Gem,Star", "the scoreboard has a list per treasure kind (relay op text)", titles.join(", "));
-    const found = await probe("text", "PersonalScoreList/BG/MenuName");
+    const titles = [await ui("board", "title0", "text"), await ui("board", "title1", "text"), await ui("board", "title2", "text")];
+    check(titles.join(",") === "Coin,Gem,Star", "the scoreboard has a list per treasure kind (UI Toolkit panel)", titles.join(", ") + "; " + (await cmd("uipanel " + PANEL("board"))));
+    const found = await ui("personal", "title", "text");
     const before = await personalRows();
     check(found === "found:" && before.join(",") === "Coin 0,Gem 0,Star 0", "the personal list starts at zero", `${found} ${JSON.stringify(before)}`);
-    const credits = await probe("text", "Credits/Text");
-    check(/saved on this device only/.test(credits), "the credits say finds are saved on this device only", credits.slice(0, 120));
+    const credits = await ui("credits", "saved", "text");
+    check(/saved on this device only/.test(credits) && (await ui("credits", "saved", "shown")) === "True", "the credits say finds are saved on this device only", credits.slice(0, 120));
+    await cmd("shot boards 0 1.6 0.4 0 1.35 3.2 60");
+    await foldCredits("one player");
 
     // treasures appear inside the zones, up to the cap
     const three = await until(() => activeIdx().length === 3, 20000, 200);
@@ -443,6 +459,25 @@
     check(board.length === 2 && board[0] === `${finderName} 1` && board[1] === `${watcherName} 0`, "the scoreboard shows both players, highest first (Unity)", JSON.stringify(board));
     const pRows = await personalRows();
     check(pRows[kinds.indexOf(kindName)] === `${kindName} ${finder ? 1 : 0}`, "the personal list shows this player's own count only (Unity)", JSON.stringify(pRows));
+
+    // 3b. the credits' fold button is each viewer's own: the finder folds its credits (a click through its desktop
+    // pointer); the other page's stay open
+    if (finder) {
+      const r1 = await cmd("uiclick " + PANEL("credits") + " fold");
+      const hidden = await until(async () => (await ui("credits", "about", "shown")) === "False", 4000, 150);
+      check(debug().creditsFolded() === true && !!hidden, "a click on this page's credits fold button (UIKitIconButton) folds its attribution away in Unity", r1);
+      send({ kind: "folded" });
+      const seen = await until(() => heard.find((m) => m.kind === "seenFold"), 30000, 200);
+      check(!!seen && seen.open === true, "the other player's credits stayed open (folding is each viewer's own)", JSON.stringify(seen));
+      const r2 = await cmd("uiclick " + PANEL("credits") + " fold");
+      const open = await until(async () => (await ui("credits", "about", "shown")) === "True", 4000, 150);
+      check(!!open && debug().creditsFolded() === false, "a second click opens this page's credits again", r2);
+    } else {
+      await until(() => heard.find((m) => m.kind === "folded"), 30000, 200);
+      const open = (await ui("credits", "about", "shown")) === "True" && debug().creditsFolded() === false;
+      check(open, "the other player folded their credits; this page's stay open", `about shown ${await ui("credits", "about", "shown")}`);
+      send({ kind: "seenFold", open });
+    }
 
     // 4. the watcher reloads its page (late join)
     if (!finder) {

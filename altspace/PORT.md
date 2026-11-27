@@ -1,6 +1,8 @@
 # Treasure hunt: port analysis (PORT.md)
 
-Status (2026-11-25, after the fix pass and the re-sync to portkit c971100): **editor-verified in the Unity editor** (rungs 0
+Status (2026-11-27, UI Toolkit pass on portkit's UI layer; section 11.8): the scoreboard, the personal list and the credits
+are UI Toolkit panels of the Altspace UI Kit that the page builds; the kit has no uGUI left. Rungs 0 to 4 pass again
+(`TESTS.md`, "UI Toolkit pass"). Before that (2026-11-25, after the fix pass and the re-sync to portkit c971100): **editor-verified in the Unity editor** (rungs 0
 to 4 again on c971100; `TESTS.md`): rules in TypeScript on portkit c971100 (Node, fake room, 34 tests), every review finding fixed (`REVIEW-FINDINGS.md`,
 treasure-hunt 1 to 6; the trust limits that remain are section 10.3), the kit built by `Assets/Kit/Editor/TreasureHuntKitBuilder.cs`
 (bundles PASS the app's kit check), one-player and two-player Play-mode tests through the SDK's desktop player.
@@ -548,7 +550,7 @@ Where: `altspace/ts/` (sources `src/`, tests `test/`, `bindings.json` written by
 of `C:\workspace\AltspaceGames\portkit\ts` without `node_modules` and `dist`); the Unity project `altspace/`
 (`Assets/Kit/Editor/TreasureHuntKitBuilder.cs`, `Assets/Kit/` the kit and its art, `upstream_import.json`,
 `tools/make_sounds.py`, `tools/make_models.py`, `playtest/`). `npm test` = typecheck, lint (page and clock rules),
-34 tests; `npm run build` makes `Assets/WebRoot/pk-treasure-hunt.js` (400,517 bytes; it starts with the upstream MIT
+39 tests (34 before the UI Toolkit pass); `npm run build` makes `Assets/WebRoot/pk-treasure-hunt.js` (398,749 bytes; it starts with the upstream MIT
 notice from `ts/script-header.txt`, then portkit's).
 
 ### 11.1 Files
@@ -558,10 +560,11 @@ notice from `ts/script-header.txt`, then portkit's).
 | `TreasureHuntController.cs` | `src/TreasureHuntController.ts` | Pure rules exported for vectors: `GetRandomTreasureThatIsNotActive`, `GetRandomPositionInBoxCollider`, `TransformPoint`, `roundPosition` |
 | `TreasureReturner.cs` | `src/TreasureReturner.ts` | `Interact` -> `RequestReturn`; the credit (TR:28-30) is `CreditFind`, called once the referee has recorded the find; `OnDisable` -> pooled pick effect |
 | `PersonalScoreList.cs` | `src/PersonalScoreList.ts` | Dead code not ported (10.1 row 17) |
-| `Scoreboard.cs` | `src/Scoreboard.ts` | Fixed sort, plus the upstream loop for the vectors |
+| `Scoreboard.cs` | `src/Scoreboard.ts` | Fixed sort, plus the upstream loop for the vectors; the board is a UI Toolkit panel it makes in Start (11.8) |
 | `PersistancePrize.cs` | `src/PersistancePrize.ts` | One prize per hunt; the flag is the `prize` key of each player's own PlayerData |
 | `HiScoreElement.cs` | not ported | Used by nothing |
 | (port-only) | `src/PlayerData.ts` | Thin: the runtime's `PlayerData` (portkit `peruser.ts`) already is the stand-in section 7 planned; this file holds the keys (`Coin`, `Gem`, `Star`, `prize`) and upstream-shaped helpers |
+| (port-only) | `src/Credits.ts` | The credits panel (setting `credits`): what the game is, "saved on this device only", the attribution; each viewer can fold the attribution away (11.8) |
 | (port-only) | `src/Settings.ts` | The snippet attributes of section 8.1, parsed and clamped; spawn zones `zoneN`, `zoneN-size`, `zoneN-rotation` (section 8.2 option 1), zone1 to zone8 |
 
 State as built: one synced slot (`controller`: `isTreasureActive`, `treasurePositions` in millimetres,
@@ -650,7 +653,7 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 | No way to read a remote player's position from a page | `this.Networking.HeadOf(player, 2)` (kit relay op `pkHead`, the SDK's Get User State; kit c971100). The game's own op `userHead` and `TreasureHuntKitBuilder.RelayOps` are deleted |
 | `InReach` let every click count while no position was known | `this.Input.InReach(point, find-distance, false)` and `reachWhenUnknown: false` (kit c971100); the game's own `Input.Position` check is deleted |
 | The fake room's relay-op handler was not told the instance | The handler and its `INSTANCES` guess are deleted from `test/helpers.ts`: the kit's fake room answers `pkHead` itself (`room.headAnswers = false` for the no-answer case) |
-| The footprint and photo counted Renderers only (a uGUI-only kit had none) | The kit counts world-space uGUI since c971100, but measures this kit as 1.5 x 0.89 x 0 m centred on the root (the lists reach 1.3 m right): the photo framed off-centre and a `1.5 0.2 0.0` box gizmo. `GizmoSize` and `PhotoBounds` are kept in the builder (TESTS.md, kit gaps) |
+| The footprint and photo counted Renderers only (a uGUI-only kit had none) | Since the UI Toolkit pass the kit draws nothing at all in edit mode (its boards are page-made panels): `GizmoSize` and `PhotoBounds` are kept by hand, and the photo shows no boards (portkit GAPS.md, UI Toolkit pass) |
 
 ### 11.6 Art and sound: replaced (licences: section 1; sources and sha1 in `THIRD-PARTY-NOTICES.md`)
 
@@ -658,8 +661,8 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 |---|---|---|
 | `Audio/Pick Audio.wav` (Epic Stock Media, commercial) | `Assets/Kit/Audio/Pick.wav`, synthesised by `tools/make_sounds.py` (a two-step coin chime, 0.62 s) | MIT (this port) |
 | `Audio/Win Audio.wav` (Epic Stock Media, commercial) | `Assets/Kit/Audio/Win.wav`, synthesised (a rising arpeggio and chord, 2.2 s) | MIT (this port) |
-| `Textures/Revamped.otf`, `Revamped SDF.asset` (Chequered Ink, all rights reserved) | Lilita One by Juan Montoreano (Google Fonts), atlas `HuntDisplay SDF` (printable ASCII and Latin-1; Liberation Sans as fallback), named apart from the font because the OFL reserves "Lilita" | SIL OFL 1.1 (full text in the bundle's notices) |
-| `Textures/45 Fill / Frame / Shine Beveled.png` (origin unknown) | `PanelFill`, `PanelFrame`, `PanelShine`, rounded-rectangle sprites drawn by the kit builder | MIT (this port) |
+| `Textures/Revamped.otf`, `Revamped SDF.asset` (Chequered Ink, all rights reserved) | Nothing since the UI Toolkit pass: the UI Kit draws with the app's font. (Before: Lilita One, SIL OFL 1.1, as atlas `HuntDisplay SDF`, with Liberation Sans as fallback; both left the bundle) | (none shipped) |
+| `Textures/45 Fill / Frame / Shine Beveled.png` (origin unknown) | Nothing since the UI Toolkit pass: the UI Kit's own surfaces. (Before: rounded-rectangle sprites drawn by the kit builder) | (none shipped) |
 | `Textures/68.png`, `IMG_0373.jpg` (matcaps, origin unknown) | `GoldMatcap`, `DiamondMatcap`, drawn by the kit builder | MIT (this port) |
 | `Materials/Gold.mat`, `Diamond.mat` and the locked Poiyomi shaders | `Assets/Kit/Shaders/TreasureMatcap.shader` (URP, unlit, written for single-pass instanced stereo) with the new matcaps; the diamond see-through (alpha 0.6, no depth write) | MIT (this port) |
 | `Materials/cheese.mat` | URP Lit, flat 0.92, 0.73, 0.22 | |
@@ -670,10 +673,11 @@ After the re-sync to the fixed portkit (GAPS.md) the local workarounds are gone:
 
 The kit builder refuses a kit that still refers to any replaced upstream file (`Banned` in the builder). URP
 materials get URP's own keyword setup (`BaseShaderGUI.SetMaterialKeywords`). Textures: the largest is the font atlas,
-1024 x 1024; the rest are 256 px or less. Bundles: Android 1,400 KiB, Windows 1,844 KiB on c971100 (1,399 and 1,841 KiB on 812f285 with the game's own
+1024 x 1024 (gone with the UI Toolkit pass); the rest are 256 px or less. Bundles since the UI Toolkit pass: Android 390 KiB, Windows 787 KiB
+(399,404 and 805,401 bytes; 1,434,681 and 1,893,134 before it). Before: Android 1,400 KiB, Windows 1,844 KiB on c971100 (1,399 and 1,841 KiB on 812f285 with the game's own
 `userHead` op; 1,381 and 1,825 KiB before the fix pass). Licence texts in the bundle: `Assets/Kit/Licenses/`
-(`TreasureHuntUdon-LICENSE.txt`, `LilitaOne-OFL.txt`) and TextMesh Pro's `LiberationSans - OFL.txt`; the notices name
-each font's copyright lines.
+(`TreasureHuntUdon-LICENSE.txt`); since the UI Toolkit pass the kit carries no font, and the notices name none
+(before: `LilitaOne-OFL.txt` and TextMesh Pro's `LiberationSans - OFL.txt`).
 
 ### 11.7 Still unverified
 
@@ -681,7 +685,8 @@ each font's copyright lines.
   hands, the referee's head reading of real avatars (Play mode has orb avatars whose head is the camera; whether
   `REFEREE_REACH_SLACK` of 2.5 m is enough for a walking finder's lag, and whether a head reading is ever missing in the
   app, are unmeasured), the matcap shader on Quest and its look under the app's lighting, both sounds (the relay played them in Play
-  mode by the page's account; nobody listened), frame time with 61 TextMesh Pro texts and a relay of 196 refs, and
+  mode by the page's account; nobody listened), frame time with three UI Toolkit panels (a render texture each, 864 x 394
+  the largest) and a relay of 36 refs, the UI Kit's look and VR laser clicks on the credits' fold button, and
   `localStorage` surviving an app restart on Quest.
 - **In Play mode, not driven:** grabbing the cheese, the rotation itself (`animated`), `show-zones` previews (shown,
   not measured), rotated zones, two hunts in one page, a referee leaving (the spawner hand-over), more than two
@@ -689,3 +694,28 @@ each font's copyright lines.
 - **The gizmos of section 8.2** are in the exported markup (`SnippetGizmos`); nobody looked at them drawn in a
   creator's Scene view.
 - An independent review against this checklist (plan step 5) has not been done.
+
+### 11.8 UI Toolkit pass (2026-11-27)
+
+Shane: "replace all UI in these games for UIToolkit" (`BRIEF-uitoolkit.md`; treasure hunt is the pilot). Every uGUI canvas
+is gone from the kit; the page builds the boards with portkit's UI layer (`ui.ts`: `BS.UIPanel` with `BS.UIKit*` controls
+on a page-made object under a kit anchor; portkit README, "UI panels").
+
+| Old (uGUI in the kit) | Now (UI Toolkit panel the page builds) | Anchor (kit object, where the canvas sat) |
+|---|---|---|
+| Scoreboard: `HiScoreLists` canvas, three `HiScoreList` copies of 16 rows (TMP name and score on purple sprites), driven by relay `text` and `active` ops on 196 refs | Panel `board`, 1.6 x 0.73 m at 540 px/m: a `KitSurface` row of three `KitSurface` cards, each a `KitText` heading (the kind), a `KitDivider` and 16 rows (`KitText` name, `KitText` score in the accent tone). Lists a pool does not use are hidden, rows shown and filled (Scoreboard.ts) | `Scoreboard`, 0.52 m right of the root (upstream's lists started at HiScoreLists' left edge: upper-left alignment) |
+| Personal list: `PersonalScoreList` canvas, "found:" and three rows | Panel `personal`, 0.3 x 0.24 m at 600 px/m: "found:" heading and three rows (PersonalScoreList.ts). It still goes where `personal-list` puts it: the behaviour places its anchor | `PersonalScoreList` (the behaviour's object) |
+| Credits: a canvas the kit builder made, one TMP text with `<b>` tags | Panel `credits`, 1.5 x 0.16 m at 600 px/m (Credits.ts): "Treasure Hunt", the saved-on-this-device line in the warning tone, the attribution in a quieter caption (the rich text became tones). `credits="false"` hides the panel | `Credits`, 0.47 m under the root |
+| (no prize UI: the prize is the cheese model, unchanged) | | |
+
+Kept: every text and number the old boards showed, the 16-row cap, the order, which lists show, the personal list's
+setting, the credits' setting and wording (the font credits went: no font ships). Changed: the look is the UI Kit's
+(the Altspace menu), not upstream's purple sprites and Revamped lettering; the attribution no longer names fonts.
+Added, port-only: the credits' fold button (`KitIconButton`), which folds the attribution away for that viewer only (the
+saved-on-this-device line stays). Upstream's UI has no control at all; this one is a local convenience, and it is what the
+Play-mode tests click through the real input path. Free-standing 3D text: none in this kit.
+
+Kit: 600 objects, 223 bound, 196 refs before; 111 objects, 64 bound, 36 refs after. The fonts (Lilita One, its atlas,
+Liberation Sans) and the panel sprites left the kit; bundles Android 1,434,681 -> 399,404 bytes, Windows 1,893,134 ->
+805,401. Anchors are never switched off (an SDK 4.0.29 Play-mode finding: a page-made panel under an object that goes off
+is destroyed); the credits hide by the panel's top element.

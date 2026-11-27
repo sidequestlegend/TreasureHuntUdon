@@ -18,6 +18,7 @@ import {
   isActive,
   makeWorld,
   personalRows,
+  boardTitle,
   prize,
   scoreboard,
   SLUG,
@@ -271,7 +272,7 @@ test("the scoreboard lists the players present, highest first, and follows joins
   await w.run(2500);
   for (const c of [ann, bob, cat]) {
     // Titles in pool order (SB:315-325); rows highest first, ties in join order.
-    assert.deepEqual([0, 1, 2].map((l) => c.graph(SLUG).text.get(`listTitle${l}`)), ["Coin", "Gem", "Star"]);
+    assert.deepEqual([0, 1, 2].map((l) => boardTitle(c, l)), ["Coin", "Gem", "Star"]);
     assert.deepEqual(boardRows(c, 0), ["Bob 5", "Cat 5", "Ann 2"]);
     assert.deepEqual(boardRows(c, 1), ["Cat 4", "Ann 0", "Bob 0"]);
     assert.deepEqual(boardRows(c, 2), ["Ann 1", "Bob 0", "Cat 0"]);

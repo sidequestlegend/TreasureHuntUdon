@@ -129,7 +129,6 @@ export class TreasureHuntController extends Behaviour {
   pickEffects: GameObject[] = [];
   pickParticles: ParticleSystemRef[] = [];
   pickAudio: AudioSourceRef[] = [];
-  credits: GameObject | null = null;
 
   /** Settings, read in Start. */
   settings!: HuntSettings;
@@ -206,7 +205,6 @@ export class TreasureHuntController extends Behaviour {
     this.shownSerial = new Array<number>(itemCount).fill(0);
 
     this.ShowZones();
-    if (this.credits) this.credits.SetActive(this.settings.credits);
     this.StartSpawnCycle();
   }
 

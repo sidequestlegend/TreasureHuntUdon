@@ -13,6 +13,7 @@
 import { Behaviour, linkBehaviour, type BehaviourClass, type BehaviourLink } from "./behaviour.ts";
 import { validateBindings, type BindingBehaviour, type Bindings } from "./bindings.ts";
 import type { HostActions } from "./host.ts";
+import { UiLayer } from "./ui.ts";
 import type { GameDefinition } from "./instance.ts";
 import { Networking, type NetHost, type StartKind } from "./networking.ts";
 import { Player } from "./players.ts";
@@ -148,6 +149,8 @@ export class RulesBench {
   private readonly reach = new Map<Behaviour, number>();
   /** Behaviour.Shared on a bench. */
   readonly shared: Record<string, unknown> = {};
+  /** Panels the behaviours made: elements hold what the game set (nothing is shown; there is no platform). */
+  readonly ui = new UiLayer({ slug: "bench", inst: "0", platform: null, anchor: () => null, guard: (_where, fn) => fn(), log: (level, message) => this.logs.push(`${level} ${message}`) });
 
   private call(behaviour: Behaviour, name: string, args: unknown[]): void {
     const fn = (behaviour as unknown as Record<string, unknown>)[name];
@@ -188,6 +191,7 @@ export class RulesBench {
         InReach: () => true, // one local player who is everywhere
       },
       protectedValues: { CanWrite: true, Set: noop, Get: (_k, fallback) => fallback, Has: () => false },
+      ui: this.ui,
       player: null,
       instanceKey: "bench",
       shared: this.shared,

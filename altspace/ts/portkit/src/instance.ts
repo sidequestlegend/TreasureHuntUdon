@@ -29,6 +29,7 @@ import { AudioClipRef, GameObject, makeComponent, type ComponentKind } from "./s
 import { Scheduler } from "./scheduler.ts";
 import { Secrets } from "./secrets.ts";
 import { Sync } from "./sync.ts";
+import { UiLayer } from "./ui.ts";
 import type {
   Ability,
   BlockableControl,
@@ -125,6 +126,8 @@ export class GameInstance implements NetHost {
   readonly clockSync: ClockSync;
   readonly storage: Persistence;
   readonly networking: Networking;
+  /** The instance's UI panels (ui.ts): made by behaviours, flushed at the end of each tick. */
+  readonly ui: UiLayer;
   readonly settings = new Map<string, string>();
   readonly objects = new Map<string, GameObject>();
   /** Set when the instance has started its behaviours. */
@@ -212,6 +215,20 @@ export class GameInstance implements NetHost {
       refused: (kind, code, key, behaviour) => this.refuse(behaviour, { kind, code, key, final: true }),
     });
     this.networking = new Networking(this);
+    this.ui = new UiLayer({
+      slug: game.slug,
+      inst,
+      platform,
+      anchor: (key) => this.kit?.objects.get(key) ?? null,
+      guard: (where, fn) => {
+        if (this.started && !this.core.disposed) this.core.guard(where, fn);
+      },
+      log: (level, message) => this.core.log(level, message),
+      pathOf: (key) => bindings.objects[key]?.path,
+    });
+    this.host.onSetActive = (target, active) => {
+      if (!active) this.ui.switchedOff(target.startsWith("@") ? target.slice(1) : (bindings.objects[target]?.path ?? target));
+    };
 
     const scheduler = this.scheduler;
     this.timeView = {
@@ -567,6 +584,7 @@ export class GameInstance implements NetHost {
       playerData: this.perUser,
       input: this.inputView,
       protectedValues: this.protectedValues,
+      ui: this.ui,
       player,
       instanceKey: this.inst,
       shared: this.shared,
@@ -1091,6 +1109,7 @@ export class GameInstance implements NetHost {
     this.perUser.flush();
     this.presence.flush();
     this.host.flush();
+    this.ui.flush();
     if (this.scheduler.ticks % 20 === 0) {
       this.presence.tend();
       this.players.tend();
@@ -1194,6 +1213,7 @@ export class GameInstance implements NetHost {
     this.perUser.retire();
     this.host.abandonClock();
     this.platform.expose(relayKey(core.slug, core.inst), null);
+    this.ui.dispose();
     core.dispose();
     this.kit?.destroy();
     this.kit = null;

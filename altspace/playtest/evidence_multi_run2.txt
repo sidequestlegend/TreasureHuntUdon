@@ -1,0 +1,187 @@
+local: script and bundles from the test server http://localhost:42500
+[main] INFO main in Play, page port 42400
+[main] INFO saved data cleared before the run: 2 keys
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts:
+[main] INFO reach is measured from {"head":null,"position":[0,1.6,0]}
+[main] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_6311e8f2-1eed-471d-83b3-b28c8a0b1e0f"},{"id":2,"name":"Player 2","sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415"}]
+[main] PASS both players see the same treasures at the same places (digests match): 57d3e372 / 57d3e372; -0.022 1.646 1.588, 0.413 1.376 1.652, 0.328 1.390 1.586
+[main] CMD t1 probe pk1:treasure-hunt:0 pos Treasures/T2
+[main] REPLY t1 -0.022 1.646 1.588
+[main] CMD t2 probe pk1:treasure-hunt:0 active Treasures/T2
+[main] REPLY t2 True
+[main] CMD t3 probe pk1:treasure-hunt:0 pos Treasures/T13
+[main] REPLY t3 0.413 1.376 1.652
+[main] CMD t4 probe pk1:treasure-hunt:0 active Treasures/T13
+[main] REPLY t4 True
+[main] CMD t5 probe pk1:treasure-hunt:0 pos Treasures/T18
+[main] REPLY t5 0.328 1.390 1.586
+[main] CMD t6 probe pk1:treasure-hunt:0 active Treasures/T18
+[main] REPLY t6 True
+[main] PASS this page shows every treasure inside a zone, in Unity: #2 Coin at -0.022 1.646 1.588 (Unity -0.022 1.646 1.588, active True, in a zone true); #6 Gem at 0.413 1.376 1.652 (Unity 0.413 1.376 1.652, active True, in a zone true); #8 Star at 0.328 1.390 1.586 (Unity 0.328 1.390 1.586, active True, in a zone true)
+[main] INFO Main Editor watches, as the referee
+[main] CMD t7 probe pk1:treasure-hunt:0 active Treasures/T18
+[main] REPLY t7 False
+[main] PASS a find by the other player hides the treasure here too (Unity): #8 active False 10 ms after the page hid it
+[main] PASS this player is not credited, and sees the pick effect: credited 0, effects 1
+[main] PASS as the referee, this page refuses the far find (its app's head reading of the other player): {"sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415","index":2,"head":[-0.022,1.696,-4.412],"distance":6.0002083297165605,"allowed":3.2,"ok":false}
+[main] PASS only the finder's saved count went up, as this page reads both: [{"name":"Main Editor","sid":"rsess_6311e8f2-1eed-471d-83b3-b28c8a0b1e0f","Coin":0,"Gem":0,"Star":0},{"name":"Player 2","sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415","Coin":0,"Gem":0,"Star":1}]
+[main] CMD t8 uiprobe pk1ui:treasure-hunt:0:board row2_0 shown
+[main] REPLY t8 True
+[main] CMD t9 uiprobe pk1ui:treasure-hunt:0:board name2_0 text
+[main] REPLY t9 Player 2
+[main] CMD t10 uiprobe pk1ui:treasure-hunt:0:board score2_0 text
+[main] REPLY t10 1
+[main] CMD t11 uiprobe pk1ui:treasure-hunt:0:board row2_1 shown
+[main] REPLY t11 True
+[main] CMD t12 uiprobe pk1ui:treasure-hunt:0:board name2_1 text
+[main] REPLY t12 Main Editor
+[main] CMD t13 uiprobe pk1ui:treasure-hunt:0:board score2_1 text
+[main] REPLY t13 0
+[main] CMD t14 uiprobe pk1ui:treasure-hunt:0:board row2_2 shown
+[main] REPLY t14 False
+[main] CMD t15 uiprobe pk1ui:treasure-hunt:0:board row2_3 shown
+[main] REPLY t15 False
+[main] PASS the scoreboard shows both players, highest first (Unity): ["Player 2 1","Main Editor 0"]
+[main] CMD t16 uiprobe pk1ui:treasure-hunt:0:personal prow0 shown
+[main] REPLY t16 True
+[main] CMD t17 uiprobe pk1ui:treasure-hunt:0:personal pname0 text
+[main] REPLY t17 Coin
+[main] CMD t18 uiprobe pk1ui:treasure-hunt:0:personal pscore0 text
+[main] REPLY t18 0
+[main] CMD t19 uiprobe pk1ui:treasure-hunt:0:personal prow1 shown
+[main] REPLY t19 True
+[main] CMD t20 uiprobe pk1ui:treasure-hunt:0:personal pname1 text
+[main] REPLY t20 Gem
+[main] CMD t21 uiprobe pk1ui:treasure-hunt:0:personal pscore1 text
+[main] REPLY t21 0
+[main] CMD t22 uiprobe pk1ui:treasure-hunt:0:personal prow2 shown
+[main] REPLY t22 True
+[main] CMD t23 uiprobe pk1ui:treasure-hunt:0:personal pname2 text
+[main] REPLY t23 Star
+[main] CMD t24 uiprobe pk1ui:treasure-hunt:0:personal pscore2 text
+[main] REPLY t24 0
+[main] PASS the personal list shows this player's own count only (Unity): ["Coin 0","Gem 0","Star 0"]
+[main] CMD t25 uiprobe pk1ui:treasure-hunt:0:credits about shown
+[main] REPLY t25 True
+[main] CMD t26 uiprobe pk1ui:treasure-hunt:0:credits about shown
+[main] REPLY t26 True
+[main] PASS the other player folded their credits; this page's stay open: about shown True
+[main] INFO page result before the reload 11 passed, 0 failed
+[main] INFO the watcher reloads its page
+[main] INFO saved data cleared before the run: 0 keys
+[main] PASS the kit loads from a hand-written bs-snippet and the instance starts:
+[main] INFO reach is measured from {"head":null,"position":[0,1.6,0]}
+[main] PASS two players in the room: [{"id":2,"name":"Player 2","sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415"},{"id":3,"name":"Main Editor","sid":"rsess_88acae31-87c5-4f30-aaec-902e076f9103"}]
+[main] PASS after reloading its page the watcher sees the same treasures (late join; digests match): 5aff2463 / 5aff2463; -0.022 1.646 1.588, 0.350 1.517 1.468, 0.413 1.376 1.652
+[main] CMD t1 uiprobe pk1ui:treasure-hunt:0:board row2_0 shown
+[main] REPLY t1 True
+[main] CMD t2 uiprobe pk1ui:treasure-hunt:0:board name2_0 text
+[main] REPLY t2 Player 2
+[main] CMD t3 uiprobe pk1ui:treasure-hunt:0:board score2_0 text
+[main] REPLY t3 1
+[main] CMD t4 uiprobe pk1ui:treasure-hunt:0:board row2_1 shown
+[main] REPLY t4 True
+[main] CMD t5 uiprobe pk1ui:treasure-hunt:0:board name2_1 text
+[main] REPLY t5 Main Editor
+[main] CMD t6 uiprobe pk1ui:treasure-hunt:0:board score2_1 text
+[main] REPLY t6 0
+[main] CMD t7 uiprobe pk1ui:treasure-hunt:0:board row2_2 shown
+[main] REPLY t7 False
+[main] CMD t8 uiprobe pk1ui:treasure-hunt:0:board row2_3 shown
+[main] REPLY t8 False
+[main] PASS after the reload the scoreboard still shows both players: ["Player 2 1","Main Editor 0"]
+[main] INFO page result 4 passed, 0 failed
+[main] DONE
+[vp-mppm30e59380] INFO vp-mppm30e59380 in Play, page port 42400
+[vp-mppm30e59380] INFO saved data cleared before the run: 2 keys
+[vp-mppm30e59380] PASS the kit loads from a hand-written bs-snippet and the instance starts:
+[vp-mppm30e59380] INFO reach is measured from {"head":null,"position":[0,1.6,0]}
+[vp-mppm30e59380] PASS two players in the room: [{"id":1,"name":"Main Editor","sid":"rsess_6311e8f2-1eed-471d-83b3-b28c8a0b1e0f"},{"id":2,"name":"Player 2","sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415"}]
+[vp-mppm30e59380] PASS both players see the same treasures at the same places (digests match): 57d3e372 / 57d3e372; -0.022 1.646 1.588, 0.413 1.376 1.652, 0.328 1.390 1.586
+[vp-mppm30e59380] CMD t1 probe pk1:treasure-hunt:0 pos Treasures/T2
+[vp-mppm30e59380] REPLY t1 -0.022 1.646 1.588
+[vp-mppm30e59380] CMD t2 probe pk1:treasure-hunt:0 active Treasures/T2
+[vp-mppm30e59380] REPLY t2 True
+[vp-mppm30e59380] CMD t3 probe pk1:treasure-hunt:0 pos Treasures/T13
+[vp-mppm30e59380] REPLY t3 0.413 1.376 1.652
+[vp-mppm30e59380] CMD t4 probe pk1:treasure-hunt:0 active Treasures/T13
+[vp-mppm30e59380] REPLY t4 True
+[vp-mppm30e59380] CMD t5 probe pk1:treasure-hunt:0 pos Treasures/T18
+[vp-mppm30e59380] REPLY t5 0.328 1.390 1.586
+[vp-mppm30e59380] CMD t6 probe pk1:treasure-hunt:0 active Treasures/T18
+[vp-mppm30e59380] REPLY t6 True
+[vp-mppm30e59380] PASS this page shows every treasure inside a zone, in Unity: #2 Coin at -0.022 1.646 1.588 (Unity -0.022 1.646 1.588, active True, in a zone true); #6 Gem at 0.413 1.376 1.652 (Unity 0.413 1.376 1.652, active True, in a zone true); #8 Star at 0.328 1.390 1.586 (Unity 0.328 1.390 1.586, active True, in a zone true)
+[vp-mppm30e59380] INFO Player 2 finds
+[vp-mppm30e59380] CMD t7 probe pk1:treasure-hunt:0 pos Treasures/T18/Rotator/Star/Button
+[vp-mppm30e59380] REPLY t7 0.328 1.390 1.586
+[vp-mppm30e59380] CMD t8 look 0.328 1.390 1.586
+[vp-mppm30e59380] REPLY t8 ok camera at 0.33,1.60,1.24
+[vp-mppm30e59380] CMD t9 click 0.328 1.390 1.586
+[vp-mppm30e59380] REPLY t9 ok screen 1280,351 of 2560x702
+[vp-mppm30e59380] INFO find Star click: ok screen 1280,351 of 2560x702; reach from {"head":[0.328,1.6,1.236],"position":[0.328,1.6,1.236]}
+[vp-mppm30e59380] PASS the finder's click finds the treasure and the finder is credited: Star #8
+[vp-mppm30e59380] CMD t10 probe - head
+[vp-mppm30e59380] REPLY t10 0.328 1.600 1.236
+[vp-mppm30e59380] PASS the treasure disappeared for the other player, who was not credited: {"thTest":1,"kind":"seen","hidden":true,"credited":0,"effects":1,"check":{"sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415","index":8,"head":[0.328,1.6,1.236],"distance":0.4081666326391712,"allowed":3.2,"ok":true}}
+[vp-mppm30e59380] PASS the referee (the other page) checked the find against this player's head as its own app shows it: {"sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415","index":8,"head":[0.328,1.6,1.236],"distance":0.4081666326391712,"allowed":3.2,"ok":true}; this camera 0.328 1.600 1.236; 0.00 m apart
+[vp-mppm30e59380] CMD t11 probe - head
+[vp-mppm30e59380] REPLY t11 -0.022 1.696 -4.412
+[vp-mppm30e59380] PASS the referee refuses a find this page sends from 6 m away, from this player's head as its own app shows it: {"thTest":1,"kind":"refused","refused":true,"stillOut":true,"check":{"sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415","index":2,"head":[-0.022,1.696,-4.412],"distance":6.0002083297165605,"allowed":3.2,"ok":false}}; this camera -0.022 1.696 -4.412; 0.00 m apart
+[vp-mppm30e59380] PASS the refused find credits nothing: credited 1
+[vp-mppm30e59380] PASS only the finder's saved count went up, as this page reads both: [{"name":"Main Editor","sid":"rsess_6311e8f2-1eed-471d-83b3-b28c8a0b1e0f","Coin":0,"Gem":0,"Star":0},{"name":"Player 2","sid":"rsess_1a60c0e1-2317-4375-9eb2-1a3263a95415","Coin":0,"Gem":0,"Star":1}]
+[vp-mppm30e59380] CMD t12 uiprobe pk1ui:treasure-hunt:0:board row2_0 shown
+[vp-mppm30e59380] REPLY t12 True
+[vp-mppm30e59380] CMD t13 uiprobe pk1ui:treasure-hunt:0:board name2_0 text
+[vp-mppm30e59380] REPLY t13 Player 2
+[vp-mppm30e59380] CMD t14 uiprobe pk1ui:treasure-hunt:0:board score2_0 text
+[vp-mppm30e59380] REPLY t14 1
+[vp-mppm30e59380] CMD t15 uiprobe pk1ui:treasure-hunt:0:board row2_1 shown
+[vp-mppm30e59380] REPLY t15 True
+[vp-mppm30e59380] CMD t16 uiprobe pk1ui:treasure-hunt:0:board name2_1 text
+[vp-mppm30e59380] REPLY t16 Main Editor
+[vp-mppm30e59380] CMD t17 uiprobe pk1ui:treasure-hunt:0:board score2_1 text
+[vp-mppm30e59380] REPLY t17 0
+[vp-mppm30e59380] CMD t18 uiprobe pk1ui:treasure-hunt:0:board row2_2 shown
+[vp-mppm30e59380] REPLY t18 False
+[vp-mppm30e59380] CMD t19 uiprobe pk1ui:treasure-hunt:0:board row2_3 shown
+[vp-mppm30e59380] REPLY t19 False
+[vp-mppm30e59380] PASS the scoreboard shows both players, highest first (Unity): ["Player 2 1","Main Editor 0"]
+[vp-mppm30e59380] CMD t20 uiprobe pk1ui:treasure-hunt:0:personal prow0 shown
+[vp-mppm30e59380] REPLY t20 True
+[vp-mppm30e59380] CMD t21 uiprobe pk1ui:treasure-hunt:0:personal pname0 text
+[vp-mppm30e59380] REPLY t21 Coin
+[vp-mppm30e59380] CMD t22 uiprobe pk1ui:treasure-hunt:0:personal pscore0 text
+[vp-mppm30e59380] REPLY t22 0
+[vp-mppm30e59380] CMD t23 uiprobe pk1ui:treasure-hunt:0:personal prow1 shown
+[vp-mppm30e59380] REPLY t23 True
+[vp-mppm30e59380] CMD t24 uiprobe pk1ui:treasure-hunt:0:personal pname1 text
+[vp-mppm30e59380] REPLY t24 Gem
+[vp-mppm30e59380] CMD t25 uiprobe pk1ui:treasure-hunt:0:personal pscore1 text
+[vp-mppm30e59380] REPLY t25 0
+[vp-mppm30e59380] CMD t26 uiprobe pk1ui:treasure-hunt:0:personal prow2 shown
+[vp-mppm30e59380] REPLY t26 True
+[vp-mppm30e59380] CMD t27 uiprobe pk1ui:treasure-hunt:0:personal pname2 text
+[vp-mppm30e59380] REPLY t27 Star
+[vp-mppm30e59380] CMD t28 uiprobe pk1ui:treasure-hunt:0:personal pscore2 text
+[vp-mppm30e59380] REPLY t28 1
+[vp-mppm30e59380] PASS the personal list shows this player's own count only (Unity): ["Coin 0","Gem 0","Star 1"]
+[vp-mppm30e59380] CMD t29 uiclick pk1ui:treasure-hunt:0:credits fold
+[vp-mppm30e59380] REPLY t29 ok screen 1280,351 of 2560x702 at 0.713 1.023 3.200 (bound as local)
+[vp-mppm30e59380] CMD t30 uiprobe pk1ui:treasure-hunt:0:credits about shown
+[vp-mppm30e59380] REPLY t30 False
+[vp-mppm30e59380] PASS a click on this page's credits fold button (UIKitIconButton) folds its attribution away in Unity: ok screen 1280,351 of 2560x702 at 0.713 1.023 3.200 (bound as local)
+[vp-mppm30e59380] PASS the other player's credits stayed open (folding is each viewer's own): {"thTest":1,"kind":"seenFold","open":true}
+[vp-mppm30e59380] CMD t31 uiclick pk1ui:treasure-hunt:0:credits fold
+[vp-mppm30e59380] REPLY t31 ok screen 1280,351 of 2560x702 at 0.713 1.023 3.200 (bound as local)
+[vp-mppm30e59380] CMD t32 uiprobe pk1ui:treasure-hunt:0:credits about shown
+[vp-mppm30e59380] REPLY t32 False
+[vp-mppm30e59380] CMD t33 uiprobe pk1ui:treasure-hunt:0:credits about shown
+[vp-mppm30e59380] REPLY t33 True
+[vp-mppm30e59380] PASS a second click opens this page's credits again: ok screen 1280,351 of 2560x702 at 0.713 1.023 3.200 (bound as local)
+[vp-mppm30e59380] PASS the watcher came back after its reload: 5aff2463
+[vp-mppm30e59380] INFO page result 16 passed, 0 failed
+[vp-mppm30e59380] DONE
+served: /web/pk-treasure-hunt.js x3, /web/playtest/treasure-playtest.js x3, HEAD /kits/windows/treasure-hunt x3
+console (main editor): 0 error lines
+RESULT 31 passed, 0 failed
+DONE

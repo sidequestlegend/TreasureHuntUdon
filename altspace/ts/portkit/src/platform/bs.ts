@@ -27,12 +27,16 @@ import {
   type LocalPoses,
   type LogLevel,
   type Platform,
+  type PlatformPanel,
   type PlatformPlayer,
   type Pose,
   type RayHit,
   type RelayHandlers,
   type SnippetElement,
   type TransformPatch,
+  type UiEventKind,
+  type UiOp,
+  type UiPanelSpec,
   type Unsubscribe,
 } from "../types.ts";
 import { deferred, utf8Length } from "../util.ts";
@@ -1005,6 +1009,103 @@ export class BsPlatform implements Platform {
     };
   }
 
+  // ---- UI panels ----------------------------------------------------------------------------------------------
+
+  /**
+   * A BS.UIPanel on a page-made object under the anchor (`new BS.GameObject({ parent })`: created under it, its transform
+   * local to it, so it follows the kit object). The elements are `BS.UI<type>`, each named with its id; ops that come
+   * before the panel exists are kept and applied in order once it does. Proven in editor Play mode (README, "UI panels").
+   * The panel's object is never switched off: in SDK 4.0.29 Play mode a page-made object that is deactivated (itself,
+   * or by its kit parent through the page) is gone from the scene afterwards.
+   */
+  createPanel(spec: UiPanelSpec, onEvent: (id: string, kind: UiEventKind, value: unknown) => void): PlatformPanel | null {
+    const BS = this.env.BS;
+    const anchor = spec.anchor instanceof BsHostObject ? spec.anchor.handle : null;
+    if (!anchor || typeof BS.UIPanel !== "function") {
+      this.log("warn", `panel ${spec.name}: ${anchor ? "this app has no BS.UIPanel" : "its anchor is not an object of this page"}`);
+      return null;
+    }
+    const queue: UiOp[] = [];
+    const elements = new Map<string, any>();
+    let panel: any = null;
+    let go: any = null;
+    let gone = false;
+    const warned = new Set<string>();
+    const warn = (message: string) => {
+      if (warned.has(message)) return;
+      warned.add(message);
+      this.log("warn", `panel ${spec.name}: ${message}`);
+    };
+    const run = (op: UiOp) => {
+      if (op.op === "create") {
+        const Cls = BS["UI" + op.type];
+        if (typeof Cls !== "function") return warn(`this app has no BS.UI${op.type} (an app older than the UI Kit shows nothing for it)`);
+        const parent = op.parent === null ? undefined : elements.get(op.parent);
+        const made = parent === undefined ? new Cls(panel) : new Cls(panel, parent);
+        made.name = op.id;
+        elements.set(op.id, made);
+        return;
+      }
+      const element = elements.get(op.id);
+      if (!element) return;
+      switch (op.op) {
+        case "set":
+          if (!(op.name in element)) return warn(`BS.UI${element.constructor?.name ?? "?"} '${op.id}' has no property '${op.name}'`);
+          element[op.name] = op.value;
+          return;
+        case "style":
+          element.SetStyle(op.name, op.value);
+          return;
+        case "class":
+          if (op.on) element.AddClass(op.name);
+          else element.RemoveClass(op.name);
+          return;
+        case "listen":
+          if (op.kind === "click") element.OnClick(() => onEvent(op.id, "click", undefined));
+          else element.OnChange((e: any) => onEvent(op.id, "change", e ? e.value : undefined));
+          return;
+        case "destroy":
+          element.Destroy();
+          elements.delete(op.id);
+          return;
+      }
+    };
+    const runAll = (ops: UiOp[]) => {
+      for (const op of ops) this.attempt(`panel ${spec.name} ${op.op} ${op.id}`, () => run(op));
+    };
+    void (async () => {
+      try {
+        go = new BS.GameObject({
+          name: spec.name,
+          parent: anchor,
+          localPosition: toBs3(BS, spec.position),
+          localEulerAngles: toBs3(BS, spec.rotation),
+          localScale: new BS.Vector3(spec.scale, spec.scale, spec.scale),
+        });
+        await go.Async();
+        if (gone) return go.Destroy();
+        panel = await go.AddComponent(new BS.UIPanel({ resolution: new BS.Vector2(spec.resolution.x, spec.resolution.y) }));
+        if (gone) return go.Destroy();
+        runAll(queue.splice(0));
+      } catch (error) {
+        this.log("warn", `panel ${spec.name} could not be made: ${describe(error)}`);
+      }
+    })();
+    return {
+      apply: (ops) => {
+        if (gone) return;
+        if (!panel || queue.length) queue.push(...ops);
+        else runAll(ops);
+      },
+      destroy: () => {
+        if (gone) return;
+        gone = true;
+        queue.length = 0;
+        if (go && panel) this.attempt("panel Destroy", () => go.Destroy());
+      },
+    };
+  }
+
   bundles(slug: string): { windows: string; android: string } | null {
     const table = (this.env.win as { __pk1_bundles?: Record<string, { windows?: unknown; android?: unknown }> }).__pk1_bundles;
     const entry = table ? table[slug] : undefined;
@@ -1235,6 +1336,11 @@ class BsHostObject implements HostObject {
     this.hasNetworkId = networkId !== "";
     this.attachNetworkId = attachNetworkId;
     this.attachable = attachable;
+  }
+
+  /** @internal the page's GameObject (createPanel parents a panel under it) */
+  get handle(): any {
+    return this.go;
   }
 
   on(kind: HostEventKind, handler: (detail: HostEventDetail) => void): Unsubscribe {

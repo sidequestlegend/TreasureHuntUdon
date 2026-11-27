@@ -3,18 +3,18 @@
 //
 // Upstream builds its pool at run time (wrappers, return buttons, score rows, pick effects); the page cannot make
 // objects the relay can reach, so the kit holds them ready: 22 treasures (12 coins, 6 gems, 4 stars), four pick
-// effects, three score lists of sixteen rows, a personal list of three rows, eight zone previews, the prize and a
-// credits panel. The layout of every board, row and effect is copied from the upstream prefab; what upstream drew with
-// that cannot be shipped (PORT.md section 1: the Epic Stock Media sounds, the Revamped font, the UI sprites, the
-// matcaps, the models, the Poiyomi materials) is replaced by what tools/make_sounds.py, tools/make_models.py and this
-// builder make, and the font Lilita One (SIL OFL 1.1). The build refuses a kit that still depends on any of those files.
+// effects, eight zone previews and the prize. The boards (scoreboard, personal list, credits) are no longer uGUI in the
+// kit: the page builds them as UI Toolkit panels (portkit ui.ts) on three empty anchors placed where upstream's canvases
+// sat (PORT.md 11.8). What upstream drew with that cannot be shipped (PORT.md section 1: the Epic Stock Media sounds,
+// the matcaps, the models, the Poiyomi materials; the Revamped font and the UI sprites went with the canvases) is
+// replaced by what tools/make_sounds.py, tools/make_models.py and this builder make. The build refuses a kit that still
+// depends on any of those files.
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using PortKit;
-using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -31,12 +31,11 @@ namespace TreasureHunt
         const string Kit = "Assets/Kit";
         const string MaterialFolder = Kit + "/Materials";
         const string TextureFolder = Kit + "/Textures";
-        const string FontFolder = Kit + "/Fonts";
         const string ModelFolder = Kit + "/Models";
 
         /// <summary>Settings.ts: coins in slots 0-11, gems 12-17, stars 18-21.</summary>
         static readonly (string kind, int copies)[] Kinds = { ("Coin", 12), ("Gem", 6), ("Star", 4) };
-        const int Effects = 4, Zones = 8, Lists = 3, Rows = 16, PersonalRows = 3;
+        const int Effects = 4, Zones = 8, Rows = 16;
 
         /// <summary>Upstream files the kit must not depend on (PORT.md section 1: not licensed for redistribution, or of unknown origin).</summary>
         static readonly string[] Banned =
@@ -85,7 +84,7 @@ namespace TreasureHunt
         public override IReadOnlyList<string> SnippetGizmos => new[]
         {
             "<bs-gizmo type=\"position\" attribute=\"personal-list\"/>",
-            "<bs-gizmo type=\"plane\" attribute=\"personal-list\" size=\"0.28 0.22\"/>",
+            "<bs-gizmo type=\"plane\" attribute=\"personal-list\" size=\"0.3 0.24\"/>",
             "<bs-gizmo type=\"position\" attribute=\"prize-position\"/>",
             "<bs-gizmo type=\"sphere\" attribute=\"prize-position\" radius=\"0.15\"/>",
             "<bs-gizmo type=\"position\" attribute=\"zone1\"/>",
@@ -102,16 +101,17 @@ namespace TreasureHunt
         };
 
         /// <summary>
-        /// The kit as it starts is the scoreboard, the personal list and the credits: uGUI only (every treasure, row, zone
-        /// cube and the prize start off). The three lists, the personal list and the credits under them, sized from the
-        /// photo: the lists reach about 1.3 m to the right of the root and 0.8 m to the left. Kept on portkit c971100, whose
-        /// footprint counts world-space uGUI: it measures this kit as 1.5 x 0.89 x 0 m, which frames the photo off-centre
-        /// (the Star list at the edge) and gives a box gizmo of 1.5 0.2 0.0 (TESTS.md, kit gaps).
+        /// The kit as it starts draws nothing (every treasure, zone cube and the prize start off) and its boards are panels the
+        /// page makes, so neither the footprint nor the photo can measure it: the scoreboard (1.6 x 0.73 m, centred 0.52 m right
+        /// of the root), the personal list at its left and the credits under them, as upstream's canvases sat.
         /// </summary>
         public override string GizmoSize => "2.6 0.9 0.2";
         public override Bounds? PhotoBounds => new Bounds(new Vector3(0.3f, -0.08f, 0f), new Vector3(2.0f, 0.95f, 0.3f));
-
-        TMP_FontAsset font;
+        /// <summary>
+        /// What the panels cover (the board x -0.28 to 1.32, the personal list from -0.62, the credits from -0.75; y -0.55 to
+        /// 0.36): measured by hand, since the kit's footprint sees nothing (0 x 0 x 0) and the hub places kits by it.
+        /// </summary>
+        public override Bounds? FootprintBounds => new Bounds(new Vector3(0.285f, -0.1f, 0f), new Vector3(2.1f, 0.92f, 0.2f));
 
         protected override void Compose(KitStage stage)
         {
@@ -121,8 +121,6 @@ namespace TreasureHunt
 
             PrepareModels();
             var mats = Materials();
-            var sprites = Sprites();
-            font = Font();
             var audio = Sounds();
 
             // Every object the script switches on and off is in refs, so that all its SetActive calls take one road, the relay.
@@ -213,53 +211,12 @@ namespace TreasureHunt
                 zonePreviews.Add(stage.ObjectValue(cube));
             }
 
-            // ---- the scoreboard: the kit root is its place; three lists of sixteen rows made from the upstream templates ----
-            var board = stage.Copy(U("Scoreboard").gameObject, root, "Scoreboard");
-            Place(board.transform, Vector3.zero);
-            board.transform.localScale = U("Scoreboard").localScale;
-            foreach (var template in board.transform.Find("HiScoreLists").Cast<Transform>().ToList()) Object.DestroyImmediate(template.gameObject);   // editor-only templates (item 38)
-            Object.DestroyImmediate(board.transform.Find("Cube")?.gameObject);
-            var lists = board.transform.Find("HiScoreLists");
-            var listRoots = new JArray();
-            var listTitles = new JArray();
-            var rowObjects = new JArray();
-            var rowNames = new JArray();
-            var rowScores = new JArray();
-            for (int l = 0; l < Lists; l++)
-            {
-                var list = stage.Copy(U("Prefabs/HiScoreList").gameObject, lists, $"List{l}");
-                Place(list.transform, Vector3.zero);
-                var title = list.transform.Find("BG/MenuName").gameObject;
-                title.GetComponent<TMP_Text>().text = Kinds[l].kind;                              // the script writes the same at start (SB:315-325)
-                stage.Object(list, key: $"list{l}");
-                stage.Ref(list);
-                stage.Object(title, key: $"listTitle{l}");
-                stage.Ref(title);
-                listRoots.Add(stage.ObjectValue(list));
-                listTitles.Add(stage.ComponentValue(title, "TMP"));
-                for (int r = 0; r < Rows; r++)
-                {
-                    var (row, name, score) = Row(stage, U("Prefabs/EntryElement").gameObject, list.transform.Find("List"), r, $"row{l}_{r}", $"rowName{l}_{r}", $"rowScore{l}_{r}");
-                    rowObjects.Add(stage.ObjectValue(row));
-                    rowNames.Add(stage.ComponentValue(name, "TMP"));
-                    rowScores.Add(stage.ComponentValue(score, "TMP"));
-                }
-            }
-
-            // ---- the personal list ("found:"), three rows ----
-            var personal = stage.Copy(U("PersonalScoreList").gameObject, root, "PersonalScoreList");
-            Place(personal.transform, new Vector3(0.75f - 1.217f, 0.898f - 0.901f, 0f));
-            personal.transform.localScale = U("PersonalScoreList").localScale;
-            var pRows = new JArray();
-            var pNames = new JArray();
-            var pScores = new JArray();
-            for (int r = 0; r < PersonalRows; r++)
-            {
-                var (row, name, score) = Row(stage, U("Prefabs/EntryElement").gameObject, personal.transform.Find("List"), r, $"pRow{r}", $"pRowName{r}", $"pRowScore{r}");
-                pRows.Add(stage.ObjectValue(row));
-                pNames.Add(stage.ComponentValue(name, "TMP"));
-                pScores.Add(stage.ComponentValue(score, "TMP"));
-            }
+            // ---- the boards: empty anchors where upstream's canvases sat; the page builds the panels (Scoreboard.ts,
+            // PersonalScoreList.ts, TreasureHuntController.ts). Upstream's lists start at the left edge of HiScoreLists
+            // (UpperLeft, 3 x 699 units and 41.97 between, at 0.00073): 1.6 x 0.73 m, centred 0.52 m right of the root. ----
+            var board = stage.PanelAnchor("Scoreboard", root, new Vector3(0.52f, -0.01f, 0f), Quaternion.identity, "scoreboard");
+            var personal = stage.PanelAnchor("PersonalScoreList", root, new Vector3(0.75f - 1.217f, 0.898f - 0.901f, 0f), Quaternion.identity, "personalList");
+            var credits = stage.PanelAnchor("Credits", root, new Vector3(0f, -0.47f, 0f), Quaternion.identity, "credits");
 
             // ---- the prize (Persistance Prize.prefab, PORT.md 5.2): the win sound and the container with the cheese ----
             var prize = stage.Create("Prize", root);
@@ -285,11 +242,8 @@ namespace TreasureHunt
             stage.Ref(container);
             container.SetActive(false);
 
-            // ---- credits ----
-            var credits = Credits(stage, root);
-
-            // ---- every Image drawn with a replacement sprite; every text with Lilita One ----
-            Reskin(stage.Root, sprites);
+            // ---- no canvas is left in the kit (the upstream copies above bring none; a stray one would be an error) ----
+            if (stage.StripCanvases() > 0) throw new Exception("the kit still had uGUI canvases: its UI is the page's panels");
 
             // ---- behaviours (plain: their fields are this kit's objects, not upstream's) ----
             var controllerFields = new JObject
@@ -301,7 +255,6 @@ namespace TreasureHunt
                 ["pickEffects"] = pickEffects,
                 ["pickParticles"] = pickParticles,
                 ["pickAudio"] = pickAudio,
-                ["credits"] = stage.ObjectValue(credits),
             };
             var controllerToken = stage.Behaviour(treasures, "TreasureHuntController", controllerFields);   // (the stage keeps this JObject)
             stage.Object(treasures, key: "treasures");
@@ -320,25 +273,16 @@ namespace TreasureHunt
                 }
             controllerFields["returners"] = returners;
 
-            stage.Object(board, key: "scoreboard");
             stage.Behaviour(board, "Scoreboard", new JObject
             {
                 ["treasuresPool"] = stage.BehaviourValue(controllerToken),
-                ["listRoots"] = listRoots,
-                ["listTitles"] = listTitles,
-                ["rowObjects"] = rowObjects,
-                ["rowNames"] = rowNames,
-                ["rowScores"] = rowScores,
                 ["rowsPerList"] = Rows,
             });
-            stage.Object(personal, key: "personalList");
             stage.Behaviour(personal, "PersonalScoreList", new JObject
             {
                 ["treasuresPool"] = stage.BehaviourValue(controllerToken),
-                ["rowObjects"] = pRows,
-                ["rowNames"] = pNames,
-                ["rowScores"] = pScores,
             });
+            stage.Behaviour(credits, "Credits", new JObject(), id: "credits");
             stage.Object(prize, key: "prize");
             stage.Behaviour(prize, "PersistancePrize", new JObject
             {
@@ -346,10 +290,7 @@ namespace TreasureHunt
                 ["winAudioSource"] = stage.ComponentValue(winSound, "AudioSource"),
             });
 
-            // ---- the boards are read only: no uGUI raycasting, no VRChat UI-shape colliders, nothing on VRChat's layers ----
-            foreach (var raycaster in stage.Root.GetComponentsInChildren<UnityEngine.UI.GraphicRaycaster>(true)) Object.DestroyImmediate(raycaster);
-            foreach (var t in new[] { board.transform, personal.transform })
-                foreach (var box in t.GetComponentsInChildren<BoxCollider>(true)) Object.DestroyImmediate(box);
+            // ---- nothing on VRChat's layers ----
             foreach (var t in stage.Root.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 0;
         }
 
@@ -380,78 +321,6 @@ namespace TreasureHunt
             t.localPosition = local;
             t.localRotation = Quaternion.identity;
             if (!(t is RectTransform)) t.localScale = Vector3.one;
-        }
-
-        static (GameObject row, GameObject name, GameObject score) Row(KitStage stage, GameObject template, Transform list, int r, string rowKey, string nameKey, string scoreKey)
-        {
-            var row = stage.Copy(template, list, $"Row{r}");
-            row.transform.localPosition = Vector3.zero;
-            row.transform.localRotation = Quaternion.identity;
-            row.transform.localScale = Vector3.one;
-            var name = row.transform.Find("PlayerNameImg/PlayerNameTxt").gameObject;
-            var score = row.transform.Find("PlayerScoreImg/PlayerScoreTxt").gameObject;
-            name.GetComponent<TMP_Text>().text = "";
-            score.GetComponent<TMP_Text>().text = "";
-            stage.Object(row, key: rowKey);
-            stage.Ref(row);
-            stage.Object(name, key: nameKey);
-            stage.Object(score, key: scoreKey);
-            stage.Ref(name);
-            stage.Ref(score);
-            row.SetActive(false);                                                                  // shown when a player fills it
-            return (row, name, score);
-        }
-
-        GameObject Credits(KitStage stage, Transform root)
-        {
-            var panel = stage.Create("Credits", root);
-            var rect = panel.AddComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(1500f, 150f);
-            rect.localPosition = new Vector3(0f, -0.45f, 0f);
-            rect.localScale = Vector3.one * 0.001f;
-            var canvas = panel.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.WorldSpace;
-            var bg = stage.Create("BG", panel.transform);
-            var bgRect = bg.AddComponent<RectTransform>();
-            bgRect.anchorMin = Vector2.zero;
-            bgRect.anchorMax = Vector2.one;
-            bgRect.sizeDelta = Vector2.zero;
-            bg.AddComponent<UnityEngine.UI.Image>().color = new Color(0.16f, 0.08f, 0.25f, 0.85f);
-            var body = stage.Create("Text", panel.transform);
-            var text = body.AddComponent<TextMeshProUGUI>();
-            text.rectTransform.anchorMin = Vector2.zero;
-            text.rectTransform.anchorMax = Vector2.one;
-            text.rectTransform.sizeDelta = new Vector2(-30f, -16f);
-            text.fontSize = 19;
-            text.color = Color.white;
-            text.alignment = TextAlignmentOptions.Left;
-            text.textWrappingMode = TextWrappingModes.Normal;
-            text.text = CreditsText;
-            stage.Object(panel, key: "credits");
-            stage.Ref(panel);
-            return panel;
-        }
-
-        const string CreditsText =
-            "<b>Treasure Hunt</b>: find the coins, gems and stars that appear around here: walk up close and click one. " +
-            "<b>Your finds are saved on this device only</b> (another device, or clearing the app's data, starts from zero).\n" +
-            "A port of TreasureHuntUdon by Hoshou Neko (github.com/HoshouNeko/TreasureHuntUdon, MIT). Models, sounds, sprites and " +
-            "matcaps made for this port (MIT). Lettering drawn from the font Lilita One by Juan Montoreano (reserved font name Lilita), and Liberation Sans (both SIL Open Font License 1.1). " +
-            "Not affiliated with VRChat.";
-
-        void Reskin(GameObject root, Dictionary<string, Sprite> sprites)
-        {
-            foreach (var image in root.GetComponentsInChildren<UnityEngine.UI.Image>(true))
-            {
-                if (image.sprite == null) continue;
-                string name = image.sprite.name;
-                image.sprite = name.Contains("Frame") ? sprites["Frame"] : name.Contains("Shine") ? sprites["Shine"] : sprites["Fill"];
-            }
-            foreach (var text in root.GetComponentsInChildren<TMP_Text>(true))
-            {
-                text.font = font;
-                text.fontSharedMaterial = font.material;
-            }
         }
 
         // ------------------------------------------------------------------ assets made here
@@ -495,20 +364,6 @@ namespace TreasureHunt
                 clips[name] = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
             }
             return clips;
-        }
-
-        TMP_FontAsset Font()
-        {
-            var source = AssetDatabase.LoadAssetAtPath<Font>($"{FontFolder}/LilitaOne-Regular.ttf") ?? throw new Exception("the font is missing");
-            var chars = new System.Text.StringBuilder();
-            for (int c = 32; c < 127; c++) chars.Append((char)c);
-            for (int c = 160; c < 256; c++) chars.Append((char)c);
-            var asset = KitText.StaticFontAsset(source, chars.ToString(), $"{FontFolder}/HuntDisplay SDF.asset", 64, 1024);
-            var fallback = KitText.DefaultFont();                                                  // names in other scripts: Liberation Sans, as far as it goes
-            if (fallback != null) asset.fallbackFontAssetTable = new List<TMP_FontAsset> { fallback };
-            EditorUtility.SetDirty(asset);
-            AssetDatabase.SaveAssets();
-            return asset;
         }
 
         static Dictionary<string, Material> Materials()
@@ -670,47 +525,6 @@ namespace TreasureHunt
                 importer.alphaIsTransparency = true;
                 importer.wrapMode = TextureWrapMode.Clamp;
             });
-        }
-
-        /// <summary>
-        /// Panel sprites in place of upstream's "45 Fill / Frame / Shine Beveled" (256 px, sliced): a rounded rectangle, its
-        /// outline, and a soft highlight across its top. White, so upstream's tints colour them as before.
-        /// </summary>
-        static Dictionary<string, Sprite> Sprites()
-        {
-            const int size = 128, radius = 36, border = 44;
-            var made = new Dictionary<string, Sprite>();
-            foreach (var kind in new[] { "Fill", "Frame", "Shine" })
-            {
-                var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-                for (int y = 0; y < size; y++)
-                    for (int x = 0; x < size; x++)
-                    {
-                        // signed distance to a rounded rectangle 2 px in from the edge
-                        float px = Mathf.Abs(x + 0.5f - size / 2f) - (size / 2f - 2f - radius);
-                        float py = Mathf.Abs(y + 0.5f - size / 2f) - (size / 2f - 2f - radius);
-                        float outside = new Vector2(Mathf.Max(px, 0f), Mathf.Max(py, 0f)).magnitude + Mathf.Min(Mathf.Max(px, py), 0f) - radius;
-                        float inside = Mathf.Clamp01(0.5f - outside);
-                        float a;
-                        if (kind == "Fill") a = inside;
-                        else if (kind == "Frame") a = inside * Mathf.Clamp01(outside + 7.5f);               // a 7 px ring
-                        else a = inside * Mathf.Clamp01((y / (float)size - 0.55f) * 2.2f) * 0.6f;           // light on the top part
-                        texture.SetPixel(x, y, new Color(1f, 1f, 1f, a));
-                    }
-                texture.Apply();
-                SaveTexture(texture, $"Panel{kind}", importer =>
-                {
-                    importer.textureType = TextureImporterType.Sprite;
-                    importer.spriteImportMode = SpriteImportMode.Single;
-                    importer.spriteBorder = new Vector4(border, border, border, border);
-                    importer.spritePixelsPerUnit = 100;
-                    importer.alphaIsTransparency = true;
-                    importer.mipmapEnabled = false;
-                    importer.wrapMode = TextureWrapMode.Clamp;
-                });
-                made[kind] = AssetDatabase.LoadAssetAtPath<Sprite>($"{TextureFolder}/Panel{kind}.png");
-            }
-            return made;
         }
     }
 }

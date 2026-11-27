@@ -81,24 +81,27 @@ export function isActive(c: FakeClient, key: string, inst = "0"): boolean {
   return c.object(SLUG, inst, key).active;
 }
 
-/** The scoreboard rows of list `l` as the kit shows them: "name score" per visible row. */
+/** The scoreboard rows of list `l` as the board panel shows them (portkit fake UI): "name score" per row a player sees. */
 export function boardRows(c: FakeClient, l: number, inst = "0"): string[] {
   const out: string[] = [];
-  const text = c.graph(SLUG, inst).text;
   for (let r = 0; r < 16; r++) {
-    if (!isActive(c, `row${l}_${r}`, inst)) continue;
-    out.push(`${text.get(`rowName${l}_${r}`) ?? ""} ${text.get(`rowScore${l}_${r}`) ?? ""}`);
+    if (!c.uiShown(SLUG, inst, "board", `row${l}_${r}`)) continue;
+    out.push(`${c.uiText(SLUG, inst, "board", `name${l}_${r}`)} ${c.uiText(SLUG, inst, "board", `score${l}_${r}`)}`);
   }
   return out;
 }
 
-/** The personal list as the kit shows it. */
+/** The title of list `l` on the board, or null when the list is not shown. */
+export function boardTitle(c: FakeClient, l: number, inst = "0"): string | null {
+  return c.uiShown(SLUG, inst, "board", `list${l}`) ? c.uiText(SLUG, inst, "board", `title${l}`) : null;
+}
+
+/** The personal list as its panel shows it. */
 export function personalRows(c: FakeClient, inst = "0"): string[] {
   const out: string[] = [];
-  const text = c.graph(SLUG, inst).text;
   for (let r = 0; r < 3; r++) {
-    if (!isActive(c, `pRow${r}`, inst)) continue;
-    out.push(`${text.get(`pRowName${r}`) ?? ""} ${text.get(`pRowScore${r}`) ?? ""}`);
+    if (!c.uiShown(SLUG, inst, "personal", `prow${r}`)) continue;
+    out.push(`${c.uiText(SLUG, inst, "personal", `pname${r}`)} ${c.uiText(SLUG, inst, "personal", `pscore${r}`)}`);
   }
   return out;
 }

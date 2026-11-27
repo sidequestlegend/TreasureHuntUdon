@@ -22,6 +22,7 @@ import type { GameObject, Transform } from "./scene.ts";
 import type { DrawState, Secrets } from "./secrets.ts";
 import type { Ability, BlockableControl, ButtonName, HandSide, LocalPoses, RayHit } from "./types.ts";
 import type { StartKind } from "./networking.ts";
+import type { UiView } from "./ui.ts";
 import type { Vector2, Vector3 } from "./values.ts";
 
 /** Who a network event goes to. `All` runs it here first, then everywhere else. */
@@ -151,6 +152,8 @@ export interface BehaviourLink {
   readonly playerData: PlayerDataView;
   readonly input: InputView;
   readonly protectedValues: ProtectedView;
+  /** The instance's UI panels (ui.ts). */
+  readonly ui: UiView;
   /** The player a per-player behaviour belongs to; null for an ordinary behaviour. */
   readonly player: Player | null;
   readonly instanceKey: string;
@@ -245,6 +248,8 @@ export abstract class Behaviour {
   get Input(): InputView { return linkOf(this).input; }
   /** Values only the world's owner and moderators can write. */
   get Protected(): ProtectedView { return linkOf(this).protectedValues; }
+  /** World-space UI panels of UI Kit controls under kit objects (ui.ts): `this.UI.Panel({...})` in Start. */
+  get UI(): UiView { return linkOf(this).ui; }
   /**
    * For a per-player behaviour: the player it belongs to. Null on an ordinary behaviour. An upstream field named
    * `Player` would hide it: such a port renames the field (the convention: `upstreamPlayer`) or reads `OwnerPlayer`.

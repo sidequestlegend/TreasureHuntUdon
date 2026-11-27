@@ -22,12 +22,13 @@
     "button7#TreasureReturner#0": "r7",
     "button8#TreasureReturner#0": "r8",
     "button9#TreasureReturner#0": "r9",
+    "credits#Credits#0": "credits",
     "personalList#PersonalScoreList#0": "personal",
     "prize#PersistancePrize#0": "prize",
     "scoreboard#Scoreboard#0": "scoreboard",
     "treasures#TreasureHuntController#0": "controller"
   },
-  "nextBehaviour": 1,
+  "nextBehaviour": 2,
   "objects": {
     "Credits": "credits",
     "Effects/Pick0": "pick0",

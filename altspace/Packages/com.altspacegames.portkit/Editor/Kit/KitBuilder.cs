@@ -339,6 +339,63 @@ namespace PortKit
             return go;
         }
 
+        // ------------------------------------------------------------------ UI panels (ts/src/ui.ts)
+
+        /// <summary>
+        /// An empty object for a UI panel the page makes (README, "UI panels"): scale 1, bound under `key` (a panel's
+        /// `anchor`). The page puts its BS.UIPanel on an object of its own under this one, centred on it and read from its
+        /// back (-Z), as a uGUI canvas is. Keep it switched on while the panel lives: in SDK 4.0.29 a page-made object
+        /// under an object that goes off is destroyed (the runtime says so if a game does it).
+        /// </summary>
+        public GameObject PanelAnchor(string name, Transform parent, Vector3 localPosition, Quaternion localRotation, string key)
+        {
+            var anchor = Create(name, parent);
+            anchor.transform.localPosition = localPosition;
+            anchor.transform.localRotation = localRotation;
+            anchor.transform.localScale = Vector3.one;
+            Object(anchor, key: key);
+            return anchor;
+        }
+
+        /// <summary>
+        /// Replaces a world-space uGUI canvas (and everything under it) with a panel anchor at the middle of its rectangle,
+        /// facing the same way, scale 1, under the canvas's parent, bound under `key`. Returns the anchor and the canvas's
+        /// size in metres (its rectangle times its world scale), for the panel's `size`. The canvas is gone from the kit.
+        /// </summary>
+        public (GameObject anchor, Vector2 size) CanvasToAnchor(GameObject canvas, string key, string name = null)
+        {
+            canvas = Mine(canvas);
+            if (canvas == null || !canvas.transform.IsChildOf(Root.transform)) throw new Exception("CanvasToAnchor: not an object of the kit");
+            var rect = canvas.GetComponent<RectTransform>();
+            Vector3 centre = rect != null ? rect.TransformPoint(rect.rect.center) : canvas.transform.position;
+            var scale = canvas.transform.lossyScale;
+            Vector2 size = rect != null ? new Vector2(rect.rect.width * Mathf.Abs(scale.x), rect.rect.height * Mathf.Abs(scale.y)) : Vector2.zero;
+            var parent = canvas.transform.parent;
+            var anchor = Create(name ?? canvas.name + "Anchor", parent);
+            anchor.transform.position = centre;
+            anchor.transform.rotation = canvas.transform.rotation;
+            anchor.transform.localScale = Vector3.one;
+            if (parent != null && (parent.lossyScale - Vector3.one).sqrMagnitude > 1e-6f)
+                Report.AppendLine($"   warning: panel anchor {key} sits under a scaled parent (lossy scale {parent.lossyScale}): the panel is scaled with it");
+            UnityEngine.Object.DestroyImmediate(canvas);
+            Object(anchor, key: key);
+            Report.AppendLine($"   canvas {anchor.name} -> panel anchor '{key}': {size.x:0.###} x {size.y:0.###} m");
+            return (anchor, size);
+        }
+
+        /// <summary>Removes every Canvas left under `under` (default the whole kit), with what is under it. Returns how many.</summary>
+        public int StripCanvases(GameObject under = null)
+        {
+            int n = 0;
+            foreach (var canvas in (under != null ? Mine(under) : Root).GetComponentsInChildren<Canvas>(true).Where(c => c != null && c.isRootCanvas).ToList())
+            {
+                UnityEngine.Object.DestroyImmediate(canvas.gameObject);
+                n++;
+            }
+            if (n > 0) Report.AppendLine($"   {n} canvases removed (the page draws this kit's UI)");
+            return n;
+        }
+
         /// <summary>The relay graph can act on this object (text, animator, particles, colour, active) and relay its events; returns its target index.</summary>
         public int Ref(GameObject go)
         {

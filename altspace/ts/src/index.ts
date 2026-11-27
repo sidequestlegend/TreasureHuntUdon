@@ -3,6 +3,7 @@
 // into pk-treasure-hunt.js. HiScoreElement.cs is not ported (used by nothing).
 
 import type { GameDefinition, GameInstance } from "../portkit/src/index.ts";
+import { Credits } from "./Credits.ts";
 import { PersistancePrize } from "./PersistancePrize.ts";
 import { PersonalScoreList } from "./PersonalScoreList.ts";
 import { GetCounts } from "./PlayerData.ts";
@@ -13,7 +14,7 @@ import { TreasureReturner } from "./TreasureReturner.ts";
 
 const game: GameDefinition = {
   slug: "treasure-hunt",
-  behaviours: { TreasureHuntController, TreasureReturner, Scoreboard, PersonalScoreList, PersistancePrize },
+  behaviours: { TreasureHuntController, TreasureReturner, Scoreboard, PersonalScoreList, PersistancePrize, Credits },
   // No click with a reach counts before the page knows where the player is (the finds' own check, RequestReturn, asks
   // InReach to fail closed too).
   reachWhenUnknown: false,
@@ -74,6 +75,8 @@ function debugHooks(instance: GameInstance): Record<string, unknown> {
       return { head: v(inner.poses?.head.position), position: v(inner.position) };
     },
     prizeShown: () => byType<PersistancePrize>("PersistancePrize").IsShown,
+    /** Whether this viewer folded the credits (their fold button). */
+    creditsFolded: () => byType<Credits>("Credits").folded,
   };
 }
 

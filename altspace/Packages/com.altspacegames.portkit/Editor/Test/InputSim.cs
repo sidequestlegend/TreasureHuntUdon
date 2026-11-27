@@ -144,12 +144,15 @@ namespace PortKit
 
         static Camera PlayerCamera() => Camera.main != null ? Camera.main : UnityEngine.Object.FindObjectsByType<Camera>(FindObjectsSortMode.None).FirstOrDefault(c => c.isActiveAndEnabled);
 
-        static IEnumerator Pointer(string[] a, Action<string> reply, int mode)
+        static IEnumerator Pointer(string[] a, Action<string> reply, int mode) => PointAt(Point(a), reply, mode);
+
+        /// <summary>The pointer commands on a world point: 0 move there, 1 click, 2 press and hold (UiPanels clicks panel controls with it).</summary>
+        public static IEnumerator PointAt(Vector3 world, Action<string> reply, int mode)
         {
             Ensure();
             var camera = PlayerCamera();
             if (camera == null) { reply("error: no camera"); yield break; }
-            var screen = camera.WorldToScreenPoint(Point(a));
+            var screen = camera.WorldToScreenPoint(world);
             if (screen.z <= 0f || !camera.pixelRect.Contains(screen))
             {
                 reply(FormattableString.Invariant($"error: the point is not in view (screen {screen.x:F0},{screen.y:F0}, depth {screen.z:F2}, view {camera.pixelRect.width:F0}x{camera.pixelRect.height:F0})"));
@@ -369,12 +372,14 @@ namespace PortKit
                   (touched.Count == 0 ? "none" : string.Join("; ", touched.Take(8))));
         }
 
-        static IEnumerator Look(string[] a, Action<string> reply)
+        static IEnumerator Look(string[] a, Action<string> reply) => LookAt(Point(a), reply);
+
+        /// <summary>The desktop player's camera turns to face a world point (UiPanels looks at a control before pointing at it).</summary>
+        public static IEnumerator LookAt(Vector3 target, Action<string> reply)
         {
             var camera = PlayerCamera();
             if (camera == null) { reply("error: no camera"); yield break; }
             // the desktop player turns its body about Y and its head about X: face the point with both
-            var target = Point(a);
             var body = camera.transform.root;
             var flat = target - camera.transform.position;
             flat.y = 0f;

@@ -227,7 +227,11 @@ export class RelayHost implements HostActions {
   uiColor(target: string, color: Color): void {
     this.value("uiColor", target, "uiColor", [relayNumber(color.r), relayNumber(color.g), relayNumber(color.b), relayNumber(color.a)]);
   }
+  /** Told of every SetActive before it is sent (the UI layer warns when a panel's anchor goes off). */
+  onSetActive: ((target: string, active: boolean) => void) | null = null;
+
   setActive(target: string, active: boolean): void {
+    this.onSetActive?.(target, active);
     if (!target.startsWith("@") && this.refs.indexOf(target) < 0) {
       const path = this.pathOf(target);
       if (path !== undefined) target = "@" + path;

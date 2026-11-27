@@ -235,6 +235,44 @@ export interface Kit {
   destroy(): void;
 }
 
+// ---- UI panels (ui.ts) ----------------------------------------------------------------------------------------
+
+export type UiValue = string | number | boolean;
+export type UiEventKind = "click" | "change";
+
+/**
+ * One change to a panel, in order. `id` is the element's id in its panel (its name in Unity); `parent` null puts it on
+ * the panel itself; `type` is a UI Kit control ("KitText") or a plain element ("VisualElement"), made as `BS.UI<type>`.
+ */
+export type UiOp =
+  | { op: "create"; id: string; type: string; parent: string | null }
+  | { op: "set"; id: string; name: string; value: UiValue }
+  | { op: "style"; id: string; name: string; value: string }
+  | { op: "class"; id: string; name: string; on: boolean }
+  | { op: "listen"; id: string; kind: UiEventKind }
+  | { op: "destroy"; id: string };
+
+export interface UiPanelSpec {
+  /** The panel GameObject's name: `pk1ui:<slug>:<inst>:<panel id>`. */
+  name: string;
+  /** The kit object it hangs under. */
+  anchor: HostObject;
+  /** Local to the anchor. */
+  position: Vector3;
+  /** Local Euler degrees. */
+  rotation: Vector3;
+  /** Uniform local scale of the panel's object (100 / pixels per metre: the SDK draws 100 pixels to the metre). */
+  scale: number;
+  /** Pixels. */
+  resolution: { x: number; y: number };
+}
+
+export interface PlatformPanel {
+  /** Applies changes in order (queued until the panel exists in the app). */
+  apply(ops: UiOp[]): void;
+  destroy(): void;
+}
+
 // ---- snippets -------------------------------------------------------------------------------------------------
 
 /** A `<bs-snippet>` element of this game, as much as the runtime reads from it. */
@@ -313,6 +351,11 @@ export interface Platform {
   onRelay(key: string, handlers: RelayHandlers): Unsubscribe;
 
   loadKit(spec: KitSpec): Promise<Kit>;
+  /**
+   * A world-space UI panel (BS.UIPanel) under a kit object, filled with UI Kit controls by `apply`. `onEvent` hears the
+   * player's clicks and changes on elements that asked to be listened to. Optional: a platform without it shows no panels.
+   */
+  createPanel?(spec: UiPanelSpec, onEvent: (id: string, kind: UiEventKind, value: unknown) => void): PlatformPanel | null;
   /**
    * Bundle addresses for a game that the page was given at release (`window.__pk1_bundles["<slug>"]`), or null.
    * They rank after an element's own `windows` / `android` attributes and before bindings.bundles.
